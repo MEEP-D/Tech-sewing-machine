@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Filament\Resources\Settings\Schemas;
+
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+
+class SettingForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema->components([
+            Grid::make(2)->schema([
+                TextInput::make('key')->required(),
+                TextInput::make('label')->required(),
+                Select::make('group')->options([
+                    'general' => 'General',
+                    'seo' => 'SEO',
+                    'branding' => 'Branding',
+                    'homepage' => 'Homepage',
+                    'theme' => 'Theme',
+                    'navigation' => 'Navigation',
+                ])->required(),
+                Select::make('type')->options([
+                    'text' => 'Text',
+                    'textarea' => 'Textarea',
+                    'image' => 'Image',
+                    'boolean' => 'Boolean',
+                    'json' => 'JSON',
+                    'color' => 'Color',
+                    'number' => 'Number',
+                ])->required(),
+                Textarea::make('value')->columnSpanFull(),
+            ]),
+        ]);
+    }
+}
