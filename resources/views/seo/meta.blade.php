@@ -1,10 +1,10 @@
 @props(['seo'])
 
 @php
-    $title = $seo['title'] ?? config('app.name');
-    $description = $seo['description'] ?? '';
-    $keywords = $seo['keywords'] ?? '';
-    $canonical = $seo['canonical'] ?? url()->current();
+    $title = $seo['meta_title'] ?? ($seo['title'] ?? config('app.name'));
+    $description = $seo['meta_description'] ?? ($seo['description'] ?? '');
+    $keywords = $seo['keywords'] ?? ($seo['focus_keyword'] ?? '');
+    $canonical = $seo['canonical_url'] ?? ($seo['canonical'] ?? url()->current());
     $ogImage = $seo['og_image'] ?? asset('assets/frontend/images/og-image.jpg');
     $ogType = $seo['og_type'] ?? 'website';
     $schemaMarkup = $seo['schema_markup'] ?? [];

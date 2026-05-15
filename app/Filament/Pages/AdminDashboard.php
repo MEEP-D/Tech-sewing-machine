@@ -2,10 +2,9 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Widgets\AdminQuickActionsWidget;
 use App\Filament\Widgets\AdminLeadInboxWidget;
+use App\Filament\Widgets\AdminQuickActionsWidget;
 use App\Filament\Widgets\AdminRecentContentWidget;
-use App\Filament\Widgets\SeoKpiStatsWidget;
 use App\Filament\Widgets\SeoPerformanceChart;
 use App\Filament\Widgets\StatsOverview;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -32,7 +31,6 @@ class AdminDashboard extends BaseDashboard
     {
         return [
             StatsOverview::class,
-            SeoKpiStatsWidget::class,
             SeoPerformanceChart::class,
             AdminQuickActionsWidget::class,
             AdminLeadInboxWidget::class,

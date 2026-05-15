@@ -61,6 +61,8 @@ class CategoryForm
                                     ->label('Hình ảnh đại diện')
                                     ->image()
                                     ->directory('categories')
+                                    ->disk('public')
+                                    ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                     ->maxSize(1024),
                                 Grid::make(2)->schema([
                                     Toggle::make('is_active')
@@ -98,6 +100,8 @@ class CategoryForm
                                                 ->label('OG Image')
                                                 ->image()
                                                 ->directory('seo/og-images')
+                                                ->disk('public')
+                                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                                 ->maxSize(1024),
                                         ]),
                                         Textarea::make('og_description')

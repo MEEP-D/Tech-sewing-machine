@@ -94,6 +94,8 @@ class SeoSettings extends Page
 
     public function save(): void
     {
+        $this->data = array_replace($this->data, $this->form->getState());
+
         $ogImage = $this->normalizeUploadInput($this->data['seo_default_og_image_upload'] ?? null)
             ?? $this->normalizeUploadInput($this->data['seo_default_og_image'] ?? null);
         $this->data['seo_default_og_image_upload'] = $this->normalizeUploadFieldState($ogImage);

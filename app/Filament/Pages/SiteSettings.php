@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Setting;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -32,13 +33,8 @@ class SiteSettings extends Page
             'site_title' => Setting::getValue('site_title', config('app.name')),
             'site_description' => Setting::getValue('site_description', ''),
             'site_logo_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_logo', null)),
-            'site_logo_dark_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_logo_dark', null)),
-            'site_logo_mobile_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_logo_mobile', null)),
             'site_logo_type' => Setting::getValue('site_logo_type', 'image'),
-            'site_logo_height' => Setting::getValue('site_logo_height', 44),
-            'site_logo_width' => Setting::getValue('site_logo_width', 180),
             'site_favicon_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_favicon', null)),
-            'home_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('home_hero_image', null)),
             'seo_default_title' => Setting::getValue('seo_default_title', config('app.name')),
             'seo_default_description' => Setting::getValue('seo_default_description', ''),
             'seo_default_og_image_upload' => $this->normalizeUploadFieldState($seoOgImage),
@@ -48,8 +44,18 @@ class SiteSettings extends Page
             'seo_organization_url' => Setting::getValue('seo_organization_url', config('app.url')),
             'seo_robots_default' => Setting::getValue('seo_robots_default', 'index,follow'),
             'seo_description' => Setting::getValue('seo_description', ''),
-            
-            // Trang nội dung
+            'home_slogan_title' => Setting::getValue('home_slogan_title', ''),
+            'home_slogan_subtitle' => Setting::getValue('home_slogan_subtitle', ''),
+            'home_highlight_contact_primary_name' => Setting::getValue('home_highlight_contact_primary_name', 'Mr. Sáng'),
+            'home_highlight_contact_primary_phone' => Setting::getValue('home_highlight_contact_primary_phone', '0902 806 599'),
+            'home_highlight_contact_secondary_name' => Setting::getValue('home_highlight_contact_secondary_name', 'Mr. Bảo'),
+            'home_highlight_contact_secondary_phone' => Setting::getValue('home_highlight_contact_secondary_phone', '0898 303 287'),
+            'contact_hotline' => Setting::getValue('contact_hotline', ''),
+            'contact_email' => Setting::getValue('contact_email', ''),
+            'contact_address' => Setting::getValue('contact_address', ''),
+            'header_facebook_url' => Setting::getValue('header_facebook_url', ''),
+            'header_youtube_url' => Setting::getValue('header_youtube_url', ''),
+
             'page_contact_kicker' => Setting::getValue('page_contact_kicker', 'Liên hệ & thu thập khách hàng tiềm năng'),
             'page_contact_heading' => Setting::getValue('page_contact_heading', 'Đặt lịch tư vấn, demo giải pháp và nhận báo giá nhanh'),
             'page_contact_desc' => Setting::getValue('page_contact_desc', 'Hãy để lại thông tin để đội ngũ chuyên gia của chúng tôi hỗ trợ bạn tốt nhất.'),
@@ -66,22 +72,19 @@ class SiteSettings extends Page
                 Grid::make(2)->schema([
                     TextInput::make('site_title')->label('Tiêu đề website'),
                     TextInput::make('site_description')->label('Mô tả website'),
-                    TextInput::make('site_logo_type')->label('Loại logo')->placeholder('image | text'),
-                    TextInput::make('site_logo_height')->label('Chiều cao logo')->numeric(),
-                    TextInput::make('site_logo_width')->label('Chiều rộng logo')->numeric(),
+                    Select::make('site_logo_type')
+                        ->label('Loại logo')
+                        ->options([
+                            'image' => 'Image',
+                            'text' => 'Text',
+                        ])
+                        ->required()
+                        ->default('image')
+                        ->native(false),
                     FileUpload::make('site_logo_upload')->label('Logo sáng')->image()->disk('public')->directory('site')->imageEditor()
                         ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    FileUpload::make('site_logo_dark_upload')->label('Logo tối')->image()->disk('public')->directory('site')->imageEditor()
-                        ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
-                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    FileUpload::make('site_logo_mobile_upload')->label('Logo mobile')->image()->disk('public')->directory('site')->imageEditor()
-                        ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
-                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     FileUpload::make('site_favicon_upload')->label('Favicon')->image()->disk('public')->directory('site')->imageEditor()
-                        ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
-                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    FileUpload::make('home_hero_image_upload')->label('Ảnh hero')->image()->disk('public')->directory('site')->imageEditor()
                         ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                 ]),
@@ -100,7 +103,27 @@ class SiteSettings extends Page
                 Textarea::make('seo_default_description')->label('SEO description mặc định'),
                 Textarea::make('seo_description')->label('SEO description bổ sung'),
             ]),
-            Section::make('Nội dung trang Liên hệ')->schema([
+            Section::make('Nội dung slogan trang chủ')->schema([
+                TextInput::make('home_slogan_title')->label('Tiêu đề slogan'),
+                Textarea::make('home_slogan_subtitle')->label('Mô tả slogan'),
+            ]),
+            Section::make('Liên hệ sản phẩm đột phá')->schema([
+                Grid::make(2)->schema([
+                    TextInput::make('home_highlight_contact_primary_name')->label('Tên liên hệ 1'),
+                    TextInput::make('home_highlight_contact_primary_phone')->label('Số điện thoại 1'),
+                    TextInput::make('home_highlight_contact_secondary_name')->label('Tên liên hệ 2'),
+                    TextInput::make('home_highlight_contact_secondary_phone')->label('Số điện thoại 2'),
+                ]),
+            ]),
+            Section::make('Liên hệ & Mạng xã hội header')->schema([
+                Grid::make(2)->schema([
+                    TextInput::make('contact_hotline')->label('Hotline header'),
+                    TextInput::make('contact_email')->label('Email liên hệ'),
+                    Textarea::make('contact_address')->label('Địa chỉ'),
+                    TextInput::make('header_facebook_url')->label('Link Facebook')->url(),
+                    TextInput::make('header_youtube_url')->label('Link YouTube')->url(),
+                ]),
+            ]),            Section::make('Nội dung trang Liên hệ')->schema([
                 TextInput::make('page_contact_kicker')->label('Dòng phụ (Kicker)')->default('Liên hệ & thu thập khách hàng tiềm năng'),
                 TextInput::make('page_contact_heading')->label('Tiêu đề chính')->default('Đặt lịch tư vấn, demo giải pháp và nhận báo giá nhanh'),
                 Textarea::make('page_contact_desc')->label('Mô tả ngắn')->default('Hãy để lại thông tin để đội ngũ chuyên gia của chúng tôi hỗ trợ bạn tốt nhất.'),
@@ -115,6 +138,8 @@ class SiteSettings extends Page
 
     public function save(): void
     {
+        $this->data = array_replace($this->data, $this->form->getState());
+
         $this->persistUploadSettings();
         $this->persistTextSettings();
         Cache::forget('site_settings_array');
@@ -124,7 +149,7 @@ class SiteSettings extends Page
 
     protected function persistUploadSettings(): void
     {
-        foreach (['site_logo_upload', 'site_logo_dark_upload', 'site_logo_mobile_upload', 'site_favicon_upload', 'home_hero_image_upload', 'seo_default_og_image_upload'] as $key) {
+        foreach (['site_logo_upload', 'site_favicon_upload', 'seo_default_og_image_upload'] as $key) {
             $targetKey = str_replace('_upload', '', $key);
             $value = $this->normalizeUploadInput($this->data[$key] ?? null)
                 ?? $this->normalizeUploadInput($this->data[$targetKey] ?? null);
@@ -139,10 +164,15 @@ class SiteSettings extends Page
     protected function persistTextSettings(): void
     {
         $keys = [
-            'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width', 
+            'site_title', 'site_description', 'site_logo_type',
             'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
+            'home_slogan_title', 'home_slogan_subtitle',
+            'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
+            'home_highlight_contact_secondary_name', 'home_highlight_contact_secondary_phone',
+            'contact_hotline', 'contact_email', 'contact_address',
+            'header_facebook_url', 'header_youtube_url',
             'page_contact_kicker', 'page_contact_heading', 'page_contact_desc',
-            'page_products_kicker', 'page_products_heading', 'page_products_desc'
+            'page_products_kicker', 'page_products_heading', 'page_products_desc',
         ];
         foreach ($keys as $key) {
             Setting::updateOrCreate(['key' => $key], ['value' => $this->data[$key] ?? null, 'group' => str_starts_with($key, 'seo_') ? 'seo' : 'branding']);
@@ -196,3 +226,5 @@ class SiteSettings extends Page
         return Storage::disk('public')->url($path);
     }
 }
+
+

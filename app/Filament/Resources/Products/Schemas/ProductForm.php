@@ -3,193 +3,155 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
-use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Tabs;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 
 class ProductForm
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Tabs::make('Tabs')
-                    ->tabs([
-                        Tabs\Tab::make('Thông Tin Sản Phẩm')
-                            ->schema([
-                                Grid::make(2)->schema([
-                                    TextInput::make('name')
-                                        ->label('Tên sản phẩm')
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->live(onBlur: true)
-                                        ->afterStateUpdated(fn ($state, callable $set) =>
-                                            $set('slug', \Str::slug($state))
-                                        ),
-                                    TextInput::make('slug')
-                                        ->label('Slug (URL)')
-                                        ->required()
-                                        ->unique(ignoreRecord: true)
-                                        ->maxLength(255),
-                                ]),
-                                Grid::make(3)->schema([
-                                    TextInput::make('sku')
-                                        ->label('Mã SKU')
-                                        ->maxLength(100),
-                                    TextInput::make('price')
-                                        ->label('Giá (VNĐ)')
-                                        ->maxLength(50),
-                                    Select::make('status')
-                                        ->label('Trạng thái')
-                                        ->options([
-                                            'draft'     => '📝 Nháp',
-                                            'published' => '✅ Công khai',
-                                            'archived'  => '📦 Lưu trữ',
-                                        ])
-                                        ->default('draft')
-                                        ->required(),
-                                ]),
-                                Grid::make(2)->schema([
-                                    TextInput::make('brand')
-                                        ->label('Thương hiệu')
-                                        ->maxLength(100),
-                                    TextInput::make('origin')
-                                        ->label('Xuất xứ')
-                                        ->maxLength(100),
-                                ]),
-                                Select::make('category_id')
-                                    ->label('Danh mục')
-                                    ->relationship('category', 'name', fn ($query) => $query->where('type', 'product'))
-                                    ->searchable()
-                                    ->preload(),
-                                Textarea::make('short_description')
-                                    ->label('Mô tả ngắn')
-                                    ->rows(3)
-                                    ->columnSpanFull(),
-                                RichEditor::make('description')
-                                    ->label('Mô tả chi tiết')
-                                    ->toolbarButtons([
-                                        'bold', 'italic', 'underline', 'strike',
-                                        'h2', 'h3', 'bulletList', 'orderedList',
-                                        'link', 'blockquote', 'undo', 'redo',
-                                    ])
-                                    ->columnSpanFull(),
-                            ]),
+        return $schema->components([
+            Tabs::make('tabs')->tabs([
+                Tabs\Tab::make('Thong tin san pham')->schema([
+                    Grid::make(2)->schema([
+                        TextInput::make('name')
+                            ->label('Ten san pham')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Str::slug($state))),
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
+                    ]),
+                    Grid::make(4)->schema([
+                        TextInput::make('code')->label('Ma san pham')->maxLength(100),
+                        TextInput::make('sku')->label('SKU')->maxLength(100),
+                        TextInput::make('video_id')->label('Youtube Video ID')->maxLength(100),
+                        TextInput::make('price')->label('Gia')->maxLength(50),
+                    ]),
+                    Grid::make(3)->schema([
+                        TextInput::make('brand')->label('Thuong hieu')->maxLength(100),
+                        TextInput::make('origin')->label('Xuat xu')->maxLength(100),
+                        Select::make('status')
+                            ->label('Trang thai')
+                            ->options([
+                                'draft' => 'Nhap',
+                                'published' => 'Cong khai',
+                                'archived' => 'Luu tru',
+                            ])
+                            ->default('draft')
+                            ->required(),
+                    ]),
+                    Select::make('category_id')
+                        ->label('Danh muc')
+                        ->relationship('category', 'name', fn ($query) => $query->where('type', 'product'))
+                        ->searchable()
+                        ->preload(),
+                    Textarea::make('short_description')->label('Mo ta ngan')->rows(3)->columnSpanFull(),
+                    Textarea::make('long_description')->label('Mo ta dai')->rows(4)->columnSpanFull(),
+                    RichEditor::make('description')->label('Mo ta chi tiet')->columnSpanFull(),
+                    Section::make('Noi dung bo sung trang chi tiet')->schema([
+                        Textarea::make('support_prompt')
+                            ->label('Dong ho tro')
+                            ->rows(3)
+                            ->placeholder('Ban can ho tro thong tin gi ve san pham nay?'),
+                        Grid::make(2)->schema([
+                            TextInput::make('cta_primary_label')
+                                ->label('Nut 1 - Tieu de')
+                                ->placeholder('Ban can ho tro thong tin gi ve san pham nay?'),
+                            TextInput::make('cta_primary_url')
+                                ->label('Nut 1 - Link')
+                                ->placeholder('/lien-he'),
+                        ]),
+                        Grid::make(2)->schema([
+                            TextInput::make('cta_secondary_label')
+                                ->label('Nut 2 - Tieu de')
+                                ->placeholder('Kham pha cac mau theu mien phi tai day'),
+                            TextInput::make('cta_secondary_url')
+                                ->label('Nut 2 - Link')
+                                ->placeholder('/trang/mau-theu'),
+                        ]),
+                        Grid::make(2)->schema([
+                            TextInput::make('overview_heading')
+                                ->label('Dau muc 1')
+                                ->placeholder('Tong quan ve san pham'),
+                            TextInput::make('seo_heading')
+                                ->label('Dau muc 2')
+                                ->placeholder('Tim hieu ve may lam seo'),
+                        ]),
+                        RichEditor::make('overview_content')
+                            ->label('Noi dung dau muc 1')
+                            ->columnSpanFull(),
+                        RichEditor::make('seo_content')
+                            ->label('Noi dung dau muc 2')
+                            ->columnSpanFull(),
+                    ])->columnSpanFull(),
+                ]),
 
-                        Tabs\Tab::make('Hình Ảnh')
-                            ->schema([
-                                FileUpload::make('thumbnail')
-                                    ->label('Ảnh đại diện')
-                                    ->image()
-                                    ->imageResizeMode('cover')
-                                    ->imageCropAspectRatio('4:3')
-                                    ->imageResizeTargetWidth('800')
-                                    ->imageResizeTargetHeight('600')
-                                    ->directory('products/thumbnails')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(2048)
-                                    ->helperText('Kích thước tối ưu: 800x600px, tối đa 2MB'),
-                                FileUpload::make('gallery')
-                                    ->label('Bộ sưu tập ảnh')
-                                    ->image()
-                                    ->multiple()
-                                    ->reorderable()
-                                    ->directory('products/gallery')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(2048)
-                                    ->maxFiles(10)
-                                    ->helperText('Tối đa 10 ảnh, mỗi ảnh tối đa 2MB'),
-                            ]),
+                Tabs\Tab::make('Hinh anh')->schema([
+                    Placeholder::make('current_image_preview')
+                        ->label('Anh hien tai')
+                        ->content(fn ($record) => $record?->display_image_url
+                            ? new \Illuminate\Support\HtmlString('<img src="' . e($record->display_image_url) . '" alt="Product image" style="max-width:220px;border-radius:10px;border:1px solid #e2e8f0;padding:6px;background:#fff;" />')
+                            : 'Chua co anh'
+                        ),
+                    FileUpload::make('thumbnail')->label('Anh dai dien')->image()->disk('public')->directory('products/thumbnails')
+                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                    FileUpload::make('image')->label('Anh chinh')->image()->disk('public')->directory('products/images')
+                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                    FileUpload::make('gallery')->label('Gallery')->image()->multiple()->disk('public')->directory('products/gallery')
+                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state) : []),
+                ]),
 
-                        Tabs\Tab::make('Thông Số Kỹ Thuật')
-                            ->schema([
-                                KeyValue::make('specifications')
-                                    ->label('Thông số kỹ thuật')
-                                    ->keyLabel('Thông số')
-                                    ->valueLabel('Giá trị')
-                                    ->addButtonLabel('+ Thêm thông số')
-                                    ->columnSpanFull(),
-                            ]),
+                Tabs\Tab::make('Thong so ky thuat')->schema([
+                    KeyValue::make('specifications')
+                        ->label('Thong so chung')
+                        ->keyLabel('Thong so')
+                        ->valueLabel('Gia tri')
+                        ->columnSpanFull(),
+                    Repeater::make('specs')
+                        ->label('Thong so san pham dot pha')
+                        ->relationship()
+                        ->orderColumn('sort_order')
+                        ->schema([
+                            TextInput::make('key')->label('Thong so')->required(),
+                            TextInput::make('value')->label('Gia tri')->required(),
+                            TextInput::make('sort_order')->label('Thu tu')->numeric()->default(0),
+                        ])
+                        ->defaultItems(0)
+                        ->columnSpanFull(),
+                ]),
 
-                        Tabs\Tab::make('Cài Đặt')
-                            ->schema([
-                                Grid::make(3)->schema([
-                                    Toggle::make('is_featured')
-                                        ->label('Sản phẩm nổi bật')
-                                        ->helperText('Hiển thị trên trang chủ'),
-                                    Toggle::make('is_new')
-                                        ->label('Sản phẩm mới')
-                                        ->helperText('Đánh dấu badge "Mới"'),
-                                ]),
-                                TextInput::make('sort_order')
-                                    ->label('Thứ tự sắp xếp')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0),
-                            ]),
+                Tabs\Tab::make('Cai dat')->schema([
+                    Grid::make(4)->schema([
+                        Toggle::make('is_featured')->label('Noi bat'),
+                        Toggle::make('is_new')->label('Moi'),
+                        Toggle::make('is_hot')->label('Hot'),
+                    ]),
+                    TextInput::make('sort_order')->label('Thu tu')->numeric()->default(0)->minValue(0),
+                ]),
 
-                        Tabs\Tab::make('SEO')
-                            ->schema([
-                                Section::make('Meta Tags')
-                                    ->relationship('seoMeta')
-                                    ->schema([
-                                        TextInput::make('meta_title')
-                                            ->label('Meta Title')
-                                            ->maxLength(70)
-                                            ->helperText('Tối ưu: 50-60 ký tự')
-                                            ->live(debounce: 500)
-                                            ->suffixAction(
-                                                \Filament\Actions\Action::make('count')
-                                                    ->icon('heroicon-o-calculator')
-                                                    ->label(fn ($state) => strlen($state ?? '') . '/70')
-                                                    ->disabled()
-                                            ),
-                                        Textarea::make('meta_description')
-                                            ->label('Meta Description')
-                                            ->rows(3)
-                                            ->maxLength(160)
-                                            ->helperText('Tối ưu: 120-155 ký tự'),
-                                        TextInput::make('focus_keyword')
-                                            ->label('Từ khóa trọng tâm')
-                                            ->maxLength(100),
-                                        Grid::make(2)->schema([
-                                            TextInput::make('og_title')
-                                                ->label('OG Title (Facebook/Zalo)')
-                                                ->maxLength(95),
-                                            FileUpload::make('og_image')
-                                                ->label('OG Image')
-                                                ->image()
-                                                ->directory('seo/og-images')
-                                                ->maxSize(1024)
-                                                ->helperText('Khuyến nghị: 1200x630px'),
-                                        ]),
-                                        Textarea::make('og_description')
-                                            ->label('OG Description')
-                                            ->rows(2)
-                                            ->maxLength(200),
-                                        TextInput::make('canonical_url')
-                                            ->label('Canonical URL')
-                                            ->url()
-                                            ->maxLength(500),
-                                        Grid::make(2)->schema([
-                                            Toggle::make('no_index')
-                                                ->label('No Index')
-                                                ->helperText('Không cho phép Google lập chỉ mục'),
-                                            Toggle::make('no_follow')
-                                                ->label('No Follow')
-                                                ->helperText('Không theo dõi các liên kết'),
-                                        ]),
-                                    ]),
-                            ]),
-                    ])
-                    ->columnSpanFull(),
-            ]);
+                Tabs\Tab::make('SEO')->schema([
+                    Section::make('Meta')->relationship('seoMeta')->schema([
+                        TextInput::make('meta_title')->label('Meta Title')->maxLength(70),
+                        Textarea::make('meta_description')->label('Meta Description')->rows(3)->maxLength(160),
+                        TextInput::make('focus_keyword')->label('Focus Keyword')->maxLength(100),
+                    ]),
+                ]),
+            ])->columnSpanFull(),
+        ]);
     }
 }

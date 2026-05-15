@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             TaggableSeeder::class,
             MediaSeeder::class,
             LeadSeeder::class,
+            HomePageSampleSeeder::class,
         ]);
     }
 }

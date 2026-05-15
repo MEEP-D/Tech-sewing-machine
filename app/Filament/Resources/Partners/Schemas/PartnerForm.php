@@ -17,7 +17,9 @@ class PartnerForm
                 \Filament\Forms\Components\FileUpload::make('logo')
                     ->label('Logo')
                     ->image()
+                    ->disk('public')
                     ->directory('partners')
+                    ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                     ->required(),
                 \Filament\Forms\Components\TextInput::make('url')
                     ->label('Link website')

@@ -23,6 +23,7 @@ class BannerForm
                     ->image()
                     ->disk('public')
                     ->directory('banners')
+                    ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                     ->preserveFilenames()
                     ->previewable()
                     ->downloadable(),
@@ -39,4 +40,3 @@ class BannerForm
         ]);
     }
 }
-

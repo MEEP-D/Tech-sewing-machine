@@ -29,7 +29,8 @@ class SectionForm
                     'carousel' => 'Carousel',
                 ])->required(),
                 Textarea::make('content')->columnSpanFull(),
-                FileUpload::make('image')->image()->disk('public')->directory('sections'),
+                FileUpload::make('image')->image()->disk('public')->directory('sections')
+                    ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                 TextInput::make('sort_order')->numeric()->default(0),
                 Checkbox::make('is_active')->default(true),
             ]),

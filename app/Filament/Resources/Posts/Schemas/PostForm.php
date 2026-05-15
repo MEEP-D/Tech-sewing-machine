@@ -117,7 +117,9 @@ class PostForm
                                     ->imageCropAspectRatio('16:9')
                                     ->imageResizeTargetWidth('1200')
                                     ->imageResizeTargetHeight('675')
+                                    ->disk('public')
                                     ->directory('posts/thumbnails')
+                                    ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                     ->maxSize(2048)
                                     ->helperText('Kích thước tối ưu: 1200x675px (16:9), tối đa 2MB'),
@@ -155,6 +157,8 @@ class PostForm
                                                 ->label('OG Image')
                                                 ->image()
                                                 ->directory('seo/og-images')
+                                                ->disk('public')
+                                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                                 ->maxSize(1024)
                                                 ->helperText('Khuyến nghị: 1200x630px'),
                                         ]),

@@ -28,6 +28,7 @@
 .fi-body {
     background: radial-gradient(circle at top right, color-mix(in srgb, var(--admin-primary) 12%, transparent) 0%, transparent 45%), var(--admin-surface-0);
     color: var(--admin-text);
+    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .fi-main {
@@ -43,7 +44,7 @@
     font-weight: 700;
 }
 
-.fi-section,
+.fi-section:not(.fi-section-not-contained),
 .fi-widget,
 .fi-ta,
 .fi-fo,
@@ -54,16 +55,41 @@
     box-shadow: 0 10px 28px -22px rgb(2 8 23 / 0.45);
 }
 
+.fi-section.fi-section-not-contained,
+.fi-sc-section {
+    margin-block: 0;
+    padding-block: 0;
+}
+
+.fi-sc.fi-sc-has-gap.fi-grid.\@xl\:fi-grid-cols.\!\\@lg\:fi-grid-cols.fi-section-content {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.fi-wi {
+    gap: 0.75rem;
+}
+
 .fi-sidebar {
     border-inline-end: 1px solid var(--admin-border);
     background-color: color-mix(in srgb, var(--admin-surface-1) 88%, transparent);
-    backdrop-filter: blur(6px);
+    backdrop-filter: none;
 }
 
 .fi-topbar {
     border-bottom: 1px solid var(--admin-border);
     background-color: color-mix(in srgb, var(--admin-surface-1) 88%, transparent);
-    backdrop-filter: blur(6px);
+    backdrop-filter: none;
+}
+
+.admin-global-back-wrap {
+    display: flex;
+    align-items: center;
+    padding-inline: 0.25rem;
+}
+
+.admin-global-back-btn {
+    font-weight: 700;
 }
 
 .fi-ta-header-cell-label,

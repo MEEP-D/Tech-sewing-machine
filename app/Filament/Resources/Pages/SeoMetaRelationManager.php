@@ -30,7 +30,8 @@ class SeoMetaRelationManager extends RelationManager
                     TextInput::make('meta_title')->label('Meta title')->maxLength(70),
                     TextInput::make('canonical_url')->label('Canonical URL')->url(),
                     TextInput::make('og_title')->label('OG title')->maxLength(95),
-                    FileUpload::make('og_image')->label('OG image')->image()->directory('seo/og-images'),
+                    FileUpload::make('og_image')->label('OG image')->image()->disk('public')->directory('seo/og-images')
+                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     Textarea::make('meta_description')->label('Meta description')->maxLength(160),
                     Textarea::make('og_description')->label('OG description')->maxLength(200),
                     TextInput::make('focus_keyword')->label('Focus keyword')->maxLength(100),

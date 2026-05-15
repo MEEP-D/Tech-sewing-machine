@@ -3,30 +3,175 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
+use App\Models\Tag;
 use App\Services\SeoService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
+    private const ALLOWED_PER_PAGES = [8, 12, 16, 24];
+
+    private function resolvePerPage(Request $request): int
+    {
+        $perPage = (int) $request->input('per_page', 8);
+
+        return in_array($perPage, self::ALLOWED_PER_PAGES, true) ? $perPage : 8;
+    }
+
+    private function flattenCategoryIds(Category $category): array
+    {
+        $ids = [$category->id];
+
+        foreach ($category->childrenRecursive as $child) {
+            $ids = array_merge($ids, $this->flattenCategoryIds($child));
+        }
+
+        return $ids;
+    }
+
+    private function splitProductTags(Collection $tags): array
+    {
+        $functionPrefixes = ['chuc-nang-', 'function-', 'fn-'];
+        $usagePrefixes = ['su-dung-', 'usage-', 'use-'];
+
+        $functionTags = $tags->filter(function (Tag $tag) use ($functionPrefixes) {
+            $slug = (string) $tag->slug;
+            foreach ($functionPrefixes as $prefix) {
+                if (str_starts_with($slug, $prefix)) {
+                    return true;
+                }
+            }
+            return false;
+        })->values();
+
+        $usageTags = $tags->filter(function (Tag $tag) use ($usagePrefixes) {
+            $slug = (string) $tag->slug;
+            foreach ($usagePrefixes as $prefix) {
+                if (str_starts_with($slug, $prefix)) {
+                    return true;
+                }
+            }
+            return false;
+        })->values();
+
+        if ($functionTags->isEmpty() || $usageTags->isEmpty()) {
+            $functionGuess = ['theu', 'vat-so', 'may', 'overlock', 'embroidery'];
+            $usageGuess = ['cong-nghiep', 'gia-dinh', 'quan-ao', 'factory', 'home'];
+
+            if ($functionTags->isEmpty()) {
+                $functionTags = $tags->filter(fn (Tag $tag) => str($tag->slug)->contains($functionGuess))->values();
+            }
+
+            if ($usageTags->isEmpty()) {
+                $usageTags = $tags->filter(fn (Tag $tag) => str($tag->slug)->contains($usageGuess))->values();
+            }
+        }
+
+        return [
+            'functionTags' => $functionTags,
+            'usageTags' => $usageTags,
+        ];
+    }
+
+    private function buildFilterData(Request $request): array
+    {
+        $parentCategories = Category::query()
+            ->where('type', 'product')
+            ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->with([
+                'childrenRecursive' => fn ($query) => $query->where('is_active', true),
+            ])
+            ->withCount('products')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        $filterCategories = $parentCategories->map(function (Category $category) {
+            $allIds = $this->flattenCategoryIds($category);
+            $totalCount = Product::published()->whereIn('category_id', $allIds)->count();
+            $category->setAttribute('product_count', $totalCount);
+
+            return $category;
+        });
+
+        $productTags = Tag::query()
+            ->where('type', 'product')
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        $splitTags = $this->splitProductTags($productTags);
+
+        return [
+            'filterCategories' => $filterCategories,
+            'functionTags' => $splitTags['functionTags'],
+            'usageTags' => $splitTags['usageTags'],
+            'perPageOptions' => self::ALLOWED_PER_PAGES,
+            'selectedFilters' => [
+                'types' => array_values(array_filter((array) $request->input('types', []))),
+                'functions' => array_values(array_filter((array) $request->input('functions', []))),
+                'usages' => array_values(array_filter((array) $request->input('usages', []))),
+                'min_price' => $request->input('min_price'),
+                'max_price' => $request->input('max_price'),
+                'per_page' => $this->resolvePerPage($request),
+            ],
+        ];
+    }
+
     private function applyFilters($query, Request $request)
     {
         if ($brand = $request->get('brand')) {
             $query->where('brand', $brand);
         }
 
-        if ($priceRange = $request->get('price_range')) {
-            // format: 0-10000000, 10000000-50000000, 50000000-
-            $parts = explode('-', $priceRange);
-            if (count($parts) === 2) {
-                if (is_numeric($parts[0])) $query->where('price', '>=', $parts[0]);
-                if (is_numeric($parts[1])) $query->where('price', '<=', $parts[1]);
+        $minPrice = $request->integer('min_price');
+        if ($minPrice > 0) {
+            $query->where('price', '>=', $minPrice);
+        }
+
+        $maxPrice = $request->integer('max_price');
+        if ($maxPrice > 0) {
+            $query->where('price', '<=', $maxPrice);
+        }
+
+        $selectedTypes = array_values(array_filter((array) $request->input('types', [])));
+        if (!empty($selectedTypes)) {
+            $selectedParents = Category::query()
+                ->where('type', 'product')
+                ->whereIn('slug', $selectedTypes)
+                ->with([
+                    'childrenRecursive' => fn ($q) => $q->where('is_active', true),
+                ])
+                ->get(['id']);
+
+            $selectedCategoryIds = $selectedParents
+                ->flatMap(fn (Category $category) => $this->flattenCategoryIds($category))
+                ->unique()
+                ->values()
+                ->all();
+
+            if (!empty($selectedCategoryIds)) {
+                $query->whereIn('category_id', $selectedCategoryIds);
             }
         }
 
+        $selectedFunctions = array_values(array_filter((array) $request->input('functions', [])));
+        if (!empty($selectedFunctions)) {
+            $query->whereHas('tags', fn ($q) => $q->where('type', 'product')->whereIn('slug', $selectedFunctions));
+        }
+
+        $selectedUsages = array_values(array_filter((array) $request->input('usages', [])));
+        if (!empty($selectedUsages)) {
+            $query->whereHas('tags', fn ($q) => $q->where('type', 'product')->whereIn('slug', $selectedUsages));
+        }
+
         $sort = $request->get('sort', 'latest');
-        return match($sort) {
+
+        return match ($sort) {
             'price_asc' => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
             default => $query->latest('updated_at'),
@@ -35,77 +180,105 @@ class ProductController extends Controller
 
     public function index(Request $request, SeoService $seoService)
     {
-        $query = Product::published()->with('category');
+        $perPage = $this->resolvePerPage($request);
+        $query = Product::published()->with(['category', 'tags']);
         $query = $this->applyFilters($query, $request);
 
-        $products = $query->paginate(12)->withQueryString();
+        $products = $query->paginate($perPage)->withQueryString();
         $seo = $seoService->defaults(
-            \App\Models\Setting::getValue('seo_products_title', 'Tất cả sản phẩm'),
-            \App\Models\Setting::getValue('seo_products_description', 'Danh sách máy may công nghiệp chất lượng cao')
+            \App\Models\Setting::getValue('seo_products_title', 'Tat ca san pham'),
+            \App\Models\Setting::getValue('seo_products_description', 'Danh sach may may cong nghiep chat luong cao')
         );
         $sort = $request->get('sort', 'latest');
-        
-        return view('front.pages.products.index', compact('products', 'seo', 'sort'));
+
+        return view('front.pages.products.index', array_merge(
+            compact('products', 'seo', 'sort'),
+            $this->buildFilterData($request)
+        ));
     }
 
     public function search(Request $request, SeoService $seoService)
     {
+        $perPage = $this->resolvePerPage($request);
         $keyword = $request->get('q');
 
         $query = Product::published()
-            ->with('category')
-            ->where(function($q) use ($keyword) {
+            ->with(['category', 'tags'])
+            ->where(function ($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('sku', 'like', "%{$keyword}%")
-                  ->orWhere('short_description', 'like', "%{$keyword}%");
+                    ->orWhere('sku', 'like', "%{$keyword}%")
+                    ->orWhere('short_description', 'like', "%{$keyword}%");
             });
 
         $query = $this->applyFilters($query, $request);
 
-        $products = $query->paginate(12)->withQueryString();
-        $seo = $seoService->defaults("Kết quả tìm kiếm: {$keyword}");
+        $products = $query->paginate($perPage)->withQueryString();
+        $seo = $seoService->defaults("Ket qua tim kiem: {$keyword}");
         $sort = $request->get('sort', 'latest');
 
-        return view('front.pages.products.index', compact('products', 'seo', 'keyword', 'sort'));
+        return view('front.pages.products.index', array_merge(
+            compact('products', 'seo', 'keyword', 'sort'),
+            $this->buildFilterData($request)
+        ));
     }
 
     public function category(Request $request, $slug, SeoService $seoService)
     {
+        $perPage = $this->resolvePerPage($request);
         $category = Category::where('slug', $slug)->where('type', 'product')->firstOrFail();
-        
-        $query = $category->products()->published()->with('category');
+
+        $query = $category->products()->published()->with(['category', 'tags']);
         $query = $this->applyFilters($query, $request);
 
-        $products = $query->paginate(12)->withQueryString();
+        $products = $query->paginate($perPage)->withQueryString();
         $seo = $seoService->forModel($category);
         $sort = $request->get('sort', 'latest');
-        
-        return view('front.pages.products.category', compact('category', 'products', 'seo', 'sort'));
-    }
 
+        return view('front.pages.products.category', array_merge(
+            compact('category', 'products', 'seo', 'sort'),
+            $this->buildFilterData($request)
+        ));
+    }
 
     public function show($slug, SeoService $seoService)
     {
-        $product = Product::with('category')->where('slug', $slug)->published()->firstOrFail();
+        $with = ['category'];
+        if (Schema::hasTable('product_specs')) {
+            $with[] = 'specs';
+        }
+        $product = Product::with($with)->where('slug', $slug)->published()->firstOrFail();
         $product->incrementViewCount();
 
         $relatedProducts = Product::published()
             ->with('category')
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->take(4)
+            ->latest('updated_at')
+            ->take(12)
             ->get();
+
+        // Fallback: neu cung category khong du, bo sung san pham tuong tu (khac category)
+        if ($relatedProducts->count() < 4) {
+            $fallbackProducts = Product::published()
+                ->with('category')
+                ->where('id', '!=', $product->id)
+                ->whereNotIn('id', $relatedProducts->pluck('id')->all())
+                ->latest('updated_at')
+                ->take(12 - $relatedProducts->count())
+                ->get();
+
+            $relatedProducts = $relatedProducts->concat($fallbackProducts)->values();
+        }
 
         $seo = $seoService->forModel($product);
         $seo['schema_markup'][] = $seoService->productSchema($product);
         $seo['schema_markup'][] = $seoService->breadcrumbSchema(array_filter([
-            ['name' => 'Trang chủ',        'url' => route('home')],
-            ['name' => 'Sản phẩm',         'url' => route('products.index')],
+            ['name' => 'Trang chu', 'url' => route('home')],
+            ['name' => 'San pham', 'url' => route('products.index')],
             $product->category ? ['name' => $product->category->name, 'url' => route('products.category', $product->category->slug)] : null,
-            ['name' => $product->name,     'url' => $product->url],
+            ['name' => $product->name, 'url' => $product->url],
         ]));
 
         return view('front.pages.products.show', compact('product', 'relatedProducts', 'seo'));
     }
 }
-

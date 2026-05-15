@@ -68,6 +68,7 @@ class PageForm
                                 ->image()
                                 ->disk('public')
                                 ->directory('pages')
+                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                 ->columnSpanFull(),
                             RichEditor::make('content')
                                 ->label('Nội dung chi tiết')
@@ -102,6 +103,8 @@ class PageForm
                                             ->label('OG Image')
                                             ->image()
                                             ->directory('seo/og-images')
+                                            ->disk('public')
+                                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                             ->maxSize(1024)
                                             ->helperText('Khuyến nghị: 1200x630px'),
                                     ]),
