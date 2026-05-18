@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\AdminLeadInboxWidget;
 use App\Filament\Widgets\AdminQuickActionsWidget;
 use App\Filament\Widgets\AdminRecentContentWidget;
+use App\Filament\Widgets\NewsletterQueueStatusWidget;
 use App\Filament\Widgets\SeoPerformanceChart;
 use App\Filament\Widgets\StatsOverview;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -33,6 +34,7 @@ class AdminDashboard extends BaseDashboard
             StatsOverview::class,
             SeoPerformanceChart::class,
             AdminQuickActionsWidget::class,
+            NewsletterQueueStatusWidget::class,
             AdminLeadInboxWidget::class,
             AdminRecentContentWidget::class,
         ];

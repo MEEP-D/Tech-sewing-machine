@@ -42,6 +42,22 @@ class ProductForm
                         TextInput::make('video_id')->label('Youtube Video ID')->maxLength(100),
                         TextInput::make('price')->label('Gia')->maxLength(50),
                     ]),
+                    Grid::make(2)->schema([
+                        TextInput::make('discount_percent')
+                            ->label('Giam gia (%)')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->default(0)
+                            ->suffix('%'),
+                        TextInput::make('installment_percent')
+                            ->label('Tra gop (%)')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->default(0)
+                            ->suffix('%'),
+                    ]),
                     Grid::make(3)->schema([
                         TextInput::make('brand')->label('Thuong hieu')->maxLength(100),
                         TextInput::make('origin')->label('Xuat xu')->maxLength(100),
@@ -108,11 +124,11 @@ class ProductForm
                             ? new \Illuminate\Support\HtmlString('<img src="' . e($record->display_image_url) . '" alt="Product image" style="max-width:220px;border-radius:10px;border:1px solid #e2e8f0;padding:6px;background:#fff;" />')
                             : 'Chua co anh'
                         ),
-                    FileUpload::make('thumbnail')->label('Anh dai dien')->image()->disk('public')->directory('products/thumbnails')
+                    FileUpload::make('thumbnail')->label('Anh dai dien')->image()->imageEditor()->disk('public')->directory('products/thumbnails')
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    FileUpload::make('image')->label('Anh chinh')->image()->disk('public')->directory('products/images')
+                    FileUpload::make('image')->label('Anh chinh')->image()->imageEditor()->disk('public')->directory('products/images')
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    FileUpload::make('gallery')->label('Gallery')->image()->multiple()->disk('public')->directory('products/gallery')
+                    FileUpload::make('gallery')->label('Gallery')->image()->imageEditor()->multiple()->disk('public')->directory('products/gallery')
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state) : []),
                 ]),
 

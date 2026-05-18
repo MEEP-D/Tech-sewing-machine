@@ -20,9 +20,14 @@ class HomeController extends Controller
             ? Slider::query()->where('is_active', true)->orderBy('sort_order')->get()
             : collect();
 
+        $newProductWith = ['category'];
+        if (Schema::hasTable('product_specs')) {
+            $newProductWith[] = 'specs';
+        }
+
         $newProducts = Product::query()
             ->published()
-            ->with(['category'])
+            ->with($newProductWith)
             ->where('is_new', true)
             ->latest()
             ->take(8)

@@ -3,32 +3,51 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use App\Models\Page as SitePage;
+use App\Models\Post;
+use App\Models\Product;
+use App\Services\DynamicMailConfigService;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\View;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class SiteSettings extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected string $view = 'filament.pages.site-settings';
-    protected static ?string $navigationLabel = 'Cài đặt website';
-    protected static ?string $title = 'Cấu hình website';
+
+    public static function getNavigationLabel(): string
+    {
+        return self::u('C\\u00e0i \\u0111\\u1eb7t website');
+    }
+
+    public function getTitle(): string
+    {
+        return self::u('C\\u1ea5u h\\u00ecnh website');
+    }
 
     public array $data = [];
+    public string $testEmail = '';
 
     public function mount(): void
     {
-        $seoOgImage = Setting::getValue('seo_default_og_image', null);
-
         $this->data = [
             'site_title' => Setting::getValue('site_title', config('app.name')),
             'site_description' => Setting::getValue('site_description', ''),
@@ -37,8 +56,6 @@ class SiteSettings extends Page
             'site_favicon_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_favicon', null)),
             'seo_default_title' => Setting::getValue('seo_default_title', config('app.name')),
             'seo_default_description' => Setting::getValue('seo_default_description', ''),
-            'seo_default_og_image_upload' => $this->normalizeUploadFieldState($seoOgImage),
-            'seo_default_og_image' => $this->normalizeUploadInput($seoOgImage),
             'seo_default_canonical' => Setting::getValue('seo_default_canonical', config('app.url')),
             'seo_organization_name' => Setting::getValue('seo_organization_name', config('app.name')),
             'seo_organization_url' => Setting::getValue('seo_organization_url', config('app.url')),
@@ -46,92 +63,237 @@ class SiteSettings extends Page
             'seo_description' => Setting::getValue('seo_description', ''),
             'home_slogan_title' => Setting::getValue('home_slogan_title', ''),
             'home_slogan_subtitle' => Setting::getValue('home_slogan_subtitle', ''),
-            'home_highlight_contact_primary_name' => Setting::getValue('home_highlight_contact_primary_name', 'Mr. Sáng'),
+            'home_highlight_contact_primary_name' => Setting::getValue('home_highlight_contact_primary_name', self::u('Mr. S\\u00e1ng')),
             'home_highlight_contact_primary_phone' => Setting::getValue('home_highlight_contact_primary_phone', '0902 806 599'),
-            'home_highlight_contact_secondary_name' => Setting::getValue('home_highlight_contact_secondary_name', 'Mr. Bảo'),
+            'home_highlight_contact_secondary_name' => Setting::getValue('home_highlight_contact_secondary_name', self::u('Mr. B\\u1ea3o')),
             'home_highlight_contact_secondary_phone' => Setting::getValue('home_highlight_contact_secondary_phone', '0898 303 287'),
             'contact_hotline' => Setting::getValue('contact_hotline', ''),
             'contact_email' => Setting::getValue('contact_email', ''),
             'contact_address' => Setting::getValue('contact_address', ''),
+            'mail_mailer' => Setting::getValue('mail_mailer', 'smtp'),
+            'mail_host' => Setting::getValue('mail_host', ''),
+            'mail_port' => Setting::getValue('mail_port', '587'),
+            'mail_encryption' => Setting::getValue('mail_encryption', 'tls'),
+            'mail_username' => Setting::getValue('mail_username', ''),
+            'mail_password' => '',
+            'mail_from_address' => Setting::getValue('mail_from_address', ''),
+            'mail_from_name' => Setting::getValue('mail_from_name', config('app.name')),
+            'mail_template_source_type' => Setting::getValue('mail_template_source_type', 'post'),
+            'mail_template_source_id' => Setting::getValue('mail_template_source_id', ''),
+            'mail_template_source_url' => Setting::getValue('mail_template_source_url', ''),
+            'mail_template_subject' => Setting::getValue('mail_template_subject', 'Noi dung moi tu TechSewing'),
+            'mail_template_html' => Setting::getValue('mail_template_html', '<h2>{{title}}</h2><p>{{excerpt}}</p><p><a href="{{url}}">Xem chi tiet</a></p>'),
             'header_facebook_url' => Setting::getValue('header_facebook_url', ''),
             'header_youtube_url' => Setting::getValue('header_youtube_url', ''),
-
-            'page_contact_kicker' => Setting::getValue('page_contact_kicker', 'Liên hệ & thu thập khách hàng tiềm năng'),
-            'page_contact_heading' => Setting::getValue('page_contact_heading', 'Đặt lịch tư vấn, demo giải pháp và nhận báo giá nhanh'),
-            'page_contact_desc' => Setting::getValue('page_contact_desc', 'Hãy để lại thông tin để đội ngũ chuyên gia của chúng tôi hỗ trợ bạn tốt nhất.'),
+            'page_contact_kicker' => Setting::getValue('page_contact_kicker', self::u('Li\\u00ean h\\u1ec7 & thu th\\u1eadp kh\\u00e1ch h\\u00e0ng ti\\u1ec1m n\\u0103ng')),
+            'page_contact_heading' => Setting::getValue('page_contact_heading', self::u('\\u0110\\u1eb7t l\\u1ecbch t\\u01b0 v\\u1ea5n, demo gi\\u1ea3i ph\\u00e1p v\\u00e0 nh\\u1eadn b\\u00e1o gi\\u00e1 nhanh')),
+            'page_contact_desc' => Setting::getValue('page_contact_desc', self::u('H\\u00e3y \\u0111\\u1ec3 l\\u1ea1i th\\u00f4ng tin \\u0111\\u1ec3 \\u0111\\u1ed9i ng\\u0169 chuy\\u00ean gia c\\u1ee7a ch\\u00fang t\\u00f4i h\\u1ed7 tr\\u1ee3 b\\u1ea1n t\\u1ed1t nh\\u1ea5t.')),
             'page_products_kicker' => Setting::getValue('page_products_kicker', 'Product experience'),
-            'page_products_heading' => Setting::getValue('page_products_heading', 'Khám phá lineup máy may công nghiệp'),
-            'page_products_desc' => Setting::getValue('page_products_desc', 'Cung cấp các dòng máy may chính hãng, chất lượng cao đáp ứng mọi nhu cầu sản xuất.'),
+            'page_products_heading' => Setting::getValue('page_products_heading', self::u('Kh\\u00e1m ph\\u00e1 lineup m\\u00e1y may c\\u00f4ng nghi\\u1ec7p')),
+            'page_products_desc' => Setting::getValue('page_products_desc', self::u('Cung c\\u1ea5p c\\u00e1c d\\u00f2ng m\\u00e1y may ch\\u00ednh h\\u00e3ng, ch\\u1ea5t l\\u01b0\\u1ee3ng cao \\u0111\\u00e1p \\u1ee9ng m\\u1ecdi nhu c\\u1ea7u s\\u1ea3n xu\\u1ea5t.')),
+            'page_products_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_products_hero_image', null)),
+            'page_news_heading' => Setting::getValue('page_news_heading', 'Tin tuc'),
+            'page_news_desc' => Setting::getValue('page_news_desc', 'Cap nhat nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
+            'page_news_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_news_hero_image', null)),
+            'page_about_heading' => Setting::getValue('page_about_heading', self::u('Gi\\u1edbi thi\\u1ec7u')),
+            'page_about_desc' => Setting::getValue('page_about_desc', ''),
+            'page_about_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_about_hero_image', null)),
+            'page_contact_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_contact_hero_image', null)),
+            'newsletter_signup_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('newsletter_signup_image', null)),
         ];
     }
 
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            Section::make('Nhận diện thương hiệu')->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('site_title')->label('Tiêu đề website'),
-                    TextInput::make('site_description')->label('Mô tả website'),
-                    Select::make('site_logo_type')
-                        ->label('Loại logo')
-                        ->options([
-                            'image' => 'Image',
-                            'text' => 'Text',
-                        ])
-                        ->required()
-                        ->default('image')
-                        ->native(false),
-                    FileUpload::make('site_logo_upload')->label('Logo sáng')->image()->disk('public')->directory('site')->imageEditor()
-                        ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
-                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    FileUpload::make('site_favicon_upload')->label('Favicon')->image()->disk('public')->directory('site')->imageEditor()
-                        ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
-                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+            Tabs::make('Site Settings')->tabs([
+                Tabs\Tab::make(self::u('T\\u1ed5ng quan'))->schema([
+                    Section::make(self::u('Nh\\u1eadn di\\u1ec7n th\\u01b0\\u01a1ng hi\\u1ec7u'))->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('site_title')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 website')),
+                            TextInput::make('site_description')->label(self::u('M\\u00f4 t\\u1ea3 website')),
+                            Select::make('site_logo_type')
+                                ->label(self::u('Lo\\u1ea1i logo'))
+                                ->options([
+                                    'image' => 'Image',
+                                    'text' => 'Text',
+                                ])
+                                ->required()
+                                ->default('image')
+                                ->native(false),
+                            FileUpload::make('site_logo_upload')->label(self::u('Logo s\\u00e1ng'))->image()->disk('public')->directory('site')->imageEditor()
+                                ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                            FileUpload::make('site_favicon_upload')->label('Favicon')->image()->disk('public')->directory('site')->imageEditor()
+                                ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                        ]),
+                    ]),
+                    Section::make(self::u('SEO m\\u1eb7c \\u0111\\u1ecbnh'))->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('seo_default_title')->label(self::u('SEO title m\\u1eb7c \\u0111\\u1ecbnh')),
+                            TextInput::make('seo_default_canonical')->label(self::u('Canonical m\\u1eb7c \\u0111\\u1ecbnh')),
+                            TextInput::make('seo_organization_name')->label(self::u('T\\u00ean t\\u1ed5 ch\\u1ee9c')),
+                            TextInput::make('seo_organization_url')->label(self::u('URL t\\u1ed5 ch\\u1ee9c')),
+                            TextInput::make('seo_robots_default')->label(self::u('Robots m\\u1eb7c \\u0111\\u1ecbnh')),
+                        ]),
+                        Textarea::make('seo_default_description')->label(self::u('SEO description m\\u1eb7c \\u0111\\u1ecbnh')),
+                        Textarea::make('seo_description')->label(self::u('SEO description b\\u1ed5 sung')),
+                    ]),
+                    Section::make(self::u('Li\\u00ean h\\u1ec7 & M\\u1ea1ng x\\u00e3 h\\u1ed9i header'))->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('contact_hotline')->label('Hotline header'),
+                            TextInput::make('contact_email')->label(self::u('Email li\\u00ean h\\u1ec7')),
+                            Textarea::make('contact_address')->label(self::u('\\u0110\\u1ecba ch\\u1ec9')),
+                            TextInput::make('header_facebook_url')->label('Link Facebook')->url(),
+                            TextInput::make('header_youtube_url')->label('Link YouTube')->url(),
+                        ]),
+                    ]),
                 ]),
-            ]),
-            Section::make('SEO mặc định')->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('seo_default_title')->label('SEO title mặc định'),
-                    TextInput::make('seo_default_canonical')->label('Canonical mặc định'),
-                    FileUpload::make('seo_default_og_image_upload')->label('OG image mặc định')->image()->disk('public')->directory('site')->imageEditor()
-                        ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
-                        ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    TextInput::make('seo_organization_name')->label('Tên tổ chức'),
-                    TextInput::make('seo_organization_url')->label('URL tổ chức'),
-                    TextInput::make('seo_robots_default')->label('Robots mặc định'),
+                Tabs\Tab::make(self::u('Trang ch\\u1ee7'))->schema([
+                    Section::make(self::u('N\\u1ed9i dung slogan trang ch\\u1ee7'))->schema([
+                        TextInput::make('home_slogan_title')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 slogan')),
+                        Textarea::make('home_slogan_subtitle')->label(self::u('M\\u00f4 t\\u1ea3 slogan')),
+                    ]),
+                    Section::make(self::u('Li\\u00ean h\\u1ec7 s\\u1ea3n ph\\u1ea9m \\u0111\\u1ed9t ph\\u00e1'))->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('home_highlight_contact_primary_name')->label(self::u('T\\u00ean li\\u00ean h\\u1ec7 1')),
+                            TextInput::make('home_highlight_contact_primary_phone')->label(self::u('S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i 1')),
+                            TextInput::make('home_highlight_contact_secondary_name')->label(self::u('T\\u00ean li\\u00ean h\\u1ec7 2')),
+                            TextInput::make('home_highlight_contact_secondary_phone')->label(self::u('S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i 2')),
+                        ]),
+                    ]),
+                    Section::make(self::u('Newsletter Signup'))->schema([
+                        FileUpload::make('newsletter_signup_image_upload')
+                            ->label(self::u('\\u1ea2nh n\\u1ec1n section newsletter'))
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->imageEditor()
+                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                    ]),
                 ]),
-                Textarea::make('seo_default_description')->label('SEO description mặc định'),
-                Textarea::make('seo_description')->label('SEO description bổ sung'),
-            ]),
-            Section::make('Nội dung slogan trang chủ')->schema([
-                TextInput::make('home_slogan_title')->label('Tiêu đề slogan'),
-                Textarea::make('home_slogan_subtitle')->label('Mô tả slogan'),
-            ]),
-            Section::make('Liên hệ sản phẩm đột phá')->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('home_highlight_contact_primary_name')->label('Tên liên hệ 1'),
-                    TextInput::make('home_highlight_contact_primary_phone')->label('Số điện thoại 1'),
-                    TextInput::make('home_highlight_contact_secondary_name')->label('Tên liên hệ 2'),
-                    TextInput::make('home_highlight_contact_secondary_phone')->label('Số điện thoại 2'),
+                Tabs\Tab::make(self::u('Trang t\\u0129nh'))->schema([
+                    Section::make(self::u('N\\u1ed9i dung trang Li\\u00ean h\\u1ec7'))->schema([
+                        TextInput::make('page_contact_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 (Kicker)'))->default(self::u('Li\\u00ean h\\u1ec7 & thu th\\u1eadp kh\\u00e1ch h\\u00e0ng ti\\u1ec1m n\\u0103ng')),
+                        TextInput::make('page_contact_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 ch\\u00ednh'))->default(self::u('\\u0110\\u1eb7t l\\u1ecbch t\\u01b0 v\\u1ea5n, demo gi\\u1ea3i ph\\u00e1p v\\u00e0 nh\\u1eadn b\\u00e1o gi\\u00e1 nhanh')),
+                        Textarea::make('page_contact_desc')->label(self::u('M\\u00f4 t\\u1ea3 ng\\u1eafn'))->default(self::u('H\\u00e3y \\u0111\\u1ec3 l\\u1ea1i th\\u00f4ng tin \\u0111\\u1ec3 \\u0111\\u1ed9i ng\\u0169 chuy\\u00ean gia c\\u1ee7a ch\\u00fang t\\u00f4i h\\u1ed7 tr\\u1ee3 b\\u1ea1n t\\u1ed1t nh\\u1ea5t.')),
+                        FileUpload::make('page_contact_hero_image_upload')
+                            ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->imageEditor()
+                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                    ]),
+                    Section::make(self::u('N\\u1ed9i dung trang S\\u1ea3n ph\\u1ea9m'))->schema([
+                        TextInput::make('page_products_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 (Kicker)'))->default('Product experience'),
+                        TextInput::make('page_products_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 ch\\u00ednh'))->default(self::u('Kh\\u00e1m ph\\u00e1 lineup m\\u00e1y may c\\u00f4ng nghi\\u1ec7p')),
+                        Textarea::make('page_products_desc')->label(self::u('M\\u00f4 t\\u1ea3 ng\\u1eafn'))->default(self::u('Cung c\\u1ea5p c\\u00e1c d\\u00f2ng m\\u00e1y may ch\\u00ednh h\\u00e3ng, ch\\u1ea5t l\\u01b0\\u1ee3ng cao \\u0111\\u00e1p \\u1ee9ng m\\u1ecdi nhu c\\u1ea7u s\\u1ea3n xu\\u1ea5t.')),
+                        FileUpload::make('page_products_hero_image_upload')
+                            ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->imageEditor()
+                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                    ]),
+                    Section::make(self::u('N\\u1ed9i dung trang Tin t\\u1ee9c'))->schema([
+                        TextInput::make('page_news_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 hero'))->default('Tin tuc'),
+                        Textarea::make('page_news_desc')->label(self::u('M\\u00f4 t\\u1ea3 hero'))->default('Cap nhat nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
+                        FileUpload::make('page_news_hero_image_upload')
+                            ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->imageEditor()
+                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                    ]),
+                    Section::make(self::u('N\\u1ed9i dung trang Gi\\u1edbi thi\\u1ec7u'))->schema([
+                        TextInput::make('page_about_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 hero'))->default(self::u('Gi\\u1edbi thi\\u1ec7u')),
+                        Textarea::make('page_about_desc')->label(self::u('M\\u00f4 t\\u1ea3 hero')),
+                        FileUpload::make('page_about_hero_image_upload')
+                            ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->imageEditor()
+                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                    ]),
                 ]),
-            ]),
-            Section::make('Liên hệ & Mạng xã hội header')->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('contact_hotline')->label('Hotline header'),
-                    TextInput::make('contact_email')->label('Email liên hệ'),
-                    Textarea::make('contact_address')->label('Địa chỉ'),
-                    TextInput::make('header_facebook_url')->label('Link Facebook')->url(),
-                    TextInput::make('header_youtube_url')->label('Link YouTube')->url(),
+                Tabs\Tab::make('SMTP / Mail')->schema([
+                    Section::make('SMTP / Mail')->schema([
+                        Grid::make(2)->schema([
+                            Select::make('mail_mailer')
+                                ->label('Mailer')
+                                ->options([
+                                    'smtp' => 'SMTP',
+                                ])
+                                ->default('smtp')
+                                ->required()
+                                ->native(false),
+                            TextInput::make('mail_host')->label('SMTP Host')->required(),
+                            TextInput::make('mail_port')->label('SMTP Port')->numeric()->required(),
+                            Select::make('mail_encryption')
+                                ->label('Encryption')
+                                ->options([
+                                    'tls' => 'TLS',
+                                    'ssl' => 'SSL',
+                                    '' => 'None',
+                                ])
+                                ->default('tls')
+                                ->native(false),
+                            TextInput::make('mail_username')->label('SMTP Username'),
+                            TextInput::make('mail_password')
+                                ->label('SMTP Password')
+                                ->password()
+                                ->revealable()
+                                ->placeholder('De trong de giu mat khau hien tai'),
+                            TextInput::make('mail_from_address')->label('From Email')->email(),
+                            TextInput::make('mail_from_name')->label('From Name'),
+                        ]),
+                        Section::make('HTML Mail Template')->schema([
+                            Grid::make(2)->schema([
+                                Select::make('mail_template_source_type')
+                                    ->label('Nguon du lieu')
+                                    ->options([
+                                        'post' => 'Bai viet',
+                                        'product' => 'San pham',
+                                        'page' => 'Page tinh',
+                                        'url' => 'URL dong khac',
+                                    ])
+                                    ->default('post')
+                                    ->native(false)
+                                    ->live(),
+                                TextInput::make('mail_template_source_url')
+                                    ->label('URL dong')
+                                    ->url()
+                                    ->visible(fn (callable $get): bool => $get('mail_template_source_type') === 'url')
+                                    ->helperText('Chi dung khi chon nguon URL dong.'),
+                                Select::make('mail_template_source_id')
+                                    ->label('Noi dung nguon')
+                                    ->options(fn (callable $get): array => $this->sourceOptions((string) $get('mail_template_source_type')))
+                                    ->searchable()
+                                    ->native(false)
+                                    ->visible(fn (callable $get): bool => in_array($get('mail_template_source_type'), ['post', 'product', 'page'], true)),
+                                TextInput::make('mail_template_subject')
+                                    ->label('Tieu de mail')
+                                    ->required(),
+                            ]),
+                            Textarea::make('mail_template_html')
+                                ->label('HTML template')
+                                ->rows(12)
+                                ->required()
+                                ->helperText('Bien ho tro: {{title}}, {{excerpt}}, {{content}}, {{url}}, {{image_url}}, {{site_name}}'),
+                        ]),
+                        View::make('filament.pages.partials.smtp-test-email'),
+                    ]),
                 ]),
-            ]),            Section::make('Nội dung trang Liên hệ')->schema([
-                TextInput::make('page_contact_kicker')->label('Dòng phụ (Kicker)')->default('Liên hệ & thu thập khách hàng tiềm năng'),
-                TextInput::make('page_contact_heading')->label('Tiêu đề chính')->default('Đặt lịch tư vấn, demo giải pháp và nhận báo giá nhanh'),
-                Textarea::make('page_contact_desc')->label('Mô tả ngắn')->default('Hãy để lại thông tin để đội ngũ chuyên gia của chúng tôi hỗ trợ bạn tốt nhất.'),
-            ]),
-            Section::make('Nội dung trang Sản phẩm')->schema([
-                TextInput::make('page_products_kicker')->label('Dòng phụ (Kicker)')->default('Product experience'),
-                TextInput::make('page_products_heading')->label('Tiêu đề chính')->default('Khám phá lineup máy may công nghiệp'),
-                Textarea::make('page_products_desc')->label('Mô tả ngắn')->default('Cung cấp các dòng máy may chính hãng, chất lượng cao đáp ứng mọi nhu cầu sản xuất.'),
             ]),
         ]);
     }
@@ -141,21 +303,59 @@ class SiteSettings extends Page
         $this->data = array_replace($this->data, $this->form->getState());
 
         $this->persistUploadSettings();
+        $this->persistMailSettings();
         $this->persistTextSettings();
         Cache::forget('site_settings_array');
 
-        Notification::make()->title('Đã lưu cấu hình website.')->success()->send();
+        Notification::make()->title(self::u('\\u0110\\u00e3 l\\u01b0u c\\u1ea5u h\\u00ecnh website.'))->success()->send();
+    }
+
+    public function sendTestEmail(): void
+    {
+        $email = trim($this->testEmail);
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Notification::make()->title('Email nhan thu khong hop le.')->danger()->send();
+            return;
+        }
+
+        $this->persistMailSettings();
+        $this->persistTextSettings();
+        Cache::forget('site_settings_array');
+
+        try {
+            app(DynamicMailConfigService::class)->apply();
+
+            $payload = $this->resolveTemplatePayload();
+            $subject = (string) ($this->data['mail_template_subject'] ?? 'SMTP test - TechSewing');
+            $html = $this->renderMailTemplate($payload);
+
+            Mail::html($html, function ($message) use ($email, $subject): void {
+                $message->to($email)->subject($subject);
+            });
+
+            Notification::make()->title('Da gui email test thanh cong.')->success()->send();
+        } catch (\Throwable $exception) {
+            Notification::make()->title('Gui email test that bai: ' . $exception->getMessage())->danger()->send();
+        }
     }
 
     protected function persistUploadSettings(): void
     {
-        foreach (['site_logo_upload', 'site_favicon_upload', 'seo_default_og_image_upload'] as $key) {
+        foreach ([
+            'site_logo_upload',
+            'site_favicon_upload',
+            'page_news_hero_image_upload',
+            'page_products_hero_image_upload',
+            'page_about_hero_image_upload',
+            'page_contact_hero_image_upload',
+            'newsletter_signup_image_upload',
+        ] as $key) {
             $targetKey = str_replace('_upload', '', $key);
             $value = $this->normalizeUploadInput($this->data[$key] ?? null)
                 ?? $this->normalizeUploadInput($this->data[$targetKey] ?? null);
             $this->data[$key] = $this->normalizeUploadFieldState($value);
             $this->data[$targetKey] = $value;
-            $group = str_starts_with($targetKey, 'seo_') ? 'seo' : (in_array($targetKey, ['site_logo', 'site_logo_dark', 'site_logo_mobile', 'site_favicon'], true) ? 'branding' : 'homepage');
+            $group = in_array($targetKey, ['site_logo', 'site_logo_dark', 'site_logo_mobile', 'site_favicon'], true) ? 'branding' : 'homepage';
 
             Setting::updateOrCreate(['key' => $targetKey], ['value' => $value, 'group' => $group]);
         }
@@ -170,13 +370,34 @@ class SiteSettings extends Page
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
             'home_highlight_contact_secondary_name', 'home_highlight_contact_secondary_phone',
             'contact_hotline', 'contact_email', 'contact_address',
+            'mail_mailer', 'mail_host', 'mail_port', 'mail_encryption', 'mail_username', 'mail_from_address', 'mail_from_name',
+            'mail_template_source_type', 'mail_template_source_id', 'mail_template_source_url', 'mail_template_subject', 'mail_template_html',
             'header_facebook_url', 'header_youtube_url',
             'page_contact_kicker', 'page_contact_heading', 'page_contact_desc',
             'page_products_kicker', 'page_products_heading', 'page_products_desc',
+            'page_news_heading', 'page_news_desc',
+            'page_about_heading', 'page_about_desc',
         ];
+
         foreach ($keys as $key) {
-            Setting::updateOrCreate(['key' => $key], ['value' => $this->data[$key] ?? null, 'group' => str_starts_with($key, 'seo_') ? 'seo' : 'branding']);
+            $group = str_starts_with($key, 'seo_') ? 'seo' : (str_starts_with($key, 'mail_') ? 'mail' : 'branding');
+            Setting::updateOrCreate(['key' => $key], ['value' => $this->data[$key] ?? null, 'group' => $group]);
         }
+    }
+
+    protected function persistMailSettings(): void
+    {
+        $newPassword = trim((string) ($this->data['mail_password'] ?? ''));
+        if ($newPassword === '') {
+            return;
+        }
+
+        Setting::updateOrCreate(
+            ['key' => 'mail_password'],
+            ['value' => Crypt::encryptString($newPassword), 'group' => 'mail']
+        );
+
+        $this->data['mail_password'] = '';
     }
 
     protected function normalizeUploadState(mixed $value): mixed
@@ -190,8 +411,27 @@ class SiteSettings extends Page
 
     protected function normalizeUploadInput(mixed $value): ?string
     {
+        if ($value instanceof TemporaryUploadedFile) {
+            return $value->store('site', 'public');
+        }
+
+        if ($value instanceof UploadedFile) {
+            return $value->store('site', 'public');
+        }
+
         if (is_array($value)) {
-            $value = array_values($value)[0] ?? null;
+            if (array_key_exists('path', $value) && is_string($value['path']) && filled($value['path'])) {
+                return $value['path'];
+            }
+
+            foreach ($value as $item) {
+                $normalized = $this->normalizeUploadInput($item);
+                if (filled($normalized)) {
+                    return $normalized;
+                }
+            }
+
+            return null;
         }
 
         return is_string($value) && filled($value) ? $value : null;
@@ -210,21 +450,156 @@ class SiteSettings extends Page
         if (is_array($path)) {
             $path = array_values($path)[0] ?? null;
         }
+
         if (! is_string($path) || ! filled($path)) {
             return null;
         }
+
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;
         }
+
         if (Storage::disk('public')->exists($path)) {
             return Storage::disk('public')->url($path);
         }
+
         if (str_starts_with($path, 'assets/')) {
             return asset($path);
         }
 
         return Storage::disk('public')->url($path);
     }
+
+    private static function u(string $value): string
+    {
+        $decoded = json_decode('"' . $value . '"');
+
+        return is_string($decoded) ? $decoded : $value;
+    }
+
+    protected function sourceOptions(string $type): array
+    {
+        return match ($type) {
+            'product' => Product::query()
+                ->where('status', 'published')
+                ->latest('id')
+                ->limit(100)
+                ->pluck('name', 'id')
+                ->toArray(),
+            'page' => SitePage::query()
+                ->where('is_active', true)
+                ->latest('id')
+                ->limit(100)
+                ->pluck('title', 'id')
+                ->toArray(),
+            default => Post::query()
+                ->where('status', 'published')
+                ->latest('id')
+                ->limit(100)
+                ->pluck('title', 'id')
+                ->toArray(),
+        };
+    }
+
+    protected function resolveTemplatePayload(): array
+    {
+        $type = (string) ($this->data['mail_template_source_type'] ?? 'post');
+        $sourceId = (int) ($this->data['mail_template_source_id'] ?? 0);
+        $fallback = [
+            'title' => 'TechSewing',
+            'excerpt' => 'Noi dung duoc gui tu he thong.',
+            'content' => '',
+            'url' => config('app.url'),
+            'image_url' => '',
+            'site_name' => (string) Setting::getValue('site_title', config('app.name')),
+        ];
+
+        if ($type === 'post' && $sourceId > 0) {
+            $post = Post::query()->find($sourceId);
+            if ($post) {
+                return [
+                    'title' => (string) $post->title,
+                    'excerpt' => (string) ($post->excerpt ?: Str::limit(strip_tags((string) $post->content), 200)),
+                    'content' => (string) ($post->rendered_content ?? $post->content ?? ''),
+                    'url' => (string) $post->url,
+                    'image_url' => (string) ($post->thumbnail_url ?? ''),
+                    'site_name' => $fallback['site_name'],
+                ];
+            }
+        }
+
+        if ($type === 'product' && $sourceId > 0) {
+            $product = Product::query()->find($sourceId);
+            if ($product) {
+                $content = (string) ($product->long_description ?: $product->description ?: '');
+                return [
+                    'title' => (string) $product->name,
+                    'excerpt' => Str::limit(strip_tags((string) ($product->short_description ?: $content)), 200),
+                    'content' => $content,
+                    'url' => (string) $product->url,
+                    'image_url' => (string) ($product->display_image_url ?? ''),
+                    'site_name' => $fallback['site_name'],
+                ];
+            }
+        }
+
+        if ($type === 'page' && $sourceId > 0) {
+            $page = SitePage::query()->find($sourceId);
+            if ($page) {
+                return [
+                    'title' => (string) $page->title,
+                    'excerpt' => Str::limit(strip_tags((string) ($page->excerpt ?: $page->content)), 200),
+                    'content' => (string) ($page->content ?? ''),
+                    'url' => route('pages.show', ['slug' => $page->slug]),
+                    'image_url' => '',
+                    'site_name' => $fallback['site_name'],
+                ];
+            }
+        }
+
+        if ($type === 'url') {
+            $url = trim((string) ($this->data['mail_template_source_url'] ?? ''));
+            if ($url !== '') {
+                try {
+                    $response = Http::timeout(8)->get($url);
+                    if ($response->successful()) {
+                        $html = (string) $response->body();
+                        $title = '';
+                        if (preg_match('/<title>(.*?)<\/title>/is', $html, $matches) === 1) {
+                            $title = trim(strip_tags($matches[1]));
+                        }
+                        $excerpt = Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($html))), 200);
+
+                        return [
+                            'title' => $title ?: $fallback['title'],
+                            'excerpt' => $excerpt ?: $fallback['excerpt'],
+                            'content' => $html,
+                            'url' => $url,
+                            'image_url' => '',
+                            'site_name' => $fallback['site_name'],
+                        ];
+                    }
+                } catch (\Throwable) {
+                    // fallback below
+                }
+            }
+        }
+
+        return $fallback;
+    }
+
+    protected function renderMailTemplate(array $payload): string
+    {
+        $template = (string) ($this->data['mail_template_html'] ?? '');
+        if ($template === '') {
+            $template = '<h2>{{title}}</h2><p>{{excerpt}}</p><p><a href="{{url}}">Xem chi tiet</a></p>';
+        }
+
+        $replace = [];
+        foreach ($payload as $key => $value) {
+            $replace['{{' . $key . '}}'] = (string) $value;
+        }
+
+        return strtr($template, $replace);
+    }
 }
-
-

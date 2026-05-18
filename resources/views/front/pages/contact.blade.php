@@ -209,10 +209,18 @@
 @endpush
 
 @section('content')
+@php
+    $contactHeroImage = $siteContent['page_contact_hero_image'] ?? null;
+    if (is_string($contactHeroImage) && $contactHeroImage !== '' && !str_starts_with($contactHeroImage, 'http://') && !str_starts_with($contactHeroImage, 'https://')) {
+        $contactHeroImage = str_starts_with($contactHeroImage, 'assets/')
+            ? asset($contactHeroImage)
+            : \Illuminate\Support\Facades\Storage::disk('public')->url($contactHeroImage);
+    }
+@endphp
 <section class="container contact-page">
-    <div class="contact-hero">
-        <h1>{{ $siteContent['contact_page_title'] ?? 'Lien he TechSewing' }}</h1>
-        <p>{{ $siteContent['contact_page_subtitle'] ?? 'Nhan tu van giai phap may cong nghiep, bao gia nhanh va ho tro ky thuat theo nhu cau nha may cua ban.' }}</p>
+    <div class="contact-hero page-hero page-hero--contact" @if(!empty($contactHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $contactHeroImage }}'); background-size: cover; background-position: center;" @endif>
+        <h1>{{ $siteContent['page_contact_heading'] ?? ($siteContent['contact_page_title'] ?? 'Lien he TechSewing') }}</h1>
+        <p>{{ $siteContent['page_contact_desc'] ?? ($siteContent['contact_page_subtitle'] ?? 'Nhan tu van giai phap may cong nghiep, bao gia nhanh va ho tro ky thuat theo nhu cau nha may cua ban.') }}</p>
     </div>
 
     <div class="contact-layout">

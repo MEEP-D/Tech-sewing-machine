@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaUrl;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Partner extends Model
 {
+    use ResolvesMediaUrl;
+
     protected $fillable = [
         'name',
         'logo',
@@ -27,18 +29,6 @@ class Partner extends Model
             return null;
         }
 
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
-        }
-
-        if (str_starts_with($path, '/')) {
-            return asset(ltrim($path, '/'));
-        }
-
-        if (str_starts_with($path, 'storage/')) {
-            return asset($path);
-        }
-
-        return Storage::disk('public')->url($path);
+        return $this->resolveMediaUrl($path);
     }
 }

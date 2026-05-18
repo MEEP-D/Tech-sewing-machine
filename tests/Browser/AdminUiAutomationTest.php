@@ -45,18 +45,6 @@ class AdminUiAutomationTest extends DuskTestCase
     public function test_admin_create_forms_render_all_expected_inputs(): void
     {
         $forms = [
-            '/admin/banners/create' => [
-                'data.key',
-                'data.title',
-                'data.subtitle',
-                'data.image',
-                'data.link',
-                'data.button_text',
-                'data.size_label',
-                'data.recommended_size',
-                'data.sort_order',
-                'data.is_active',
-            ],
             '/admin/categories/create' => [
                 'data.name',
                 'data.slug',
@@ -296,7 +284,6 @@ class AdminUiAutomationTest extends DuskTestCase
     public function test_required_admin_create_forms_block_empty_submit(): void
     {
         $paths = [
-            '/admin/banners/create',
             '/admin/categories/create',
             '/admin/menus/create',
             '/admin/pages/create',

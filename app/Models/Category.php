@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaUrl;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, ResolvesMediaUrl, SoftDeletes;
 
     protected static function booted(): void
     {
@@ -69,5 +70,10 @@ class Category extends Model
         return $this->type === 'news'
             ? route('news.category', $this->slug)
             : route('products.category', $this->slug);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->resolveMediaUrl($this->image);
     }
 }

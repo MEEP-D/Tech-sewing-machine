@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaUrl;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Slider extends Model
 {
+    use ResolvesMediaUrl;
+
     protected $fillable = [
         'image',
         'title',
@@ -36,32 +38,6 @@ class Slider extends Model
             return null;
         }
 
-        $path = str_replace('\\', '/', trim((string) $path));
-
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
-        }
-
-        if (str_starts_with($path, 'storage/')) {
-            return asset($path);
-        }
-
-        if (str_starts_with($path, 'public/')) {
-            return asset('storage/' . ltrim(substr($path, 7), '/'));
-        }
-
-        if (
-            str_starts_with($path, 'assets/')
-            || str_starts_with($path, 'images/')
-            || str_starts_with($path, 'upload/')
-        ) {
-            return asset($path);
-        }
-
-        if (str_starts_with($path, '/')) {
-            return asset(ltrim($path, '/'));
-        }
-
-        return Storage::disk('public')->url($path);
+        return $this->resolveMediaUrl($path);
     }
 }

@@ -19,9 +19,9 @@ class MenuResource extends Resource
     protected static ?string $model = Menu::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-bars-3';
-    protected static ?string $navigationLabel = 'Menu';
-    protected static ?string $modelLabel = 'Menu';
-    protected static ?string $pluralModelLabel = 'Menu';
+    protected static ?string $navigationLabel = 'Menu điều hướng';
+    protected static ?string $modelLabel = 'Mục menu';
+    protected static ?string $pluralModelLabel = 'Menu điều hướng';
 
     public static function form(Schema $schema): Schema
     {

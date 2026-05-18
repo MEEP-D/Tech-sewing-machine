@@ -35,6 +35,102 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 3.1 Desktop overflow menu (right drawer)
+    const navLinksRoot = document.querySelector('.nav-links');
+    const desktopMoreToggle = document.getElementById('desktop-more-toggle');
+    const desktopMoreDrawer = document.getElementById('desktop-more-drawer');
+    const desktopMoreList = document.getElementById('desktop-more-list');
+    const desktopMoreClose = document.getElementById('desktop-more-close');
+    const menuOverlay = document.getElementById('menu-overlay');
+    let navOverflowItems = [];
+
+    const restoreOverflowItems = () => {
+        if (!navLinksRoot || !desktopMoreList) return;
+        navOverflowItems.forEach(item => navLinksRoot.appendChild(item));
+        navOverflowItems = [];
+        desktopMoreList.innerHTML = '';
+    };
+
+    const rebalanceOverflowMenu = () => {
+        if (!navLinksRoot || !desktopMoreList || !desktopMoreToggle) return;
+        restoreOverflowItems();
+
+        if (window.innerWidth <= 1024) {
+            desktopMoreToggle.style.display = 'none';
+            return;
+        }
+
+        const navItems = Array.from(navLinksRoot.querySelectorAll(':scope > .nav-item:not(.more-menu)'));
+        if (navItems.length === 0) return;
+        const DESKTOP_VISIBLE_MENU_LIMIT = 6;
+        const overflowed = navItems.slice(DESKTOP_VISIBLE_MENU_LIMIT);
+
+        desktopMoreToggle.style.display = overflowed.length > 0 ? 'inline-flex' : 'none';
+        if (overflowed.length === 0) return;
+
+        overflowed.forEach(item => {
+            navOverflowItems.push(item);
+            desktopMoreList.appendChild(item);
+        });
+    };
+
+    if (desktopMoreToggle && desktopMoreDrawer && desktopMoreList && menuOverlay) {
+        const openDesktopDrawer = () => {
+            desktopMoreDrawer.classList.add('active');
+            menuOverlay.classList.add('active');
+            desktopMoreToggle.setAttribute('aria-expanded', 'true');
+            desktopMoreDrawer.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('menu-open');
+        };
+
+        const closeDesktopDrawer = () => {
+            desktopMoreDrawer.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            desktopMoreToggle.setAttribute('aria-expanded', 'false');
+            desktopMoreDrawer.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('menu-open');
+        };
+
+        desktopMoreToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = desktopMoreDrawer.classList.contains('active');
+            if (isOpen) closeDesktopDrawer();
+            else openDesktopDrawer();
+        });
+
+        if (desktopMoreClose) {
+            desktopMoreClose.addEventListener('click', closeDesktopDrawer);
+        }
+
+        menuOverlay.addEventListener('click', () => {
+            closeDesktopDrawer();
+        });
+
+        document.addEventListener('click', (e) => {
+            const isOpen = desktopMoreDrawer.classList.contains('active');
+            if (!isOpen) return;
+
+            const clickedInsideDrawer = desktopMoreDrawer.contains(e.target);
+            const clickedToggle = desktopMoreToggle.contains(e.target);
+            if (!clickedInsideDrawer && !clickedToggle) {
+                closeDesktopDrawer();
+            }
+        });
+
+        let resizeTimer;
+        const onResize = () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                closeDesktopDrawer();
+                rebalanceOverflowMenu();
+            }, 120);
+        };
+
+        window.addEventListener('resize', onResize);
+        window.addEventListener('load', rebalanceOverflowMenu);
+        rebalanceOverflowMenu();
+    }
+
     // 4. Mega Menu Accordion Logic (Shared and Responsive)
     const setupAccordion = (selector, childSelector, forceAllSizes = false) => {
         const parents = document.querySelectorAll(selector);
@@ -142,12 +238,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Mobile Menu Toggle with Drawer & Overlay
     const mobileToggle = document.getElementById('mobile-toggle');
     const navLinks = document.querySelector('.nav-links');
-    const menuOverlay = document.getElementById('menu-overlay');
+    const menuOverlayMobile = document.getElementById('menu-overlay');
     
-    if (mobileToggle && navLinks && menuOverlay) {
+    if (mobileToggle && navLinks && menuOverlayMobile) {
         const toggleMenu = () => {
+            if (window.innerWidth > 1024) {
+                return;
+            }
             const isActive = navLinks.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
+            menuOverlayMobile.classList.toggle('active');
             document.body.classList.toggle('menu-open');
             
             const icon = mobileToggle.querySelector('i');
@@ -163,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleMenu();
         });
 
-        menuOverlay.addEventListener('click', toggleMenu);
+        menuOverlayMobile.addEventListener('click', toggleMenu);
 
         // Close menu when clicking a link inside, BUT NOT if it's a structural link (has children)
         const drawerLinks = navLinks.querySelectorAll('a');

@@ -22,39 +22,40 @@ class ProductsTable
     {
         return $table
             ->columns([
-                ImageColumn::make('display_image_url')
-                    ->label('Anh')
+                ImageColumn::make('display_image')
+                    ->label('Ảnh')
                     ->circular()
                     ->size(56)
+                    ->disk('public')
                     ->defaultImageUrl(asset('assets/frontend/images/placeholder.jpg')),
-                TextColumn::make('name')->label('Ten')->searchable(),
-                TextColumn::make('code')->label('Ma')->searchable(),
+                TextColumn::make('name')->label('Tên')->searchable(),
+                TextColumn::make('code')->label('Mã')->searchable(),
                 TextColumn::make('sku')->label('SKU')->searchable(),
-                TextColumn::make('category.name')->label('Danh muc')->searchable(),
-                TextColumn::make('price')->label('Gia'),
-                IconColumn::make('is_new')->label('Moi')->boolean(),
+                TextColumn::make('category.name')->label('Danh mục')->searchable(),
+                TextColumn::make('price')->label('Giá'),
+                IconColumn::make('is_new')->label('Mới')->boolean(),
                 IconColumn::make('is_hot')->label('Hot')->boolean(),
-                TextColumn::make('status')->label('Trang thai')->badge(),
-                TextColumn::make('sort_order')->label('Thu tu')->sortable(),
+                TextColumn::make('status')->label('Trạng thái')->badge(),
+                TextColumn::make('sort_order')->label('Thứ tự')->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 Action::make('set_exclusive')
-                    ->label('Dat dot pha')
+                    ->label('Đặt đột phá')
                     ->icon('heroicon-m-star')
                     ->color('warning')
                     ->requiresConfirmation()
-                    ->modalHeading('Dat san pham dot pha')
-                    ->modalDescription('He thong se chi giu dung 1 san pham dot pha. San pham dot pha hien tai se bi thay the.')
+                    ->modalHeading('Đặt sản phẩm đột phá')
+                    ->modalDescription('Hệ thống sẽ chỉ giữ đúng 1 sản phẩm đột phá. Sản phẩm đột phá hiện tại sẽ bị thay thế.')
                     ->visible(fn (Product $record): bool => ! $record->is_exclusive)
                     ->action(function (Product $record): void {
                         $record->is_exclusive = true;
                         $record->save();
 
                         Notification::make()
-                            ->title('Da dat san pham dot pha')
+                            ->title('Đã đặt sản phẩm đột phá')
                             ->success()
                             ->send();
                     }),
@@ -69,3 +70,4 @@ class ProductsTable
             ]);
     }
 }
+

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Tag;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -36,6 +37,12 @@ class NewsController extends Controller
                 ->get();
         }
 
+        $latestPosts = Post::published()
+            ->with('category')
+            ->latest('published_at')
+            ->take(5)
+            ->get();
+
         $pickCategoryByKeywords = static function (Collection $categories, array $keywords): ?Category {
             return $categories->first(function (Category $category) use ($keywords) {
                 $haystack = mb_strtolower($category->name . ' ' . $category->slug);
@@ -53,8 +60,20 @@ class NewsController extends Controller
         $productCategory = $pickCategoryByKeywords($allNewsCategories, ['san pham', 'may']);
         $guideCategory = $pickCategoryByKeywords($allNewsCategories, ['huong dan', 'ky thuat']);
 
+        $technicalGuidePosts = collect();
+        if ($guideCategory) {
+            $technicalGuidePosts = Post::published()
+                ->with('category')
+                ->where('category_id', $guideCategory->id)
+                ->latest('published_at')
+                ->take(5)
+                ->get();
+        }
+
         return [
             'featuredPosts' => $featuredPosts,
+            'latestPosts' => $latestPosts,
+            'technicalGuidePosts' => $technicalGuidePosts,
             'marketCategory' => $marketCategory,
             'productCategory' => $productCategory,
             'guideCategory' => $guideCategory,
@@ -64,8 +83,9 @@ class NewsController extends Controller
     public function index(Request $request, SeoService $seoService)
     {
         $keyword = trim((string) $request->query('q', ''));
+        $activeTag = trim((string) $request->query('tag', ''));
 
-        $query = Post::published()->with('category');
+        $query = Post::published()->with(['category', 'tags']);
         if ($keyword !== '') {
             $query->where(function ($q) use ($keyword) {
                 $q->where('title', 'like', "%{$keyword}%")
@@ -73,15 +93,29 @@ class NewsController extends Controller
                     ->orWhere('content', 'like', "%{$keyword}%");
             });
         }
+        if ($activeTag !== '') {
+            $query->whereHas('tags', fn ($q) => $q->where('type', 'news')->where('slug', $activeTag));
+        }
 
         $posts = $query->latest('updated_at')->paginate(9)->withQueryString();
+        $newsTags = Tag::query()
+            ->where('type', 'news')
+            ->orderBy('name')
+            ->get(['name', 'slug']);
         $seo = $seoService->defaults(
             \App\Models\Setting::getValue('seo_news_title', 'Tin tức & Sự kiện'),
             \App\Models\Setting::getValue('seo_news_description', 'Cập nhật tin tức mới nhất về ngành may mặc và sự kiện công nghệ.')
         );
 
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('front.pages.news._list', compact('posts'))->render(),
+                'nextPageUrl' => $posts->nextPageUrl(),
+            ]);
+        }
+
         return view('front.pages.news.index', array_merge(
-            compact('posts', 'seo', 'keyword'),
+            compact('posts', 'seo', 'keyword', 'newsTags', 'activeTag'),
             $this->buildNewsSidebarData()
         ));
     }
@@ -90,8 +124,9 @@ class NewsController extends Controller
     {
         $category = Category::where('slug', $slug)->where('type', 'news')->firstOrFail();
         $keyword = trim((string) $request->query('q', ''));
+        $activeTag = trim((string) $request->query('tag', ''));
 
-        $query = $category->posts()->published()->with('category');
+        $query = $category->posts()->published()->with(['category', 'tags']);
         if ($keyword !== '') {
             $query->where(function ($q) use ($keyword) {
                 $q->where('title', 'like', "%{$keyword}%")
@@ -99,13 +134,26 @@ class NewsController extends Controller
                     ->orWhere('content', 'like', "%{$keyword}%");
             });
         }
+        if ($activeTag !== '') {
+            $query->whereHas('tags', fn ($q) => $q->where('type', 'news')->where('slug', $activeTag));
+        }
 
         $posts = $query->latest('updated_at')->paginate(9)->withQueryString();
-
+        $newsTags = Tag::query()
+            ->where('type', 'news')
+            ->orderBy('name')
+            ->get(['name', 'slug']);
         $seo = $seoService->forModel($category);
 
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('front.pages.news._list', compact('posts'))->render(),
+                'nextPageUrl' => $posts->nextPageUrl(),
+            ]);
+        }
+
         return view('front.pages.news.category', array_merge(
-            compact('category', 'posts', 'seo', 'keyword'),
+            compact('category', 'posts', 'seo', 'keyword', 'newsTags', 'activeTag'),
             $this->buildNewsSidebarData()
         ));
     }

@@ -80,6 +80,12 @@
                 <h1 class="special-title">{{ $product->name }}</h1>
                 <span class="special-code">Ma: {{ $product->code ?: $product->sku }}</span>
                 <div class="special-price"><i class="fas fa-tag"></i> Gia: {{ $product->price ?: 'Lien he' }}</div>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.7rem 0 0;">
+                    <span style="display:inline-flex;align-items:center;background:#d92d20;color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Tra gop {{ max(0, (int) $product->installment_percent) }}%</span>
+                    @if(((int) $product->discount_percent) > 0)
+                        <span style="display:inline-flex;align-items:center;background:#0f172a;color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Giam gia {{ (int) $product->discount_percent }}%</span>
+                    @endif
+                </div>
                 <p class="special-description">{{ $product->short_description }}</p>
 
                 <div class="product-support-block">
@@ -175,6 +181,10 @@
                 <div class="product-img">
                     @if($relatedProduct->display_image_url)
                         <img src="{{ $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}">
+                    @endif
+                    <span class="badge-installment">Tra gop {{ max(0, (int) $relatedProduct->installment_percent) }}%</span>
+                    @if(((int) $relatedProduct->discount_percent) > 0)
+                        <span class="badge-discount-ribbon">-{{ (int) $relatedProduct->discount_percent }}%</span>
                     @endif
                 </div>
                 <div class="product-info">
@@ -320,4 +330,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+@include('front.partials.newsletter-signup')
 @endsection

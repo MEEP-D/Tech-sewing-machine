@@ -102,8 +102,22 @@
                                                         @php
                                                             $grandLabel = $toText(data_get($grandChild, 'label'), 'Chi tiet');
                                                             $grandUrl = $resolveMenuUrl($grandChild);
+                                                            $greatGrandChildren = collect(data_get($grandChild, 'children', []));
                                                         @endphp
-                                                        <li><a href="{{ $grandUrl }}">{{ $grandLabel }}</a></li>
+                                                        <li class="{{ $greatGrandChildren->isNotEmpty() ? 'has-children' : '' }}">
+                                                            <a href="{{ $grandUrl }}">{{ $grandLabel }}</a>
+                                                            @if($greatGrandChildren->isNotEmpty())
+                                                                <ul class="sub-links">
+                                                                    @foreach($greatGrandChildren as $greatGrandChild)
+                                                                        @php
+                                                                            $greatGrandLabel = $toText(data_get($greatGrandChild, 'label'), 'Chi tiet');
+                                                                            $greatGrandUrl = $resolveMenuUrl($greatGrandChild);
+                                                                        @endphp
+                                                                        <li><a href="{{ $greatGrandUrl }}">{{ $greatGrandLabel }}</a></li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
+                                                        </li>
                                                     @endforeach
                                                 </ul>
                                             @endif
@@ -155,10 +169,23 @@
             </a>
         </div>
 
+        <button class="desktop-more-toggle" id="desktop-more-toggle" type="button" aria-expanded="false" aria-label="Mở menu">
+            <i class="fas fa-bars"></i>
+        </button>
+
         <div class="mobile-toggle" id="mobile-toggle">
             <i class="fas fa-bars"></i>
         </div>
     </div>
 </header>
 <div class="menu-overlay" id="menu-overlay"></div>
+<aside class="desktop-more-drawer" id="desktop-more-drawer" aria-hidden="true">
+    <div class="desktop-more-head">
+        <span>Menu</span>
+        <button type="button" id="desktop-more-close" aria-label="Đóng menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <ul class="desktop-more-list" id="desktop-more-list"></ul>
+</aside>
 

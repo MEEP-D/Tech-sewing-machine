@@ -33,19 +33,19 @@ class PageForm
                                     ->required()
                                     ->unique(ignoreRecord: true),
                                 Select::make('layout')
-                                    ->label('Mẫu giao diện (Template)')
+                                    ->label('Mẫu giao diện')
                                     ->options([
                                         'default' => 'Mặc định (Bài viết có ảnh bìa)',
                                         'full_width' => 'Tràn viền (Full Width)',
-                                        'blank' => 'Trang trống (Chỉ hiện nội dung)',
+                                        'blank' => 'Trang trống (Chỉ hiển thị nội dung)',
                                     ])
                                     ->default('default')
                                     ->required(),
                                 Select::make('layout_mode')
                                     ->label('Kiểu layout')
                                     ->options([
-                                        'content' => 'Content truyền thống',
-                                        'builder' => 'Visual Builder',
+                                        'content' => 'Nội dung truyền thống',
+                                        'builder' => 'Trình dựng trực quan',
                                     ])
                                     ->default('content')
                                     ->required(),
@@ -64,9 +64,8 @@ class PageForm
                                 ->label('Mô tả ngắn')
                                 ->columnSpanFull(),
                             FileUpload::make('image')
-                                ->label('Hinh anh dai dien')
-                                ->image()
-                                ->disk('public')
+                                ->label('Hình ảnh đại diện')
+                                ->image()->imageEditor()->disk('public')
                                 ->directory('pages')
                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                 ->columnSpanFull(),
@@ -74,13 +73,13 @@ class PageForm
                                 ->label('Nội dung chi tiết')
                                 ->columnSpanFull(),
                             Textarea::make('style_config')
-                                ->label('Style config JSON')
+                                ->label('Cấu hình style (JSON)')
                                 ->columnSpanFull(),
                         ]),
 
                     Tabs\Tab::make('SEO')
                         ->schema([
-                            Section::make('Meta Tags')
+                            Section::make('Thẻ SEO')
                                 ->relationship('seoMeta')
                                 ->schema([
                                     TextInput::make('meta_title')
@@ -101,8 +100,7 @@ class PageForm
                                             ->maxLength(95),
                                         FileUpload::make('og_image')
                                             ->label('OG Image')
-                                            ->image()
-                                            ->directory('seo/og-images')
+                                            ->image()->imageEditor()->directory('seo/og-images')
                                             ->disk('public')
                                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                             ->maxSize(1024)
@@ -129,4 +127,3 @@ class PageForm
         ]);
     }
 }
-

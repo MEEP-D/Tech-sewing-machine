@@ -3,6 +3,8 @@
 @section('content')
 @php($highlightProduct = $highlightProduct ?? null)
 @php($highlightSpecs = ($highlightProduct && $highlightProduct->relationLoaded('specs')) ? $highlightProduct->specs->values() : collect())
+@php($highlightDescription = $highlightProduct ? ($highlightProduct->long_description ?: $highlightProduct->short_description) : '')
+@php($highlightDescriptionLines = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) $highlightDescription)))->map(fn($line) => trim($line))->filter())
 @php($homeFaqs = collect($siteContent['home_faqs'] ?? [])->take(6))
 @php($bannerProducts = ($exclusiveProducts ?? collect())->values()->map(function($item){
     return [
@@ -133,7 +135,13 @@
                 <h2 class="special-title">{{ $highlightProduct->name }}</h2>
                 <span class="special-code">Mã SP: {{ $highlightProduct->code ?: $highlightProduct->sku }}</span>
                 <div class="special-price"><i class="fas fa-tag"></i> Giá: {{ $highlightProduct->price ?: 'Liên hệ' }}</div>
-                <p class="special-description">{{ $highlightProduct->long_description ?: $highlightProduct->short_description }}</p>
+                @if($highlightDescriptionLines->isNotEmpty())
+                    <ul class="description-list">
+                        @foreach($highlightDescriptionLines as $line)
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i><span>{{ $line }}</span></li>
+                        @endforeach
+                    </ul>
+                @endif
                 <div class="special-specs-grid">
                     @foreach($highlightSpecs->take(8) as $spec)
                         <div class="spec-item"><span class="spec-label">{{ $spec->key }}</span><span class="spec-value">{{ $spec->value }}</span></div>
@@ -217,6 +225,10 @@
                         @if($product->display_image_url)
                             <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}">
                         @endif
+                        <span class="badge-installment">Tra gop {{ max(0, (int) $product->installment_percent) }}%</span>
+                        @if(((int) $product->discount_percent) > 0)
+                            <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
+                        @endif
                         @if($product->is_new)<span class="badge-new">Mới</span>@endif
                         @if($product->is_hot)<span class="badge-hot">Hot</span>@endif
                         @if($product->is_exclusive)<span class="badge-exclusive">Exclusive</span>@endif
@@ -224,6 +236,35 @@
                     <div class="product-info">
                         <div class="product-cat">{{ $product->category?->name }}</div>
                         <h3 class="product-name"><a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a></h3>
+                        @php($cardFeatures = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) ($product->short_description ?: $product->long_description))))->map(fn($line) => trim($line))->filter()->take(2))
+                        @if($cardFeatures->isNotEmpty())
+                            <ul class="product-features product-features-lined">
+                                @foreach($cardFeatures as $feature)
+                                    <li><i class="fas fa-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
+                                @endforeach
+                            </ul>
+                        @endif
+                        @php($cardSpecs = collect())
+                        @if($product->relationLoaded('specs') && $product->specs->isNotEmpty())
+                            @php($cardSpecs = $product->specs->map(fn($spec) => ['key' => $spec->key, 'value' => $spec->value])->take(2))
+                        @elseif(is_array($product->specifications) && !empty($product->specifications))
+                            @php($cardSpecs = collect($product->specifications)->map(function($spec){
+                                return [
+                                    'key' => $spec['key'] ?? null,
+                                    'value' => $spec['value'] ?? null,
+                                ];
+                            })->filter(fn($spec) => filled($spec['key']) || filled($spec['value']))->take(2))
+                        @endif
+                        @if($cardSpecs->isNotEmpty())
+                            <div class="product-specs-mini product-specs-middle">
+                                @foreach($cardSpecs as $spec)
+                                    <div class="spec">
+                                        <i class="fas fa-circle-check" aria-hidden="true"></i>
+                                        <span>{{ $spec['key'] }}: {{ $spec['value'] }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                         <div class="product-footer">
                             <div class="price-box">
                                 <span class="product-price">{{ $product->price ?: 'Liên hệ' }}</span>
@@ -267,4 +308,5 @@
         </div>
     </div>
 </section>
+@include('front.partials.newsletter-signup')
 @endsection

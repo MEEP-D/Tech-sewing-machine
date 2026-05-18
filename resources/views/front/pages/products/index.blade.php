@@ -1,10 +1,18 @@
 ﻿@extends('front.layouts.app')
 
 @section('content')
-<section class="products-hero">
+@php
+    $productsHeroImage = $siteContent['page_products_hero_image'] ?? null;
+    if (is_string($productsHeroImage) && $productsHeroImage !== '' && !str_starts_with($productsHeroImage, 'http://') && !str_starts_with($productsHeroImage, 'https://')) {
+        $productsHeroImage = str_starts_with($productsHeroImage, 'assets/')
+            ? asset($productsHeroImage)
+            : \Illuminate\Support\Facades\Storage::disk('public')->url($productsHeroImage);
+    }
+@endphp
+<section class="products-hero page-hero" @if(!empty($productsHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $productsHeroImage }}'); background-size: cover; background-position: center;" @endif>
     <div class="products-hero-inner container">
-        <h1>San pham</h1>
-        <p>Giai phap may cong nghiep, may lap trinh va phu kien cho xuong san xuat.</p>
+        <h1>{{ $siteContent['page_products_heading'] ?? 'San pham' }}</h1>
+        <p>{{ $siteContent['page_products_desc'] ?? 'Giai phap may cong nghiep, may lap trinh va phu kien cho xuong san xuat.' }}</p>
     </div>
 </section>
 
@@ -38,13 +46,28 @@
                     </div>
                     <div class="toolbar-right">Trang {{ $products->currentPage() }}/{{ $products->lastPage() }}</div>
                 </div>
+                @if(($toolbarTags ?? collect())->isNotEmpty())
+                    <div class="products-tag-toolbar">
+                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except('tag', 'page')) }}" class="product-tag-chip {{ empty($selectedFilters['tag']) ? 'is-active' : '' }}">Tat ca</a>
+                        @foreach($toolbarTags as $tag)
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except('page'), ['tag' => $tag->slug])) }}" class="product-tag-chip {{ ($selectedFilters['tag'] ?? '') === $tag->slug ? 'is-active' : '' }}">{{ $tag->name }}</a>
+                        @endforeach
+                    </div>
+                @endif
 
                 <div class="product-grid catalog-grid">
                     @foreach($products as $product)
+                        @php($cardImage = $product->display_image_url
+                            ?: (!empty($product->image) ? asset(ltrim($product->image, '/')) : null)
+                            ?: (!empty($product->thumbnail) ? asset(ltrim($product->thumbnail, '/')) : null))
                         <article class="product-card catalog-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                             <div class="product-img">
-                                @if($product->display_image_url)
-                                    <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}">
+                                @if($cardImage)
+                                    <img src="{{ $cardImage }}" alt="{{ $product->name }}">
+                                @endif
+                                <span class="badge-installment">Tra gop {{ max(0, (int) $product->installment_percent) }}%</span>
+                                @if(((int) $product->discount_percent) > 0)
+                                    <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
                                 @endif
                             </div>
                             <div class="product-info">
@@ -69,4 +92,5 @@
         </div>
     </div>
 </section>
+@include('front.partials.newsletter-signup')
 @endsection

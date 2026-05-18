@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             PartnerSeeder::class,
             SectionSeeder::class,
             MenuSeeder::class,
-            BannerSeeder::class,
             SeoMetaSeeder::class,
             TagSeeder::class,
             TaggableSeeder::class,

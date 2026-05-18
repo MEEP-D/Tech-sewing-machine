@@ -21,7 +21,7 @@ class CategoryForm
             ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tabs\Tab::make('Thông Tin Danh Mục')
+                        Tabs\Tab::make('Thông tin danh mục')
                             ->schema([
                                 Grid::make(2)->schema([
                                     TextInput::make('name')
@@ -42,8 +42,8 @@ class CategoryForm
                                     Select::make('type')
                                         ->label('Loại danh mục')
                                         ->options([
-                                            'product' => '📦 Sản phẩm',
-                                            'news'    => '📰 Tin tức',
+                                            'product' => 'Sản phẩm',
+                                            'news'    => 'Tin tức',
                                         ])
                                         ->default('product')
                                         ->required(),
@@ -59,8 +59,7 @@ class CategoryForm
                                     ->columnSpanFull(),
                                 FileUpload::make('image')
                                     ->label('Hình ảnh đại diện')
-                                    ->image()
-                                    ->directory('categories')
+                                    ->image()->imageEditor()->directory('categories')
                                     ->disk('public')
                                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                     ->maxSize(1024),
@@ -77,7 +76,7 @@ class CategoryForm
 
                         Tabs\Tab::make('SEO')
                             ->schema([
-                                Section::make('Meta Tags')
+                                Section::make('Thẻ SEO')
                                     ->relationship('seoMeta')
                                     ->schema([
                                         TextInput::make('meta_title')
@@ -98,8 +97,7 @@ class CategoryForm
                                                 ->maxLength(95),
                                             FileUpload::make('og_image')
                                                 ->label('OG Image')
-                                                ->image()
-                                                ->directory('seo/og-images')
+                                                ->image()->imageEditor()->directory('seo/og-images')
                                                 ->disk('public')
                                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                                 ->maxSize(1024),

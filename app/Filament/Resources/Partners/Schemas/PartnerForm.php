@@ -16,8 +16,7 @@ class PartnerForm
                     ->maxLength(255),
                 \Filament\Forms\Components\FileUpload::make('logo')
                     ->label('Logo')
-                    ->image()
-                    ->disk('public')
+                    ->image()->imageEditor()->disk('public')
                     ->directory('partners')
                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                     ->required(),
@@ -26,7 +25,7 @@ class PartnerForm
                     ->url()
                     ->maxLength(255),
                 \Filament\Forms\Components\TextInput::make('sort_order')
-                    ->label('Thứ tự hiện thị')
+                    ->label('Thứ tự hiển thị')
                     ->numeric()
                     ->default(0),
                 \Filament\Forms\Components\Toggle::make('is_active')

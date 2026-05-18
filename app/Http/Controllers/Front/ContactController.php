@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
+use App\Services\DynamicMailConfigService;
 use App\Services\SeoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,7 @@ class ContactController extends Controller
 
         try {
             $adminEmail = \App\Models\Setting::getValue('contact_email', 'admin@techsewing.vn');
+            app(DynamicMailConfigService::class)->apply();
             \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\NewLeadNotification($lead));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to send new lead email: ' . $e->getMessage());

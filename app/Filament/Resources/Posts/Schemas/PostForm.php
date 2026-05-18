@@ -4,14 +4,14 @@ namespace App\Filament\Resources\Posts\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\RichEditor;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 
 class PostForm
@@ -22,7 +22,7 @@ class PostForm
             ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tabs\Tab::make('Nội Dung')
+                        Tabs\Tab::make('Nội dung')
                             ->schema([
                                 Grid::make(2)->schema([
                                     TextInput::make('title')
@@ -30,9 +30,7 @@ class PostForm
                                         ->required()
                                         ->maxLength(255)
                                         ->live(onBlur: true)
-                                        ->afterStateUpdated(fn ($state, callable $set) =>
-                                            $set('slug', \Str::slug($state))
-                                        ),
+                                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Str::slug($state))),
                                     TextInput::make('slug')
                                         ->label('Slug (URL)')
                                         ->required()
@@ -43,10 +41,10 @@ class PostForm
                                     Select::make('type')
                                         ->label('Loại bài viết')
                                         ->options([
-                                            'news'    => '📰 Tin tức',
-                                            'event'   => '📅 Sự kiện',
-                                            'fair'    => '🏢 Hội chợ',
-                                            'seminar' => '🎤 Hội thảo',
+                                            'news' => 'Tin tức',
+                                            'event' => 'Sự kiện',
+                                            'fair' => 'Hội chợ',
+                                            'seminar' => 'Hội thảo',
                                         ])
                                         ->default('news')
                                         ->required()
@@ -54,9 +52,9 @@ class PostForm
                                     Select::make('status')
                                         ->label('Trạng thái')
                                         ->options([
-                                            'draft'     => '📝 Nháp',
-                                            'published' => '✅ Công khai',
-                                            'archived'  => '📦 Lưu trữ',
+                                            'draft' => 'Nháp',
+                                            'published' => 'Công khai',
+                                            'archived' => 'Lưu trữ',
                                         ])
                                         ->default('draft')
                                         ->required(),
@@ -87,14 +85,23 @@ class PostForm
                                 RichEditor::make('content')
                                     ->label('Nội dung chi tiết')
                                     ->toolbarButtons([
-                                        'bold', 'italic', 'underline', 'strike',
-                                        'h2', 'h3', 'bulletList', 'orderedList',
-                                        'link', 'blockquote', 'undo', 'redo',
+                                        'bold',
+                                        'italic',
+                                        'underline',
+                                        'strike',
+                                        'h2',
+                                        'h3',
+                                        'bulletList',
+                                        'orderedList',
+                                        'link',
+                                        'blockquote',
+                                        'undo',
+                                        'redo',
                                     ])
                                     ->columnSpanFull(),
                             ]),
 
-                        Tabs\Tab::make('Sự Kiện')
+                        Tabs\Tab::make('Sự kiện')
                             ->schema([
                                 Grid::make(2)->schema([
                                     TextInput::make('event_date')
@@ -108,11 +115,12 @@ class PostForm
                                 ]),
                             ]),
 
-                        Tabs\Tab::make('Hình Ảnh')
+                        Tabs\Tab::make('Hình ảnh')
                             ->schema([
                                 FileUpload::make('thumbnail')
                                     ->label('Ảnh bìa bài viết')
                                     ->image()
+                                    ->imageEditor()
                                     ->imageResizeMode('cover')
                                     ->imageCropAspectRatio('16:9')
                                     ->imageResizeTargetWidth('1200')
@@ -125,7 +133,7 @@ class PostForm
                                     ->helperText('Kích thước tối ưu: 1200x675px (16:9), tối đa 2MB'),
                             ]),
 
-                        Tabs\Tab::make('Cài Đặt')
+                        Tabs\Tab::make('Cài đặt')
                             ->schema([
                                 Toggle::make('is_featured')
                                     ->label('Bài viết nổi bật')
@@ -156,6 +164,7 @@ class PostForm
                                             FileUpload::make('og_image')
                                                 ->label('OG Image')
                                                 ->image()
+                                                ->imageEditor()
                                                 ->directory('seo/og-images')
                                                 ->disk('public')
                                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
@@ -171,10 +180,8 @@ class PostForm
                                             ->url()
                                             ->maxLength(500),
                                         Grid::make(2)->schema([
-                                            Toggle::make('no_index')
-                                                ->label('No Index'),
-                                            Toggle::make('no_follow')
-                                                ->label('No Follow'),
+                                            Toggle::make('no_index')->label('No Index'),
+                                            Toggle::make('no_follow')->label('No Follow'),
                                         ]),
                                     ]),
                             ]),

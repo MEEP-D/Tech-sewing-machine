@@ -29,12 +29,12 @@ class SectionForm
                     'carousel' => 'Carousel',
                 ])->required(),
                 Textarea::make('content')->columnSpanFull(),
-                FileUpload::make('image')->image()->disk('public')->directory('sections')
+                FileUpload::make('image')->image()->imageEditor()->disk('public')->directory('sections')
                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                 TextInput::make('sort_order')->numeric()->default(0),
                 Checkbox::make('is_active')->default(true),
             ]),
-            FormSection::make('Style layout')->schema([
+            FormSection::make('Cấu hình giao diện')->schema([
                 TextInput::make('container_class')->label('Container class'),
                 TextInput::make('bg_color')->label('Màu nền'),
                 TextInput::make('text_color')->label('Màu chữ'),

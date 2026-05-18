@@ -15,11 +15,11 @@ class SettingsTable
     {
         return $table
             ->columns([
-                TextColumn::make('key')->searchable(),
-                TextColumn::make('label')->searchable(),
-                TextColumn::make('group')->badge(),
-                TextColumn::make('type')->badge(),
-                TextColumn::make('updated_at')->dateTime()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('key')->label('Khóa')->searchable(),
+                TextColumn::make('label')->label('Nhãn')->searchable(),
+                TextColumn::make('group')->label('Nhóm')->badge(),
+                TextColumn::make('type')->label('Kiểu dữ liệu')->badge(),
+                TextColumn::make('updated_at')->label('Cập nhật')->dateTime()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -5,6 +5,9 @@ namespace App\Filament\Resources\Pages\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class PagesTable
@@ -13,18 +16,19 @@ class PagesTable
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('title')
-                    ->label('Tiêu đề')
+                ImageColumn::make('image')->label('Anh')->disk('public')->size(56),
+                TextColumn::make('title')
+                    ->label('Tieu de')
                     ->searchable()
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
-                \Filament\Tables\Columns\IconColumn::make('is_active')
-                    ->label('Công khai')
+                IconColumn::make('is_active')
+                    ->label('Cong khai')
                     ->boolean(),
-                \Filament\Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Cập nhật')
+                TextColumn::make('updated_at')
+                    ->label('Cap nhat')
                     ->dateTime()
                     ->sortable(),
             ])
@@ -41,3 +45,4 @@ class PagesTable
             ]);
     }
 }
+

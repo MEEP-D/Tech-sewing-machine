@@ -49,4 +49,16 @@ class AdminSiteSettingsUploadTest extends TestCase
             ->assertOk()
             ->assertSee('/storage/site/tab-logo.png', false);
     }
+
+    public function test_seo_settings_can_save_default_og_image_path(): void
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+
+        Livewire::actingAs($user)
+            ->test(SeoSettings::class)
+            ->set('data.seo_default_og_image_upload', ['site/default-og.png'])
+            ->call('save');
+
+        $this->assertSame('site/default-og.png', Setting::getValue('seo_default_og_image'));
+    }
 }

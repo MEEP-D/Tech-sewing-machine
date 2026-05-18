@@ -15,12 +15,12 @@ class MenusTable
     public static function configure(Table $table): Table
     {
         return $table->columns([
-            TextColumn::make('location')->badge(),
-            TextColumn::make('label')->searchable(),
+            TextColumn::make('location')->label('Vị trí')->badge(),
+            TextColumn::make('label')->label('Nhãn menu')->searchable(),
             TextColumn::make('parent_id')->label('Menu cha'),
-            TextColumn::make('seo_title')->limit(30)->toggleable(),
-            TextColumn::make('sort_order')->sortable(),
-            IconColumn::make('is_active')->boolean(),
+            TextColumn::make('seo_title')->label('Tiêu đề SEO')->limit(30)->toggleable(),
+            TextColumn::make('sort_order')->label('Thứ tự')->sortable(),
+            IconColumn::make('is_active')->label('Hiển thị')->boolean(),
         ])->recordActions([
             EditAction::make(),
             DeleteAction::make(),

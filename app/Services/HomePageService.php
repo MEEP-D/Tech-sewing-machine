@@ -3,13 +3,11 @@
 namespace App\Services;
 
 use App\Models\Category;
-use App\Models\Banner;
 use App\Models\Partner;
 use App\Models\Post;
 use App\Models\Product;
 use App\Models\Section;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Cache;
 
 class HomePageService
 {
@@ -55,12 +53,6 @@ class HomePageService
             ->take(8)
             ->get();
 
-        $banners = Banner::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderByDesc('id')
-            ->get();
-
         return [
             'sections' => $sections,
             'featuredProducts' => $featuredProducts,
@@ -68,7 +60,6 @@ class HomePageService
             'latestPosts' => $latestPosts,
             'productCategories' => $productCategories,
             'partners' => $partners,
-            'banners' => $banners,
             'homeHeroImage' => Setting::getValue('home_hero_image', asset('assets/frontend/images/anh1.jpg')),
             'homeHeroImageEnabled' => (bool) Setting::getValue('home_hero_image_enabled', true),
         ];

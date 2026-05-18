@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Section extends Model
 {
-    use HasFactory;
+    use HasFactory, ResolvesMediaUrl;
 
     protected static function booted(): void
     {
@@ -37,5 +38,10 @@ class Section extends Model
     public function seoMeta(): MorphOne
     {
         return $this->morphOne(SeoMeta::class, 'seoable');
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->resolveMediaUrl($this->image);
     }
 }

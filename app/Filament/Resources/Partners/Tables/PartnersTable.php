@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Partners\Tables;
 
-use App\Models\Partner;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class PartnersTable
@@ -14,23 +16,23 @@ class PartnersTable
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\ImageColumn::make('logo')
+                ImageColumn::make('logo')
                     ->label('Logo')
-                    ->getStateUsing(fn (Partner $record): ?string => $record->logo_url)
+                    ->disk('public')
                     ->circular()
                     ->size(40),
-                \Filament\Tables\Columns\TextColumn::make('name')
-                    ->label('Tên đối tác')
+                TextColumn::make('name')
+                    ->label('Ten doi tac')
                     ->searchable()
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('url')
-                    ->label('Link')
+                TextColumn::make('url')
+                    ->label('Lien ket')
                     ->limit(30),
-                \Filament\Tables\Columns\TextColumn::make('sort_order')
-                    ->label('Thứ tự')
+                TextColumn::make('sort_order')
+                    ->label('Thu tu')
                     ->sortable(),
-                \Filament\Tables\Columns\IconColumn::make('is_active')
-                    ->label('Hoạt động')
+                IconColumn::make('is_active')
+                    ->label('Hoat dong')
                     ->boolean(),
             ])
             ->filters([

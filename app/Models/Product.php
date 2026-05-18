@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,17 +10,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, ResolvesMediaUrl, SoftDeletes;
 
     protected $fillable = [
         'name', 'slug', 'code', 'sku', 'short_description', 'long_description', 'description',
         'price', 'brand', 'origin', 'specifications', 'image', 'thumbnail',
         'gallery', 'video_id', 'category_id', 'status', 'is_featured', 'is_new', 'is_hot',
-        'is_exclusive', 'sort_order', 'view_count', 'support_prompt',
+        'is_exclusive', 'sort_order', 'view_count', 'discount_percent', 'installment_percent', 'support_prompt',
         'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
         'overview_heading', 'overview_content', 'seo_heading', 'seo_content',
     ];
@@ -31,6 +31,8 @@ class Product extends Model
         'is_new'         => 'boolean',
         'is_hot'         => 'boolean',
         'is_exclusive'   => 'boolean',
+        'discount_percent' => 'integer',
+        'installment_percent' => 'integer',
     ];
 
     protected static function booted(): void
@@ -106,33 +108,7 @@ class Product extends Model
             return null;
         }
 
-        $path = str_replace('\\', '/', trim((string) $path));
-
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
-        }
-
-        if (str_starts_with($path, 'storage/')) {
-            return asset($path);
-        }
-
-        if (str_starts_with($path, 'public/')) {
-            return asset('storage/' . ltrim(substr($path, 7), '/'));
-        }
-
-        if (
-            str_starts_with($path, 'assets/')
-            || str_starts_with($path, 'images/')
-            || str_starts_with($path, 'upload/')
-        ) {
-            return asset($path);
-        }
-
-        if (str_starts_with($path, '/')) {
-            return asset(ltrim($path, '/'));
-        }
-
-        return Storage::disk('public')->url($path);
+        return $this->resolveMediaUrl($path);
     }
 
     public function incrementViewCount(): void

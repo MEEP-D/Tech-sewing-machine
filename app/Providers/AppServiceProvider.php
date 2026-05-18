@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Services\MenuService;
 use App\Models\Category;
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\Setting;
+use App\Observers\PostObserver;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::defaultView('vendor.pagination.tech-sewing');
+        Post::observe(PostObserver::class);
 
         try {
             $isAdminRequest = request()->is('admin') || request()->is('admin/*');
@@ -62,6 +65,19 @@ class AppServiceProvider extends ServiceProvider
                             'about_body' => $siteSettings['about_body'] ?? '',
                             'contact_page_title' => $siteSettings['contact_page_title'] ?? '',
                             'contact_page_subtitle' => $siteSettings['contact_page_subtitle'] ?? '',
+                            'page_news_heading' => $siteSettings['page_news_heading'] ?? 'Tin tuc',
+                            'page_news_desc' => $siteSettings['page_news_desc'] ?? 'Cap nhat nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.',
+                            'page_news_hero_image' => $siteSettings['page_news_hero_image'] ?? null,
+                            'page_products_heading' => $siteSettings['page_products_heading'] ?? 'San pham',
+                            'page_products_desc' => $siteSettings['page_products_desc'] ?? 'Giai phap may cong nghiep, may lap trinh va phu kien cho xuong san xuat.',
+                            'page_products_hero_image' => $siteSettings['page_products_hero_image'] ?? null,
+                            'page_about_heading' => $siteSettings['page_about_heading'] ?? ($siteSettings['about_title'] ?? 'Gioi thieu'),
+                            'page_about_desc' => $siteSettings['page_about_desc'] ?? ($siteSettings['about_subtitle'] ?? ''),
+                            'page_about_hero_image' => $siteSettings['page_about_hero_image'] ?? null,
+                            'page_contact_heading' => $siteSettings['page_contact_heading'] ?? ($siteSettings['contact_page_title'] ?? 'Lien he'),
+                            'page_contact_desc' => $siteSettings['page_contact_desc'] ?? ($siteSettings['contact_page_subtitle'] ?? ''),
+                            'page_contact_hero_image' => $siteSettings['page_contact_hero_image'] ?? null,
+                            'newsletter_signup_image' => $siteSettings['newsletter_signup_image'] ?? null,
                             'home_faqs' => Setting::getValue('home_faqs', []),
                         ]);
                     } catch (\Throwable) {

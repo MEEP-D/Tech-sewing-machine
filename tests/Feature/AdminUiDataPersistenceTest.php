@@ -4,9 +4,6 @@ namespace Tests\Feature;
 
 use App\Filament\Pages\SeoSettings;
 use App\Filament\Pages\SiteSettings;
-use App\Filament\Resources\Banners\Pages\CreateBanner;
-use App\Filament\Resources\Banners\Pages\EditBanner;
-use App\Filament\Resources\Banners\Pages\ListBanners;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
@@ -32,7 +29,6 @@ use App\Filament\Resources\Settings\Pages\CreateSetting;
 use App\Filament\Resources\Settings\Pages\EditSetting;
 use App\Filament\Resources\Settings\Pages\ListSettings;
 use App\Filament\Resources\TagResource\Pages\ManageTags;
-use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Page;
@@ -55,26 +51,9 @@ class AdminUiDataPersistenceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_can_create_and_see_banner_category_menu_page(): void
+    public function test_admin_can_create_and_see_category_menu_page(): void
     {
         $admin = $this->createAdmin();
-
-        Livewire::actingAs($admin)
-            ->test(CreateBanner::class)
-            ->fillForm([
-                'key' => 'home-hero',
-                'title' => 'Banner UI Test',
-                'sort_order' => 1,
-                'is_active' => true,
-            ])
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        $this->assertDatabaseHas('banners', [
-            'key' => 'home-hero',
-            'title' => 'Banner UI Test',
-        ]);
-        $this->actingAs($admin)->get('/admin/banners')->assertOk()->assertSee('Banner UI Test');
 
         Livewire::actingAs($admin)
             ->test(CreateCategory::class)
@@ -283,20 +262,6 @@ class AdminUiDataPersistenceTest extends TestCase
     public function test_admin_can_edit_and_delete_all_resources(): void
     {
         $admin = $this->createAdmin();
-
-        $banner = Banner::create([
-            'key' => 'edit-banner',
-            'title' => 'Banner Old',
-            'sort_order' => 1,
-            'is_active' => true,
-        ]);
-        Livewire::actingAs($admin)->test(EditBanner::class, ['record' => $banner->getKey()])
-            ->fillForm(['title' => 'Banner New'])
-            ->call('save')
-            ->assertHasNoFormErrors();
-        Livewire::actingAs($admin)->test(ListBanners::class)
-            ->callTableAction(DeleteAction::class, $banner);
-        $this->assertDatabaseMissing('banners', ['id' => $banner->id]);
 
         $category = Category::create([
             'name' => 'Category Old',

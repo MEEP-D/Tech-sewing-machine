@@ -110,11 +110,13 @@ class ProductController extends Controller
             'filterCategories' => $filterCategories,
             'functionTags' => $splitTags['functionTags'],
             'usageTags' => $splitTags['usageTags'],
+            'toolbarTags' => $productTags->take(14),
             'perPageOptions' => self::ALLOWED_PER_PAGES,
             'selectedFilters' => [
                 'types' => array_values(array_filter((array) $request->input('types', []))),
                 'functions' => array_values(array_filter((array) $request->input('functions', []))),
                 'usages' => array_values(array_filter((array) $request->input('usages', []))),
+                'tag' => trim((string) $request->input('tag', '')),
                 'min_price' => $request->input('min_price'),
                 'max_price' => $request->input('max_price'),
                 'per_page' => $this->resolvePerPage($request),
@@ -167,6 +169,27 @@ class ProductController extends Controller
         $selectedUsages = array_values(array_filter((array) $request->input('usages', [])));
         if (!empty($selectedUsages)) {
             $query->whereHas('tags', fn ($q) => $q->where('type', 'product')->whereIn('slug', $selectedUsages));
+        }
+
+        $selectedTag = trim((string) $request->input('tag', ''));
+        if ($selectedTag !== '') {
+            $matchedCategory = Category::query()
+                ->where('type', 'product')
+                ->where('slug', $selectedTag)
+                ->where('is_active', true)
+                ->with([
+                    'childrenRecursive' => fn ($q) => $q->where('is_active', true),
+                ])
+                ->first();
+
+            $query->where(function ($inner) use ($selectedTag, $matchedCategory) {
+                $inner->whereHas('tags', fn ($q) => $q->where('type', 'product')->where('slug', $selectedTag));
+
+                if ($matchedCategory) {
+                    $categoryIds = $this->flattenCategoryIds($matchedCategory);
+                    $inner->orWhereIn('category_id', $categoryIds);
+                }
+            });
         }
 
         $sort = $request->get('sort', 'latest');

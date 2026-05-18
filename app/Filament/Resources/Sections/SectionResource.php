@@ -18,7 +18,9 @@ class SectionResource extends Resource
 {
     protected static ?string $model = Section::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleGroup;
-    protected static ?string $navigationLabel = 'Section';
+    protected static ?string $navigationLabel = 'Khối nội dung';
+    protected static ?string $modelLabel = 'Khối nội dung';
+    protected static ?string $pluralModelLabel = 'Khối nội dung';
 
     public static function form(Schema $schema): Schema
     {

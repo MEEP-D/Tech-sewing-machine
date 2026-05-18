@@ -1,6 +1,17 @@
 ﻿@extends('front.layouts.app')
 
 @section('content')
+@php
+    $postCoverImage = $post->thumbnail_url;
+    if (! $postCoverImage) {
+        $postCoverImage = $siteContent['page_news_hero_image'] ?? null;
+        if (is_string($postCoverImage) && $postCoverImage !== '' && !str_starts_with($postCoverImage, 'http://') && !str_starts_with($postCoverImage, 'https://')) {
+            $postCoverImage = str_starts_with($postCoverImage, 'assets/')
+                ? asset($postCoverImage)
+                : \Illuminate\Support\Facades\Storage::disk('public')->url($postCoverImage);
+        }
+    }
+@endphp
 <section class="news-page news-detail-page">
     <div class="container news-layout">
         <article class="news-detail-main">
@@ -16,13 +27,13 @@
                 @endif
             </header>
 
-            @if($post->thumbnail)
+            @if($postCoverImage)
                 <div class="news-detail-image">
-                    <img src="{{ asset($post->thumbnail) }}" alt="{{ $post->title }}">
+                    <img src="{{ $postCoverImage }}" alt="{{ $post->title }}">
                 </div>
             @endif
 
-            <div class="news-detail-content">{!! $post->content !!}</div>
+            <div class="news-detail-content">{!! $post->rendered_content !!}</div>
 
             @if($relatedPosts->isNotEmpty())
                 <section class="news-related">
@@ -30,9 +41,9 @@
                     <div class="news-related-grid">
                         @foreach($relatedPosts as $related)
                             <article class="news-related-card clickable-card" data-card-link="{{ route('news.show', $related->slug) }}">
-                                @if($related->thumbnail)
+                                @if($related->thumbnail_url)
                                     <div class="news-related-image">
-                                        <img src="{{ asset($related->thumbnail) }}" alt="{{ $related->title }}">
+                                        <img src="{{ $related->thumbnail_url }}" alt="{{ $related->title }}">
                                     </div>
                                 @endif
                                 <div class="news-related-body">
@@ -48,4 +59,5 @@
         @include('front.pages.news._sidebar')
     </div>
 </section>
+@include('front.partials.newsletter-signup')
 @endsection

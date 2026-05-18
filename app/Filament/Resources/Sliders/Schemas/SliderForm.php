@@ -20,8 +20,7 @@ class SliderForm
                     Grid::make(2)->schema([
                         FileUpload::make('image')
                             ->label('Ảnh slider')
-                            ->image()
-                            ->required()
+                            ->image()->imageEditor()->required()
                             ->disk('public')
                             ->directory('sliders')
                             ->preserveFilenames()

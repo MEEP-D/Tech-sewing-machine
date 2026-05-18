@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Page extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, ResolvesMediaUrl, SoftDeletes;
 
     protected static function booted(): void
     {
@@ -43,5 +44,10 @@ class Page extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->resolveMediaUrl($this->image);
     }
 }

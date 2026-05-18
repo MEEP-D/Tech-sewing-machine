@@ -16,14 +16,15 @@ class MenuForm
         return $schema->components([
             Grid::make(2)->schema([
                 Select::make('location')
+                    ->label('Vị trí menu')
                     ->options([
-                        'header' => 'Header',
-                        'footer' => 'Footer',
+                        'header' => 'Đầu trang',
+                        'footer' => 'Chân trang',
                     ])
                     ->required(),
-                TextInput::make('label')->required(),
+                TextInput::make('label')->label('Nhãn hiển thị')->required(),
                 TextInput::make('url')->label('URL'),
-                TextInput::make('route_name')->label('Route name'),
+                TextInput::make('route_name')->label('Tên route'),
                 Select::make('target')->options([
                     '_self' => 'Mở cùng tab',
                     '_blank' => 'Mở tab mới',
@@ -35,8 +36,8 @@ class MenuForm
                     ->preload()
                     ->nullable(),
                 TextInput::make('sort_order')->label('Thứ tự')->numeric()->default(0),
-                TextInput::make('icon')->label('Icon'),
-                TextInput::make('css_class')->label('CSS class'),
+                TextInput::make('icon')->label('Biểu tượng'),
+                TextInput::make('css_class')->label('Lớp CSS'),
                 Textarea::make('meta_config')->label('Meta JSON')->columnSpanFull(),
                 Checkbox::make('is_active')->label('Hiển thị')->default(true),
             ]),

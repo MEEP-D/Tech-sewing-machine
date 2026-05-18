@@ -12,6 +12,9 @@
     --admin-text-muted: #475569;
     --admin-primary: #2563eb;
     --admin-primary-soft: #dbeafe;
+    --admin-font-family: 'Inter', 'Be Vietnam Pro', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --admin-control-height: 2.75rem;
+    --admin-control-radius: 0.7rem;
 }
 
 .dark {
@@ -28,7 +31,7 @@
 .fi-body {
     background: radial-gradient(circle at top right, color-mix(in srgb, var(--admin-primary) 12%, transparent) 0%, transparent 45%), var(--admin-surface-0);
     color: var(--admin-text);
-    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-family: var(--admin-font-family);
 }
 
 .fi-main {
@@ -100,6 +103,8 @@
 .fi-input-wrp {
     border-color: var(--admin-border);
     background-color: var(--admin-surface-1);
+    border-radius: var(--admin-control-radius);
+    min-height: var(--admin-control-height);
 }
 
 .fi-input-wrp:focus-within {
@@ -119,6 +124,21 @@
     --c-800: 30 64 175;
     --c-900: 30 58 138;
     --c-950: 23 37 84;
+}
+
+.fi-select-input,
+.fi-input,
+.fi-textarea,
+.fi-fo-field-wrp .choices__inner {
+    font-family: var(--admin-font-family);
+    border-radius: var(--admin-control-radius);
+}
+
+.fi-btn {
+    border-radius: var(--admin-control-radius);
+    font-family: var(--admin-font-family);
+    min-height: calc(var(--admin-control-height) - 0.125rem);
+    font-weight: 650;
 }
 
 .fi-wi-stats-overview-stat {

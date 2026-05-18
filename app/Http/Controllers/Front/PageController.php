@@ -12,7 +12,11 @@ class PageController extends Controller
 {
     public function show(string $slug, SeoService $seoService, PageRenderService $renderer): View
     {
-        $page = Page::query()->where('slug', $slug)->where('is_active', true)->firstOrFail();
+        $normalizedSlug = ltrim(trim($slug), '/');
+        $page = Page::query()
+            ->whereIn('slug', [$normalizedSlug, '/' . $normalizedSlug])
+            ->where('is_active', true)
+            ->firstOrFail();
         $seo = $seoService->forModel($page);
         $html = $page->layout_mode === 'builder'
             ? $renderer->renderedHtml($page)

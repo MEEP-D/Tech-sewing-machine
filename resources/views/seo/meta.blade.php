@@ -5,7 +5,7 @@
     $description = $seo['meta_description'] ?? ($seo['description'] ?? '');
     $keywords = $seo['keywords'] ?? ($seo['focus_keyword'] ?? '');
     $canonical = $seo['canonical_url'] ?? ($seo['canonical'] ?? url()->current());
-    $ogImage = $seo['og_image'] ?? asset('assets/frontend/images/og-image.jpg');
+    $ogImage = $seo['og_image'] ?? asset('images/og-default.svg');
     $ogType = $seo['og_type'] ?? 'website';
     $schemaMarkup = $seo['schema_markup'] ?? [];
 @endphp
@@ -37,3 +37,4 @@
         {!! json_encode($schema) !!}
     </script>
 @endforeach
+

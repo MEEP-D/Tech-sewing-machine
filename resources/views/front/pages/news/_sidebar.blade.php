@@ -1,4 +1,15 @@
-﻿<aside class="news-sidebar">
+<aside class="news-sidebar">
+    <div class="news-sidebar-card compact">
+        <h3>Tin mới nhất</h3>
+        <ul class="news-sidebar-list compact">
+            @forelse($latestPosts as $latest)
+                <li><a href="{{ route('news.show', $latest->slug) }}">{{ $latest->title }}</a></li>
+            @empty
+                <li><span class="news-sidebar-empty">Đang cập nhật</span></li>
+            @endforelse
+        </ul>
+    </div>
+
     <div class="news-sidebar-card compact">
         <h3>Danh mục tin tức</h3>
         <ul class="news-sidebar-list compact">
@@ -19,6 +30,17 @@
         <ul class="news-sidebar-list compact">
             @forelse($featuredPosts as $featured)
                 <li><a href="{{ route('news.show', $featured->slug) }}">{{ $featured->title }}</a></li>
+            @empty
+                <li><span class="news-sidebar-empty">Đang cập nhật</span></li>
+            @endforelse
+        </ul>
+    </div>
+
+    <div class="news-sidebar-card compact">
+        <h3>Hướng dẫn kỹ thuật</h3>
+        <ul class="news-sidebar-list compact">
+            @forelse($technicalGuidePosts as $guidePost)
+                <li><a href="{{ route('news.show', $guidePost->slug) }}">{{ $guidePost->title }}</a></li>
             @empty
                 <li><span class="news-sidebar-empty">Đang cập nhật</span></li>
             @endforelse

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Page;
@@ -21,7 +20,6 @@ class SeoMetaSeeder extends Seeder
         $this->seedPages();
         $this->seedMenus();
         $this->seedSections();
-        $this->seedBanners();
     }
 
     protected function seedCategories(): void
@@ -159,30 +157,6 @@ class SeoMetaSeeder extends Seeder
                 'og_image' => $section->image ?: null,
                 'canonical_url' => null,
                 'focus_keyword' => $section->key,
-                'schema_markup' => [],
-                'no_index' => true,
-                'no_follow' => true,
-            ]);
-        }
-    }
-
-    protected function seedBanners(): void
-    {
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Banner> $banners */
-        $banners = Banner::query()->get();
-
-        foreach ($banners as $banner) {
-            $title = $banner->title ? "{$banner->title} | Tech Sewing Machine" : null;
-            $description = $banner->subtitle ?: null;
-
-            $banner->seoMeta()->updateOrCreate([], [
-                'meta_title' => $title ? $this->limit($title, 70) : null,
-                'meta_description' => $description ? $this->limit($description, 165) : null,
-                'og_title' => $banner->title ?: null,
-                'og_description' => $description ? $this->limit($description, 200) : null,
-                'og_image' => $banner->image ?: null,
-                'canonical_url' => $banner->link ? url($banner->link) : null,
-                'focus_keyword' => $banner->key,
                 'schema_markup' => [],
                 'no_index' => true,
                 'no_follow' => true,

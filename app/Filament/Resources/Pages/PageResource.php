@@ -19,6 +19,9 @@ class PageResource extends Resource
     protected static ?string $model = Page::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = 'Trang';
+    protected static ?string $modelLabel = 'Trang';
+    protected static ?string $pluralModelLabel = 'Trang';
 
     public static function form(Schema $schema): Schema
     {
