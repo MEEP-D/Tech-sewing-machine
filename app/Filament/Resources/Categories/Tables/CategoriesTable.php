@@ -20,39 +20,39 @@ class CategoriesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('TÃªn')
+                    ->label('Tên')
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Loáº¡i')
+                    ->label('Loại')
                     ->badge(),
                 TextColumn::make('parent.name')
-                    ->label('Danh má»¥c cha')
+                    ->label('Danh mục cha')
                     ->searchable(),
                 ImageColumn::make('image')
-                    ->label('Anh')
+                    ->label('Ảnh')
                     ->disk('public'),
                 IconColumn::make('is_active')
-                    ->label('Hiá»ƒn thá»‹')
+                    ->label('Hiển thị')
                     ->boolean(),
                 TextColumn::make('sort_order')
-                    ->label('Thá»© tá»±')
+                    ->label('Thứ tự')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('NgÃ y táº¡o')
+                    ->label('Ngày tạo')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Cáº­p nháº­t')
+                    ->label('Cập nhật')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->label('ÄÃ£ xÃ³a lÃºc')
+                    ->label('Đã xóa lúc')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

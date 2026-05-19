@@ -13,7 +13,10 @@ class EditLead extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->requiresConfirmation()
+                ->modalHeading('Xác nhận xóa liên hệ')
+                ->modalDescription('Bạn có chắc chắn muốn xóa liên hệ này không?'),
         ];
     }
 }

@@ -25,7 +25,7 @@ class LeadSeeder extends Seeder
                 'name' => 'Trần Thị B',
                 'phone' => '0903000000',
                 'email' => null,
-                'company' => 'May Gia Công B',
+                'company' => 'May Giá Công B',
                 'interest' => 'Máy lập trình',
                 'message' => 'Xin báo giá máy may lập trình Brother, cần demo tại xưởng.',
                 'source' => 'website_contact',

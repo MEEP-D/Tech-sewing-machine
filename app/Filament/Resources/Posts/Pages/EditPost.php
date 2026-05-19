@@ -15,7 +15,10 @@ class EditPost extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->requiresConfirmation()
+                ->modalHeading('Xác nhận xóa bài viết')
+                ->modalDescription('Bạn có chắc chắn muốn xóa bài viết này không?'),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];

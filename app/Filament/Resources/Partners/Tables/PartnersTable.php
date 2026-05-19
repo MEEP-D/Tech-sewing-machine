@@ -22,14 +22,14 @@ class PartnersTable
                     ->circular()
                     ->size(40),
                 TextColumn::make('name')
-                    ->label('Ten doi tac')
+                    ->label('Tên đối tác')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('url')
                     ->label('Lien ket')
                     ->limit(30),
                 TextColumn::make('sort_order')
-                    ->label('Thu tu')
+                    ->label('Thứ tự')
                     ->sortable(),
                 IconColumn::make('is_active')
                     ->label('Hoat dong')

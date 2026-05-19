@@ -16,19 +16,19 @@ class PagesTable
     {
         return $table
             ->columns([
-                ImageColumn::make('image')->label('Anh')->disk('public')->size(56),
+                ImageColumn::make('image')->label('Ảnh')->disk('public')->size(56),
                 TextColumn::make('title')
-                    ->label('Tieu de')
+                    ->label('Tiêu đề')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
                 IconColumn::make('is_active')
-                    ->label('Cong khai')
+                    ->label('Công khai')
                     ->boolean(),
                 TextColumn::make('updated_at')
-                    ->label('Cap nhat')
+                    ->label('Cập nhật')
                     ->dateTime()
                     ->sortable(),
             ])

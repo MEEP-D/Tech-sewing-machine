@@ -14,16 +14,16 @@ class NewsletterSubscriberForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Subscriber')->schema([
+            Section::make('Người đăng ký')->schema([
                 Grid::make(2)->schema([
-                    TextInput::make('email')->disabled(),
-                    Select::make('status')->options([
-                        'pending' => 'Pending',
-                        'active' => 'Active',
-                        'unsubscribed' => 'Unsubscribed',
+                    TextInput::make('email')->label('Email')->email()->required()->disabled(),
+                    Select::make('status')->label('Trạng thái')->options([
+                        'pending' => 'Chờ xác nhận',
+                        'active' => 'Đang nhận tin',
+                        'unsubscribed' => 'Đã hủy đăng ký',
                     ])->required(),
-                    DateTimePicker::make('confirmed_at')->disabled(),
-                    DateTimePicker::make('unsubscribed_at')->disabled(),
+                    DateTimePicker::make('confirmed_at')->label('Thời gian xác nhận')->disabled(),
+                    DateTimePicker::make('unsubscribed_at')->label('Thời gian hủy')->disabled(),
                 ]),
             ]),
         ]);

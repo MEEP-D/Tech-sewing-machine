@@ -19,30 +19,30 @@ class PostsTable
     {
         return $table
             ->columns([
-                TextColumn::make('title')->label('Tieu de')->searchable(),
+                TextColumn::make('title')->label('Tiêu đề')->searchable(),
                 TextColumn::make('slug')->label('Slug')->searchable(),
-                ImageColumn::make('thumbnail')->label('Anh dai dien')->disk('public')->size(56),
-                TextColumn::make('category.name')->label('Danh muc')->searchable(),
-                TextColumn::make('author.name')->label('Tac gia')->searchable(),
-                TextColumn::make('status')->label('Trang thai')->badge(),
-                TextColumn::make('type')->label('Loai')->badge(),
-                TextColumn::make('published_at')->label('Ngay dang')->dateTime()->sortable(),
-                TextColumn::make('event_date')->label('Ngay su kien')->searchable(),
-                TextColumn::make('event_location')->label('Dia diem')->searchable(),
-                IconColumn::make('is_featured')->label('Noi bat')->boolean(),
-                TextColumn::make('view_count')->label('Luot xem')->numeric()->sortable(),
+                ImageColumn::make('thumbnail')->label('Ảnh đại diện')->disk('public')->size(56),
+                TextColumn::make('category.name')->label('Danh mục')->searchable(),
+                TextColumn::make('author.name')->label('Tác giả')->searchable(),
+                TextColumn::make('status')->label('Trạng thái')->badge(),
+                TextColumn::make('type')->label('Loại')->badge(),
+                TextColumn::make('published_at')->label('Ngày đăng')->dateTime()->sortable(),
+                TextColumn::make('event_date')->label('Ngày sự kiện')->searchable(),
+                TextColumn::make('event_location')->label('Địa điểm')->searchable(),
+                IconColumn::make('is_featured')->label('Nổi bật')->boolean(),
+                TextColumn::make('view_count')->label('Lượt xem')->numeric()->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Ngay tao')
+                    ->label('Ngày tạo')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Cap nhat')
+                    ->label('Cập nhật')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->label('Da xoa luc')
+                    ->label('Đã xóa lúc')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

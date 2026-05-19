@@ -15,7 +15,10 @@ class EditProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->requiresConfirmation()
+                ->modalHeading('Xác nhận xóa sản phẩm')
+                ->modalDescription('Bạn có chắc chắn muốn xóa sản phẩm này không?'),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];

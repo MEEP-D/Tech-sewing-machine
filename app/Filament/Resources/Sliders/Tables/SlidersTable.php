@@ -15,15 +15,15 @@ class SlidersTable
     public static function configure(Table $table): Table
     {
         return $table->columns([
-            ImageColumn::make('image')->label('Anh')->disk('public')->size(64),
-            TextColumn::make('title')->label('Tieu de')->searchable(),
-            TextColumn::make('subtitle')->label('Mo ta')->limit(40),
-            TextColumn::make('sort_order')->label('Thu tu')->sortable(),
+            ImageColumn::make('image')->label('Ảnh')->disk('public')->size(64),
+            TextColumn::make('title')->label('Tiêu đề')->searchable(),
+            TextColumn::make('subtitle')->label('Mô tả')->limit(40),
+            TextColumn::make('sort_order')->label('Thứ tự')->sortable(),
             IconColumn::make('show_overlay')->label('Phu den')->boolean(),
-            IconColumn::make('show_title')->label('Hien tieu de')->boolean(),
-            IconColumn::make('show_subtitle')->label('Hien mo ta ngan')->boolean(),
-            IconColumn::make('show_button')->label('Hien nut')->boolean(),
-            IconColumn::make('is_active')->label('Hien thi')->boolean(),
+            IconColumn::make('show_title')->label('Hiện tiêu đề')->boolean(),
+            IconColumn::make('show_subtitle')->label('Hiện mô tả ngắn')->boolean(),
+            IconColumn::make('show_button')->label('Hiện nút')->boolean(),
+            IconColumn::make('is_active')->label('Hiển thị')->boolean(),
         ])->recordActions([
             EditAction::make(),
         ])->toolbarActions([

@@ -103,7 +103,7 @@ class ProductSeeder extends Seeder
                 'overview_heading' => 'Tong quan san pham',
                 'overview_content' => '<p>' . e($def['name']) . ' phu hop cho doanh nghiep can tang nang suat va dong nhat chat luong duong may.</p>',
                 'seo_heading' => 'Loi ich trien khai thuc te',
-                'seo_content' => '<p>Giai phap toi uu cho nha may may cong nghiep voi yeu cau van hanh lien tuc.</p>',
+                'seo_content' => '<p>Giái phap toi uu cho nha may may cong nghiep voi yeu cau van hanh lien tuc.</p>',
             ]);
         }
     }

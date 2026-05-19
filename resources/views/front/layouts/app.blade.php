@@ -32,6 +32,9 @@
     @include('front.partials.header')
     <main>@yield('content')</main>
     @include('front.partials.footer')
+    @include('front.partials.promo-popup-overlay')
+    @include('front.partials.floating-contact')
+    @include('front.partials.cookie-consent')
     <script src="{{ asset('assets/frontend/js/modern.js') }}?v={{ filemtime(public_path('assets/frontend/js/modern.js')) }}"></script>
 </body>
 </html>

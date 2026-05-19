@@ -15,7 +15,10 @@ class EditCategory extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->requiresConfirmation()
+                ->modalHeading('Xác nhận xóa danh mục')
+                ->modalDescription('Bạn có chắc chắn muốn xóa danh mục này không?'),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];

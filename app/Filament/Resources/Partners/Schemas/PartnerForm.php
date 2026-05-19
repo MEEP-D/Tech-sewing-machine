@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Partners\Schemas;
 
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class PartnerForm
@@ -10,25 +13,26 @@ class PartnerForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->label('Tên đối tác')
                     ->required()
                     ->maxLength(255),
-                \Filament\Forms\Components\FileUpload::make('logo')
+                FileUpload::make('logo')
                     ->label('Logo')
                     ->image()->imageEditor()->disk('public')
                     ->directory('partners')
                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                     ->required(),
-                \Filament\Forms\Components\TextInput::make('url')
+                TextInput::make('url')
                     ->label('Link website')
                     ->url()
-                    ->maxLength(255),
-                \Filament\Forms\Components\TextInput::make('sort_order')
+                    ->maxLength(500),
+                TextInput::make('sort_order')
                     ->label('Thứ tự hiển thị')
                     ->numeric()
+                    ->minValue(0)
                     ->default(0),
-                \Filament\Forms\Components\Toggle::make('is_active')
+                Toggle::make('is_active')
                     ->label('Hoạt động')
                     ->default(true),
             ]);

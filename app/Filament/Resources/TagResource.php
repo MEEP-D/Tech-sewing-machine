@@ -11,8 +11,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -24,9 +24,7 @@ class TagResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
     protected static ?string $navigationLabel = 'Từ khóa (Tags)';
-    
     protected static ?string $modelLabel = 'Từ khóa';
-    
     protected static ?string $pluralModelLabel = 'Từ khóa';
 
     public static function form(Schema $schema): Schema
@@ -34,20 +32,24 @@ class TagResource extends Resource
         return $schema
             ->components([
                 Forms\Components\TextInput::make('name')
+                    ->label('Tên từ khóa')
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (string $operation, $state, Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
                 Forms\Components\TextInput::make('slug')
+                    ->label('Slug (URL)')
                     ->required()
                     ->maxLength(255)
                     ->unique(Tag::class, 'slug', ignoreRecord: true),
                 Forms\Components\Select::make('type')
+                    ->label('Loại')
                     ->options([
                         'product' => 'Sản phẩm',
                         'news' => 'Tin tức',
                     ])
                     ->default('product')
+                    ->required()
                     ->dehydrated(fn ($state) => filled($state)),
             ]);
     }
@@ -56,9 +58,9 @@ class TagResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('slug'),
-                Tables\Columns\TextColumn::make('type')->badge()->color(fn (string $state): string => match ($state) {
+                Tables\Columns\TextColumn::make('name')->label('Tên')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('slug')->label('Slug'),
+                Tables\Columns\TextColumn::make('type')->label('Loại')->badge()->color(fn (string $state): string => match ($state) {
                     'product' => 'success',
                     'news' => 'info',
                     default => 'gray',
@@ -73,11 +75,17 @@ class TagResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalHeading('Xác nhận xóa từ khóa')
+                    ->modalDescription('Bạn có chắc chắn muốn xóa từ khóa này không?'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->requiresConfirmation()
+                        ->modalHeading('Xác nhận xóa các từ khóa')
+                        ->modalDescription('Bạn có chắc chắn muốn xóa các từ khóa đã chọn không?'),
                 ]),
             ]);
     }

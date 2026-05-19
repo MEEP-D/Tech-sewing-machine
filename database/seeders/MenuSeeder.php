@@ -10,18 +10,18 @@ class MenuSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->upsertMenu(['location' => 'header', 'label' => 'Trang Chu', 'parent_id' => null], ['url' => '/', 'route_name' => 'home', 'target' => '_self', 'sort_order' => 1, 'is_active' => true, 'icon' => 'home', 'css_class' => null, 'meta_config' => ['is_primary' => true]]);
-        $this->upsertMenu(['location' => 'header', 'label' => 'Gioi Thieu', 'parent_id' => null], ['url' => '/gioi-thieu', 'route_name' => 'about', 'target' => '_self', 'sort_order' => 2, 'is_active' => true, 'icon' => 'info', 'css_class' => null, 'meta_config' => []]);
-        $products = $this->upsertMenu(['location' => 'header', 'label' => 'San Pham', 'parent_id' => null], ['url' => '/san-pham', 'route_name' => 'products.index', 'target' => '_self', 'sort_order' => 3, 'is_active' => true, 'icon' => 'grid', 'css_class' => null, 'meta_config' => ['has_dropdown' => true, 'menu_type' => 'mega']]);
-        $this->upsertMenu(['location' => 'header', 'label' => 'Ky Thuat', 'parent_id' => null], ['url' => '/tin-tuc/danh-muc/huong-dan-ky-thuat', 'route_name' => null, 'target' => '_self', 'sort_order' => 4, 'is_active' => true, 'icon' => 'wrench', 'css_class' => null, 'meta_config' => []]);
-        $this->upsertMenu(['location' => 'header', 'label' => 'Tin Tuc', 'parent_id' => null], ['url' => '/tin-tuc', 'route_name' => 'news.index', 'target' => '_self', 'sort_order' => 5, 'is_active' => true, 'icon' => 'newspaper', 'css_class' => null, 'meta_config' => []]);
-        $this->upsertMenu(['location' => 'header', 'label' => 'Lien He', 'parent_id' => null], ['url' => '/lien-he', 'route_name' => 'contact', 'target' => '_self', 'sort_order' => 6, 'is_active' => true, 'icon' => 'phone', 'css_class' => 'v-nav-cta', 'meta_config' => ['variant' => 'cta']]);
+        $this->upsertMenu(['location' => 'header', 'label' => 'Trang Chủ', 'parent_id' => null], ['url' => '/', 'route_name' => 'home', 'target' => '_self', 'sort_order' => 1, 'is_active' => true, 'icon' => 'home', 'css_class' => null, 'meta_config' => ['is_primary' => true]]);
+        $this->upsertMenu(['location' => 'header', 'label' => 'Giới Thiệu', 'parent_id' => null], ['url' => '/gioi-thieu', 'route_name' => 'about', 'target' => '_self', 'sort_order' => 2, 'is_active' => true, 'icon' => 'info', 'css_class' => null, 'meta_config' => []]);
+        $products = $this->upsertMenu(['location' => 'header', 'label' => 'Sản Phẩm', 'parent_id' => null], ['url' => '/san-pham', 'route_name' => 'products.index', 'target' => '_self', 'sort_order' => 3, 'is_active' => true, 'icon' => 'grid', 'css_class' => null, 'meta_config' => ['has_dropdown' => true, 'menu_type' => 'mega']]);
+        $this->upsertMenu(['location' => 'header', 'label' => 'Kỹ Thuật', 'parent_id' => null], ['url' => '/tin-tuc/danh-muc/huong-dan-ky-thuat', 'route_name' => null, 'target' => '_self', 'sort_order' => 4, 'is_active' => true, 'icon' => 'wrench', 'css_class' => null, 'meta_config' => []]);
+        $this->upsertMenu(['location' => 'header', 'label' => 'Tin Tức', 'parent_id' => null], ['url' => '/tin-tuc', 'route_name' => 'news.index', 'target' => '_self', 'sort_order' => 5, 'is_active' => true, 'icon' => 'newspaper', 'css_class' => null, 'meta_config' => []]);
+        $this->upsertMenu(['location' => 'header', 'label' => 'Liên Hệ', 'parent_id' => null], ['url' => '/lien-he', 'route_name' => 'contact', 'target' => '_self', 'sort_order' => 6, 'is_active' => true, 'icon' => 'phone', 'css_class' => 'v-nav-cta', 'meta_config' => ['variant' => 'cta']]);
 
         $megaColumns = [
             'May Lap Trinh Va Tu Dong' => ['May Lap Trinh Smart' => ['Kho Nho', 'Kho Trung', 'Kho Lon', 'May Tui Quan Jean'], 'Trang Tri Hoa Van Smart' => [], 'May Dan Tui Tu Dong' => [], 'He Thong May In Tu Dong' => [], 'May Ep Seam Hot Air' => []],
             'May May Cong Nghiep' => ['May May 1 Kim' => ['Bruce', 'TSO', 'Durkopp Adler'], 'May May 2 Kim' => ['Kai Lai', 'Brother', 'Siruba', 'Durkopp Adler 2 Kim'], 'May Vat So' => [], 'May Danh Bong' => []],
             'Phong Cat Va Xu Ly Vai' => ['Thiet Bi Phong Cat' => ['May Trai Vai Tu Dong', 'Phong CAD', 'May Cat Dau Ban', 'May Xu Ly Vai'], 'May Trai Vai Tu Dong Cao Cap' => [], 'May Cat Day Vien' => [], 'May Kiem Vai Da Nang' => []],
-            'Giai Phap Chuyen Dung' => ['May Mo Tui Tu Dong' => [], 'May Noi Thun Tu Dong' => [], 'May Ep Nhiet So Mi' => [], 'May Khuy Mat Phung' => [], 'May Trang Tri Ong Quan Jean' => [], 'May Theu Vi Tinh' => []],
+            'Giái Phap Chuyen Dung' => ['May Mo Tui Tu Dong' => [], 'May Noi Thun Tu Dong' => [], 'May Ep Nhiet So Mi' => [], 'May Khuy Mat Phung' => [], 'May Trang Tri Ong Quan Jean' => [], 'May Theu Vi Tinh' => []],
         ];
 
         $allCategories = Category::query()->where('type', 'product')->get()->keyBy('name');
@@ -43,10 +43,10 @@ class MenuSeeder extends Seeder
         }
 
         $footerItems = [
-            ['label' => 'Gioi Thieu', 'url' => '/gioi-thieu', 'sort_order' => 1],
-            ['label' => 'Chinh sach bao hanh', 'url' => '/trang/chinh-sach-bao-hanh', 'sort_order' => 2],
-            ['label' => 'Chinh sach van chuyen', 'url' => '/trang/chinh-sach-van-chuyen', 'sort_order' => 3],
-            ['label' => 'Lien He', 'url' => '/lien-he', 'sort_order' => 4],
+            ['label' => 'Giới Thiệu', 'url' => '/gioi-thieu', 'sort_order' => 1],
+            ['label' => 'Chính sách bảo hành', 'url' => '/trang/chinh-sach-bao-hanh', 'sort_order' => 2],
+            ['label' => 'Chính sách vận chuyển', 'url' => '/trang/chinh-sach-van-chuyen', 'sort_order' => 3],
+            ['label' => 'Liên Hệ', 'url' => '/lien-he', 'sort_order' => 4],
         ];
 
         foreach ($footerItems as $item) {

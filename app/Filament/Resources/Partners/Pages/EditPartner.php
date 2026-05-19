@@ -13,7 +13,10 @@ class EditPartner extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->requiresConfirmation()
+                ->modalHeading('Xác nhận xóa đối tác')
+                ->modalDescription('Bạn có chắc chắn muốn xóa đối tác này không?'),
         ];
     }
 }

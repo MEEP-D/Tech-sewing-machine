@@ -51,6 +51,8 @@ class SiteSettings extends Page
         $this->data = [
             'site_title' => Setting::getValue('site_title', config('app.name')),
             'site_description' => Setting::getValue('site_description', ''),
+            'site_logo_height' => Setting::getValue('site_logo_height', 48),
+            'site_logo_width' => Setting::getValue('site_logo_width', 180),
             'site_logo_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_logo', null)),
             'site_logo_type' => Setting::getValue('site_logo_type', 'image'),
             'site_favicon_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_favicon', null)),
@@ -84,6 +86,7 @@ class SiteSettings extends Page
             'mail_template_subject' => Setting::getValue('mail_template_subject', 'Noi dung moi tu TechSewing'),
             'mail_template_html' => Setting::getValue('mail_template_html', '<h2>{{title}}</h2><p>{{excerpt}}</p><p><a href="{{url}}">Xem chi tiet</a></p>'),
             'header_facebook_url' => Setting::getValue('header_facebook_url', ''),
+            'header_zalo_url' => Setting::getValue('header_zalo_url', ''),
             'header_youtube_url' => Setting::getValue('header_youtube_url', ''),
             'page_contact_kicker' => Setting::getValue('page_contact_kicker', self::u('Li\\u00ean h\\u1ec7 & thu th\\u1eadp kh\\u00e1ch h\\u00e0ng ti\\u1ec1m n\\u0103ng')),
             'page_contact_heading' => Setting::getValue('page_contact_heading', self::u('\\u0110\\u1eb7t l\\u1ecbch t\\u01b0 v\\u1ea5n, demo gi\\u1ea3i ph\\u00e1p v\\u00e0 nh\\u1eadn b\\u00e1o gi\\u00e1 nhanh')),
@@ -93,14 +96,29 @@ class SiteSettings extends Page
             'page_products_desc' => Setting::getValue('page_products_desc', self::u('Cung c\\u1ea5p c\\u00e1c d\\u00f2ng m\\u00e1y may ch\\u00ednh h\\u00e3ng, ch\\u1ea5t l\\u01b0\\u1ee3ng cao \\u0111\\u00e1p \\u1ee9ng m\\u1ecdi nhu c\\u1ea7u s\\u1ea3n xu\\u1ea5t.')),
             'page_products_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_products_hero_image', null)),
             'page_news_heading' => Setting::getValue('page_news_heading', 'Tin tuc'),
-            'page_news_desc' => Setting::getValue('page_news_desc', 'Cap nhat nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
+            'page_news_desc' => Setting::getValue('page_news_desc', 'Cáº­p nháº­t nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
             'page_news_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_news_hero_image', null)),
             'page_about_heading' => Setting::getValue('page_about_heading', self::u('Gi\\u1edbi thi\\u1ec7u')),
             'page_about_desc' => Setting::getValue('page_about_desc', ''),
             'page_about_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_about_hero_image', null)),
             'page_contact_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_contact_hero_image', null)),
             'newsletter_signup_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('newsletter_signup_image', null)),
+            'promo_popup_enabled' => (string) Setting::getValue('promo_popup_enabled', '0'),
+            'promo_popup_title' => Setting::getValue('promo_popup_title', 'Uu dai danh cho khÃ¡ch hang moi'),
+            'promo_popup_description' => Setting::getValue('promo_popup_description', 'Nhan tu van nhanh va bao gia theo nhu cau xuong may cua ban.'),
+            'promo_popup_button_text' => Setting::getValue('promo_popup_button_text', 'Nhan uu dai ngay'),
+            'promo_popup_button_url' => Setting::getValue('promo_popup_button_url', ''),
+            'promo_popup_contact_text' => Setting::getValue('promo_popup_contact_text', 'Lien he ngay'),
+            'promo_popup_contact_url' => Setting::getValue('promo_popup_contact_url', ''),
+            'promo_popup_countdown_end_at' => Setting::getValue('promo_popup_countdown_end_at', ''),
+            'promo_popup_countdown_note' => Setting::getValue('promo_popup_countdown_note', '(*) Chuong trinh ap dung co dieu kien den het ngay.'),
+            'promo_popup_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('promo_popup_image', null)),
+            'promo_popup_images_upload' => $this->normalizeUploadListFieldState(Setting::getValue('promo_popup_images', [])),
+            'promo_popup_delay_seconds' => (string) Setting::getValue('promo_popup_delay_seconds', '2'),
+            'promo_popup_frequency_hours' => (string) Setting::getValue('promo_popup_frequency_hours', '24'),
         ];
+
+        $this->form->fill($this->data);
     }
 
     public function form(Schema $schema): Schema
@@ -146,6 +164,7 @@ class SiteSettings extends Page
                             TextInput::make('contact_email')->label(self::u('Email li\\u00ean h\\u1ec7')),
                             Textarea::make('contact_address')->label(self::u('\\u0110\\u1ecba ch\\u1ec9')),
                             TextInput::make('header_facebook_url')->label('Link Facebook')->url(),
+                            TextInput::make('header_zalo_url')->label('Link Zalo')->url(),
                             TextInput::make('header_youtube_url')->label('Link YouTube')->url(),
                         ]),
                     ]),
@@ -203,7 +222,7 @@ class SiteSettings extends Page
                     ]),
                     Section::make(self::u('N\\u1ed9i dung trang Tin t\\u1ee9c'))->schema([
                         TextInput::make('page_news_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 hero'))->default('Tin tuc'),
-                        Textarea::make('page_news_desc')->label(self::u('M\\u00f4 t\\u1ea3 hero'))->default('Cap nhat nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
+                        Textarea::make('page_news_desc')->label(self::u('M\\u00f4 t\\u1ea3 hero'))->default('Cáº­p nháº­t nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
                         FileUpload::make('page_news_hero_image_upload')
                             ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
                             ->image()
@@ -226,6 +245,62 @@ class SiteSettings extends Page
                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     ]),
                 ]),
+                Tabs\Tab::make('Popup Promo')->schema([
+                    Section::make('Cáº¥u hÃ¬nh popup khuyáº¿n mÃ£i')->schema([
+                        Grid::make(2)->schema([
+                            Select::make('promo_popup_enabled')
+                                ->label('Báº­t popup')
+                                ->options([
+                                    '1' => 'Báº­t',
+                                    '0' => 'Táº¯t',
+                                ])
+                                ->default('0')
+                                ->native(false),
+                            TextInput::make('promo_popup_delay_seconds')
+                                ->label('Äá»™ trá»… hiá»ƒn thá»‹ (giÃ¢y)')
+                                ->numeric()
+                                ->minValue(0)
+                                ->default('2'),
+                            TextInput::make('promo_popup_frequency_hours')
+                                ->label('Táº§n suáº¥t hiá»‡n láº¡i (gio)')
+                                ->numeric()
+                                ->minValue(1)
+                                ->default('24'),
+                            TextInput::make('promo_popup_button_url')->label('Link nÃºt CTA')->url(),
+
+                            TextInput::make('promo_popup_contact_url')->label('Link nut lien he')->url(),
+                            TextInput::make('promo_popup_countdown_end_at')
+                                ->label('Thoi diem ket thuc dem nguoc')
+                                ->type('datetime-local'),
+                        ]),
+                        TextInput::make('promo_popup_title')->label('TiÃªu Ä‘á» popup'),
+                        Textarea::make('promo_popup_description')->label('MÃ´ táº£ popup'),
+                        TextInput::make('promo_popup_button_text')->label('Text nÃºt CTA'),
+
+                        TextInput::make('promo_popup_contact_text')->label('Text nut lien he'),
+                        TextInput::make('promo_popup_countdown_note')->label('Ghi chu dem nguoc'),
+                        FileUpload::make('promo_popup_image_upload')
+                            ->label('áº¢nh popup')
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->imageEditor()
+                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                        FileUpload::make('promo_popup_images_upload')
+                            ->label('Danh sÃ¡ch áº£nh popup (tá»± Ä‘á»™ng cháº¡y 3 giÃ¢y/áº£nh)')
+                            ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->disk('public')
+                            ->directory('site')
+                            ->helperText('Náº¿u cÃ³ nhiá»u áº£nh, popup sáº½ tá»± cháº¡y slideshow 3 giÃ¢y má»—i áº£nh.')
+                            ->afterStateHydrated(function ($component, $state): void {
+                                $component->state($this->normalizeUploadListFieldState($state));
+                            }),
+                    ]),
+                ]),
                 Tabs\Tab::make('SMTP / Mail')->schema([
                     Section::make('SMTP / Mail')->schema([
                         Grid::make(2)->schema([
@@ -237,8 +312,8 @@ class SiteSettings extends Page
                                 ->default('smtp')
                                 ->required()
                                 ->native(false),
-                            TextInput::make('mail_host')->label('SMTP Host')->required(),
-                            TextInput::make('mail_port')->label('SMTP Port')->numeric()->required(),
+                            TextInput::make('mail_host')->label('SMTP Host'),
+                            TextInput::make('mail_port')->label('SMTP Port')->numeric(),
                             Select::make('mail_encryption')
                                 ->label('Encryption')
                                 ->options([
@@ -253,43 +328,41 @@ class SiteSettings extends Page
                                 ->label('SMTP Password')
                                 ->password()
                                 ->revealable()
-                                ->placeholder('De trong de giu mat khau hien tai'),
+                                ->placeholder('Äá»ƒ trá»‘ng Ä‘á»ƒ giá»¯ máº­t kháº©u hiá»‡n táº¡i'),
                             TextInput::make('mail_from_address')->label('From Email')->email(),
                             TextInput::make('mail_from_name')->label('From Name'),
                         ]),
                         Section::make('HTML Mail Template')->schema([
                             Grid::make(2)->schema([
                                 Select::make('mail_template_source_type')
-                                    ->label('Nguon du lieu')
+                                    ->label('Nguá»“n dá»¯ liá»‡u')
                                     ->options([
-                                        'post' => 'Bai viet',
-                                        'product' => 'San pham',
-                                        'page' => 'Page tinh',
-                                        'url' => 'URL dong khac',
+                                        'post' => 'BÃ i viáº¿t',
+                                        'product' => 'Sáº£n pháº©m',
+                                        'page' => 'Page tÄ©nh',
+                                        'url' => 'URL Ä‘á»™ng khÃ¡c',
                                     ])
                                     ->default('post')
                                     ->native(false)
                                     ->live(),
                                 TextInput::make('mail_template_source_url')
-                                    ->label('URL dong')
+                                    ->label('URL Ä‘á»™ng')
                                     ->url()
                                     ->visible(fn (callable $get): bool => $get('mail_template_source_type') === 'url')
-                                    ->helperText('Chi dung khi chon nguon URL dong.'),
+                                    ->helperText('Chá»‰ dÃ¹ng khi chá»n nguá»“n URL Ä‘á»™ng.'),
                                 Select::make('mail_template_source_id')
-                                    ->label('Noi dung nguon')
+                                    ->label('Ná»™i dung nguá»“n')
                                     ->options(fn (callable $get): array => $this->sourceOptions((string) $get('mail_template_source_type')))
                                     ->searchable()
                                     ->native(false)
                                     ->visible(fn (callable $get): bool => in_array($get('mail_template_source_type'), ['post', 'product', 'page'], true)),
                                 TextInput::make('mail_template_subject')
-                                    ->label('Tieu de mail')
-                                    ->required(),
+                                    ->label('TiÃªu Ä‘á» mail'),
                             ]),
                             Textarea::make('mail_template_html')
                                 ->label('HTML template')
                                 ->rows(12)
-                                ->required()
-                                ->helperText('Bien ho tro: {{title}}, {{excerpt}}, {{content}}, {{url}}, {{image_url}}, {{site_name}}'),
+                                ->helperText('Biáº¿n há»— trá»£: {{title}}, {{excerpt}}, {{content}}, {{url}}, {{image_url}}, {{site_name}}'),
                         ]),
                         View::make('filament.pages.partials.smtp-test-email'),
                     ]),
@@ -300,11 +373,15 @@ class SiteSettings extends Page
 
     public function save(): void
     {
-        $this->data = array_replace($this->data, $this->form->getState());
+        $state = $this->form->getState();
+        if (is_array($state) && $state !== []) {
+            $this->data = array_replace($this->data, $state);
+        }
 
         $this->persistUploadSettings();
         $this->persistMailSettings();
         $this->persistTextSettings();
+        $this->form->fill($this->data);
         Cache::forget('site_settings_array');
 
         Notification::make()->title(self::u('\\u0110\\u00e3 l\\u01b0u c\\u1ea5u h\\u00ecnh website.'))->success()->send();
@@ -314,7 +391,7 @@ class SiteSettings extends Page
     {
         $email = trim($this->testEmail);
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Notification::make()->title('Email nhan thu khong hop le.')->danger()->send();
+            Notification::make()->title('Email nháº­n thá»­ khÃ´ng há»£p lá»‡.')->danger()->send();
             return;
         }
 
@@ -333,9 +410,9 @@ class SiteSettings extends Page
                 $message->to($email)->subject($subject);
             });
 
-            Notification::make()->title('Da gui email test thanh cong.')->success()->send();
+            Notification::make()->title('ÄÃ£ gá»­i email test thÃ nh cÃ´ng.')->success()->send();
         } catch (\Throwable $exception) {
-            Notification::make()->title('Gui email test that bai: ' . $exception->getMessage())->danger()->send();
+            Notification::make()->title('Gá»­i email test tháº¥t báº¡i: ' . $exception->getMessage())->danger()->send();
         }
     }
 
@@ -349,6 +426,7 @@ class SiteSettings extends Page
             'page_about_hero_image_upload',
             'page_contact_hero_image_upload',
             'newsletter_signup_image_upload',
+            'promo_popup_image_upload',
         ] as $key) {
             $targetKey = str_replace('_upload', '', $key);
             $value = $this->normalizeUploadInput($this->data[$key] ?? null)
@@ -359,12 +437,16 @@ class SiteSettings extends Page
 
             Setting::updateOrCreate(['key' => $targetKey], ['value' => $value, 'group' => $group]);
         }
+
+        $promoImages = $this->normalizeUploadListInput($this->data['promo_popup_images_upload'] ?? []);
+        $this->data['promo_popup_images_upload'] = $promoImages;
+        Setting::updateOrCreate(['key' => 'promo_popup_images'], ['value' => json_encode($promoImages, JSON_UNESCAPED_SLASHES), 'group' => 'homepage']);
     }
 
     protected function persistTextSettings(): void
     {
         $keys = [
-            'site_title', 'site_description', 'site_logo_type',
+            'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width',
             'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
             'home_slogan_title', 'home_slogan_subtitle',
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
@@ -372,11 +454,13 @@ class SiteSettings extends Page
             'contact_hotline', 'contact_email', 'contact_address',
             'mail_mailer', 'mail_host', 'mail_port', 'mail_encryption', 'mail_username', 'mail_from_address', 'mail_from_name',
             'mail_template_source_type', 'mail_template_source_id', 'mail_template_source_url', 'mail_template_subject', 'mail_template_html',
-            'header_facebook_url', 'header_youtube_url',
+            'header_facebook_url', 'header_zalo_url', 'header_youtube_url',
             'page_contact_kicker', 'page_contact_heading', 'page_contact_desc',
             'page_products_kicker', 'page_products_heading', 'page_products_desc',
             'page_news_heading', 'page_news_desc',
             'page_about_heading', 'page_about_desc',
+            'promo_popup_enabled', 'promo_popup_title', 'promo_popup_description',
+            'promo_popup_button_text', 'promo_popup_button_url', 'promo_popup_contact_text', 'promo_popup_contact_url', 'promo_popup_countdown_end_at', 'promo_popup_countdown_note', 'promo_popup_delay_seconds', 'promo_popup_frequency_hours',
         ];
 
         foreach ($keys as $key) {
@@ -442,6 +526,32 @@ class SiteSettings extends Page
         $value = $this->normalizeUploadInput($value);
 
         return filled($value) ? [$value] : [];
+    }
+
+    protected function normalizeUploadListInput(mixed $value): array
+    {
+        if (is_string($value) && filled($value)) {
+            return [$value];
+        }
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $paths = [];
+        foreach ($value as $item) {
+            $normalized = $this->normalizeUploadInput($item);
+            if (is_string($normalized) && filled($normalized)) {
+                $paths[] = $normalized;
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+    protected function normalizeUploadListFieldState(mixed $value): array
+    {
+        return $this->normalizeUploadListInput($value);
     }
 
     public function previewAsset(mixed $value): ?string
@@ -603,3 +713,5 @@ class SiteSettings extends Page
         return strtr($template, $replace);
     }
 }
+
+

@@ -49,7 +49,7 @@ class CategorySeeder extends Seeder
                 ['name' => 'May Cat Day Vien', 'slug' => 'may-cat-day-vien'],
                 ['name' => 'May Kiem Vai Da Nang', 'slug' => 'may-kiem-vai-da-nang'],
             ]],
-            ['name' => 'Giai Phap Chuyen Dung', 'slug' => 'giai-phap-chuyen-dung', 'children' => [
+            ['name' => 'Giái Phap Chuyen Dung', 'slug' => 'giai-phap-chuyen-dung', 'children' => [
                 ['name' => 'May Mo Tui Tu Dong', 'slug' => 'may-mo-tui-tu-dong'],
                 ['name' => 'May Noi Thun Tu Dong', 'slug' => 'may-noi-thun-tu-dong'],
                 ['name' => 'May Ep Nhiet So Mi', 'slug' => 'may-ep-nhiet-so-mi'],

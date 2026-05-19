@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Menus\Schemas;
 
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 
@@ -22,9 +22,9 @@ class MenuForm
                         'footer' => 'Chân trang',
                     ])
                     ->required(),
-                TextInput::make('label')->label('Nhãn hiển thị')->required(),
-                TextInput::make('url')->label('URL'),
-                TextInput::make('route_name')->label('Tên route'),
+                TextInput::make('label')->label('Nhãn hiển thị')->required()->maxLength(255),
+                TextInput::make('url')->label('URL')->url()->maxLength(500),
+                TextInput::make('route_name')->label('Tên route')->maxLength(255),
                 Select::make('target')->options([
                     '_self' => 'Mở cùng tab',
                     '_blank' => 'Mở tab mới',
@@ -35,10 +35,10 @@ class MenuForm
                     ->searchable()
                     ->preload()
                     ->nullable(),
-                TextInput::make('sort_order')->label('Thứ tự')->numeric()->default(0),
-                TextInput::make('icon')->label('Biểu tượng'),
-                TextInput::make('css_class')->label('Lớp CSS'),
-                Textarea::make('meta_config')->label('Meta JSON')->columnSpanFull(),
+                TextInput::make('sort_order')->label('Thứ tự')->numeric()->minValue(0)->default(0),
+                TextInput::make('icon')->label('Biểu tượng')->maxLength(100),
+                TextInput::make('css_class')->label('Lớp CSS')->maxLength(255),
+                Textarea::make('meta_config')->label('Meta JSON')->columnSpanFull()->json(),
                 Checkbox::make('is_active')->label('Hiển thị')->default(true),
             ]),
         ]);
