@@ -9,8 +9,8 @@
 <section class="newsletter-signup" @if(!empty($newsletterImage)) style="background-image: url('{{ $newsletterImage }}');" @endif>
     <div class="container">
         <div class="newsletter-signup-inner">
-            <h2 class="newsletter-signup-title">Dang ky nhan thong tin</h2>
-            <p class="newsletter-signup-desc">Dang ky nhan thong tin chuong trinh khuyen mai, dich vu va cap nhat moi nhat tu TechSewing.</p>
+            <h2 class="newsletter-signup-title">Đăng ký nhận thông tin</h2>
+            <p class="newsletter-signup-desc">Đăng ký nhận thông tin chương trình khuyến mãi, dịch vụ và cập nhật mới nhất từ TechSewing.</p>
             @if(session('newsletter_success'))
                 <p class="newsletter-signup-note" style="color:#16a34a;">{{ session('newsletter_success') }}</p>
             @endif
@@ -26,12 +26,12 @@
                     type="email"
                     name="email"
                     class="newsletter-signup-input"
-                    placeholder="Nhap email cua ban"
+                    placeholder="Nhập email của bạn"
                     required
                 >
-                <button type="submit" class="newsletter-signup-btn">Dang ky</button>
+                <button type="submit" class="newsletter-signup-btn">Đăng ký</button>
             </form>
-            <p class="newsletter-signup-note">Bang cach dang ky, Quy khach xac nhan da doc, hieu va dong y voi chinh sach bao mat thong tin.</p>
+            <p class="newsletter-signup-note">Bằng cách đăng ký, Quý khách xác nhận đã đọc, hiểu và đồng ý với chính sách bảo mật thông tin.</p>
         </div>
     </div>
 </section>

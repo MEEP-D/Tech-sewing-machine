@@ -18,9 +18,8 @@ class PageController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
         $seo = $seoService->forModel($page);
-        $html = $page->layout_mode === 'builder'
-            ? $renderer->renderedHtml($page)
-            : ($page->content ?? '');
+        $isBuilderMode = $page->layout_mode === 'builder';
+        $html = $renderer->renderedHtml($page, $isBuilderMode);
 
         $layout = $page->layout ?: 'default';
         $view = "front.pages.page.layouts.{$layout}";

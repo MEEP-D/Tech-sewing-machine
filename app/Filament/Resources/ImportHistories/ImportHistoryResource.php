@@ -7,8 +7,8 @@ use App\Filament\Resources\ImportHistories\Pages\ViewImportHistory;
 use App\Filament\Resources\ImportHistories\RelationManagers\FailedImportRowsRelationManager;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
 use Filament\Actions\Imports\Models\Import as ImportModel;
+use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
@@ -20,7 +20,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema as SchemaFacade;
 use Illuminate\Support\Facades\URL;
 
 class ImportHistoryResource extends Resource
@@ -82,6 +84,7 @@ class ImportHistoryResource extends Resource
                     ->sortable(),
                 TextColumn::make('failed_rows_count')
                     ->label('Lỗi')
+                    ->state(fn (ImportModel $record): int => static::getDisplayFailedRowsCount($record))
                     ->numeric()
                     ->color(fn (int $state): string => $state > 0 ? 'danger' : 'success')
                     ->sortable(),
@@ -104,8 +107,8 @@ class ImportHistoryResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return match ($data['value'] ?? null) {
                             'processing' => $query->whereNull('completed_at'),
-                            'completed' => $query->whereNotNull('completed_at')->whereColumn('successful_rows', 'total_rows'),
-                            'completed_with_errors' => $query->whereNotNull('completed_at')->whereColumn('successful_rows', '<', 'total_rows'),
+                            'completed' => $query->whereNotNull('completed_at')->doesntHave('failedRows'),
+                            'completed_with_errors' => $query->whereNotNull('completed_at')->has('failedRows'),
                             default => $query,
                         };
                     }),
@@ -118,13 +121,16 @@ class ImportHistoryResource extends Resource
                     ->slideOver()
                     ->modalContent(fn (ImportModel $record) => view('filament.import-export-history.import-detail', [
                         'record' => $record->loadMissing(['failedRows', 'user']),
+                        'failedRowsCount' => static::getDisplayFailedRowsCount($record),
+                        'pendingBatchJobsCount' => static::getPendingBatchJobsCount($record),
                         'failedJobs' => static::getRelatedFailedJobs($record),
+                        'queueDriver' => (string) config('queue.default'),
                     ])),
                 Action::make('downloadFailedRows')
                     ->label('Tải lỗi CSV')
                     ->icon(Heroicon::ArrowDownTray)
                     ->color('danger')
-                    ->visible(fn (ImportModel $record): bool => $record->getFailedRowsCount() > 0)
+                    ->visible(fn (ImportModel $record): bool => static::getDisplayFailedRowsCount($record) > 0)
                     ->url(fn (ImportModel $record): string => URL::signedRoute('filament.imports.failed-rows.download', [
                         'authGuard' => Filament::getAuthGuard(),
                         'import' => $record,
@@ -146,7 +152,7 @@ class ImportHistoryResource extends Resource
                         TextEntry::make('processed_rows')->label('Đã xử lý')->numeric(),
                         TextEntry::make('successful_rows')->label('Thành công')->numeric(),
                         TextEntry::make('total_rows')->label('Tổng dòng')->numeric(),
-                        TextEntry::make('failed_rows_count')->label('Dòng lỗi')->state(fn (ImportModel $record): int => $record->getFailedRowsCount()),
+                        TextEntry::make('failed_rows_count')->label('Dòng lỗi')->state(fn (ImportModel $record): int => static::getDisplayFailedRowsCount($record)),
                         TextEntry::make('user.email')->label('Người import')->placeholder('-'),
                     ]),
             ]);
@@ -194,23 +200,50 @@ class ImportHistoryResource extends Resource
     public static function statusLabel(ImportModel $record): string
     {
         if (blank($record->completed_at)) {
-            return 'Đang xử lý';
+            return $record->processed_rows > 0 ? 'Đang xử lý' : 'Đang chờ xử lý';
         }
 
-        return $record->getFailedRowsCount() > 0 ? 'Hoàn tất có lỗi' : 'Hoàn tất';
+        return static::getDisplayFailedRowsCount($record) > 0 ? 'Hoàn tất có lỗi' : 'Hoàn tất';
     }
 
     public static function statusColor(ImportModel $record): string
     {
         if (blank($record->completed_at)) {
-            return 'warning';
+            return $record->processed_rows > 0 ? 'warning' : 'gray';
         }
 
-        return $record->getFailedRowsCount() > 0 ? 'danger' : 'success';
+        return static::getDisplayFailedRowsCount($record) > 0 ? 'danger' : 'success';
     }
 
-    public static function getRelatedFailedJobs(ImportModel $record): \Illuminate\Support\Collection
+    public static function getDisplayFailedRowsCount(ImportModel $record): int
     {
+        if (isset($record->failed_rows_count)) {
+            return (int) $record->failed_rows_count;
+        }
+
+        return $record->failedRows()->count();
+    }
+
+    public static function getPendingBatchJobsCount(ImportModel $record): int
+    {
+        if (! SchemaFacade::hasTable('job_batches')) {
+            return 0;
+        }
+
+        $needle = 's:2:"id";i:' . $record->getKey() . ';';
+
+        return (int) DB::table('job_batches')
+            ->whereNull('finished_at')
+            ->where('options', 'like', "%{$needle}%")
+            ->sum('pending_jobs');
+    }
+
+    public static function getRelatedFailedJobs(ImportModel $record): Collection
+    {
+        if (! SchemaFacade::hasTable('failed_jobs')) {
+            return collect();
+        }
+
         $tag = 'import' . $record->getKey();
 
         return DB::table('failed_jobs')

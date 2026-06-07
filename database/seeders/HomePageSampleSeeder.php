@@ -61,28 +61,28 @@ class HomePageSampleSeeder extends Seeder
         Setting::updateOrCreate(['key' => 'contact_hotline'], ['label' => 'Hotline', 'group' => 'general', 'type' => 'text', 'value' => '0902 806 599']);
         Setting::updateOrCreate(['key' => 'contact_email'], ['label' => 'Email', 'group' => 'general', 'type' => 'text', 'value' => 'info@maymaythongminh.vn']);
         Setting::updateOrCreate(['key' => 'contact_address'], ['label' => 'Địa chỉ', 'group' => 'general', 'type' => 'text', 'value' => 'TP. Hồ Chí Minh, Việt Nam']);
-        Setting::updateOrCreate(['key' => 'header_quote_label'], ['label' => 'Nhãn báo giá header', 'group' => 'homepage', 'type' => 'text', 'value' => 'Bao gia']);
-        Setting::updateOrCreate(['key' => 'footer_about_title'], ['label' => 'Tiêu đề footer giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'Ve Chung Toi']);
-        Setting::updateOrCreate(['key' => 'footer_about_text'], ['label' => 'Nội dung footer giới thiệu', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Cung cap giai phap may may cong nghiep thong minh, toi uu nang suat va chat luong san xuat.']);
-        Setting::updateOrCreate(['key' => 'home_slogan_title'], ['label' => 'Tiêu đề slogan trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'May May Thong Minh - Chuyen Nghiep - Uy Tin - Hien Dai']);
-        Setting::updateOrCreate(['key' => 'home_slogan_subtitle'], ['label' => 'Mô tả slogan trang chủ', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Tien phong cong nghe tu dong hoa, nang tam hieu suat nganh may mac Viet Nam.']);
-        Setting::updateOrCreate(['key' => 'home_partners_title'], ['label' => 'Tiêu đề đối tác trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Doi Tac Cong Nghe Hang Dau']);
-        Setting::updateOrCreate(['key' => 'home_service_title'], ['label' => 'Tiêu đề dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Bao hanh va Dich vu']);
-        Setting::updateOrCreate(['key' => 'home_service_description'], ['label' => 'Mô tả dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'He thong showroom, phan phoi va xuong dich vu rong khap, dap ung nhanh nhu cau van hanh cua doanh nghiep.']);
-        Setting::updateOrCreate(['key' => 'home_service_primary_cta'], ['label' => 'Nút CTA chính dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'DAT LICH BAO DUONG']);
-        Setting::updateOrCreate(['key' => 'home_service_secondary_cta'], ['label' => 'Nút CTA phụ dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'CHINH SACH']);
-        Setting::updateOrCreate(['key' => 'about_title'], ['label' => 'Tiêu đề giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'Ve Chung Toi']);
-        Setting::updateOrCreate(['key' => 'about_subtitle'], ['label' => 'Mô tả giới thiệu', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Hanh trinh khang dinh vi the dan dau trong cong nghe may may cong nghiep.']);
-        Setting::updateOrCreate(['key' => 'about_company_name'], ['label' => 'Tên công ty giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'Cong ty TNHH Dat Hung Viet Nam']);
-        Setting::updateOrCreate(['key' => 'about_intro'], ['label' => 'Giới thiệu ngắn', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'May May Thong Minh la don vi cung cap giai phap may may cong nghiep thong minh, tu dong hoa san xuat va toi uu van hanh cho doanh nghiep may mac.']);
-        Setting::updateOrCreate(['key' => 'about_slogan'], ['label' => 'Slogan giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'UY TIN - SAN PHAM CHINH HANG - CHAT LUONG CAM KET - CONG NGHE THONG MINH']);
-        Setting::updateOrCreate(['key' => 'about_body'], ['label' => 'Nội dung giới thiệu', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Chung toi tap trung vao thiet bi chinh hang, trien khai ky thuat thuc te tai xuong va dong hanh bao tri lau dai de doanh nghiep duy tri nang suat on dinh.']);
-        Setting::updateOrCreate(['key' => 'contact_page_title'], ['label' => 'Tiêu đề trang liên hệ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Lien he']);
-        Setting::updateOrCreate(['key' => 'contact_page_subtitle'], ['label' => 'Mô tả trang liên hệ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Thong tin lien he']);
+        Setting::updateOrCreate(['key' => 'header_quote_label'], ['label' => 'Nhãn báo giá header', 'group' => 'homepage', 'type' => 'text', 'value' => 'Báo giá']);
+        Setting::updateOrCreate(['key' => 'footer_about_title'], ['label' => 'Tiêu đề footer giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'Về chúng tôi']);
+        Setting::updateOrCreate(['key' => 'footer_about_text'], ['label' => 'Nội dung footer giới thiệu', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Cung cấp giải pháp máy may công nghiệp thông minh, tối ưu năng suất và chất lượng sản xuất.']);
+        Setting::updateOrCreate(['key' => 'home_slogan_title'], ['label' => 'Tiêu đề slogan trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Máy May Thông Minh - Chuyên Nghiệp - Uy Tín - Hiện Đại']);
+        Setting::updateOrCreate(['key' => 'home_slogan_subtitle'], ['label' => 'Mô tả slogan trang chủ', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Tiên phong công nghệ tự động hóa, nâng tầm hiệu suất ngành may mặc Việt Nam.']);
+        Setting::updateOrCreate(['key' => 'home_partners_title'], ['label' => 'Tiêu đề đối tác trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Đối tác công nghệ hàng đầu']);
+        Setting::updateOrCreate(['key' => 'home_service_title'], ['label' => 'Tiêu đề dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Bảo hành và dịch vụ']);
+        Setting::updateOrCreate(['key' => 'home_service_description'], ['label' => 'Mô tả dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Hệ thống showroom, phân phối và xưởng dịch vụ rộng khắp, đáp ứng nhanh nhu cầu vận hành của doanh nghiệp.']);
+        Setting::updateOrCreate(['key' => 'home_service_primary_cta'], ['label' => 'Nút CTA chính dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'ĐẶT LỊCH BẢO DƯỠNG']);
+        Setting::updateOrCreate(['key' => 'home_service_secondary_cta'], ['label' => 'Nút CTA phụ dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'CHÍNH SÁCH']);
+        Setting::updateOrCreate(['key' => 'about_title'], ['label' => 'Tiêu đề giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'Về chúng tôi']);
+        Setting::updateOrCreate(['key' => 'about_subtitle'], ['label' => 'Mô tả giới thiệu', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Hành trình khẳng định vị thế dẫn đầu trong công nghệ máy may công nghiệp.']);
+        Setting::updateOrCreate(['key' => 'about_company_name'], ['label' => 'Tên công ty giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'Công ty TNHH Đạt Hưng Việt Nam']);
+        Setting::updateOrCreate(['key' => 'about_intro'], ['label' => 'Giới thiệu ngắn', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Máy May Thông Minh là đơn vị cung cấp giải pháp máy may công nghiệp thông minh, tự động hóa sản xuất và tối ưu vận hành cho doanh nghiệp may mặc.']);
+        Setting::updateOrCreate(['key' => 'about_slogan'], ['label' => 'Slogan giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'UY TÍN - SẢN PHẨM CHÍNH HÃNG - CHẤT LƯỢNG CAM KẾT - CÔNG NGHỆ THÔNG MINH']);
+        Setting::updateOrCreate(['key' => 'about_body'], ['label' => 'Nội dung giới thiệu', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Chúng tôi tập trung vào thiết bị chính hãng, triển khai kỹ thuật thực tế tại xưởng và đồng hành bảo trì lâu dài để doanh nghiệp duy trì năng suất ổn định.']);
+        Setting::updateOrCreate(['key' => 'contact_page_title'], ['label' => 'Tiêu đề trang liên hệ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Liên hệ']);
+        Setting::updateOrCreate(['key' => 'contact_page_subtitle'], ['label' => 'Mô tả trang liên hệ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Thông tin liên hệ']);
         Setting::updateOrCreate(['key' => 'home_faqs'], ['label' => 'FAQ trang chủ', 'group' => 'homepage', 'type' => 'json', 'value' => json_encode([
-            ['question' => 'May may thong minh co de su dung khong?', 'answer' => 'Giáo dien than thien, co doi ky thuat lap dat va dao tao van hanh tai cho.'],
-            ['question' => 'Chính sách bảo hành nhu the nao?', 'answer' => 'San pham chinh hang bao hanh theo tung dong may va dieu khoan tai hop dong.'],
-            ['question' => 'Co ho tro giao hang va lap dat khong?', 'answer' => 'Ho tro giao hang toan quoc, lap dat tan noi theo khu vuc.'],
+            ['question' => 'Máy may thông minh có dễ sử dụng không?', 'answer' => 'Giao diện thân thiện, có đội kỹ thuật lắp đặt và đào tạo vận hành tại chỗ.'],
+            ['question' => 'Chính sách bảo hành như thế nào?', 'answer' => 'Sản phẩm chính hãng bảo hành theo từng dòng máy và điều khoản tại hợp đồng.'],
+            ['question' => 'Có hỗ trợ giao hàng và lắp đặt không?', 'answer' => 'Hỗ trợ giao hàng toàn quốc, lắp đặt tận nơi theo khu vực.'],
         ])]);
 
         $highlight = Product::query()->where('sku', 'X-1209D')->first();

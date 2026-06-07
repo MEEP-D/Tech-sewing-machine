@@ -5,7 +5,7 @@
                 {{ $this->form }}
                 <div class="flex flex-wrap items-end gap-3">
                     <x-filament::button type="button" wire:click="save">
-                        Luu cau hinh
+                        Lưu cấu hình
                     </x-filament::button>
                 </div>
             </form>

@@ -16,7 +16,7 @@ class NewsletterController extends Controller
             'email' => ['required', 'email:rfc', 'max:255'],
         ], [
             'email.required' => 'Vui long nhap email.',
-            'email.email' => 'Email khong dung dinh dang.',
+            'email.email' => 'Email không đúng định dạng.',
         ]);
 
         $newsletterService->subscribe($validated['email']);
@@ -29,10 +29,10 @@ class NewsletterController extends Controller
         $subscriber = $newsletterService->confirm($token);
 
         if (! $subscriber) {
-            return redirect()->route('home')->with('newsletter_error', 'Link xac nhan khong hop le hoac da het han.');
+            return redirect()->route('home')->with('newsletter_error', 'Link xác nhận không hợp lệ hoặc đã hết hạn.');
         }
 
-        return redirect()->route('home')->with('newsletter_success', 'Dang ky nhan tin thanh cong.');
+        return redirect()->route('home')->with('newsletter_success', 'Đăng ký nhận tin thành công.');
     }
 
     public function unsubscribe(NewsletterSubscriber $subscriber, string $hash, NewsletterService $newsletterService): RedirectResponse

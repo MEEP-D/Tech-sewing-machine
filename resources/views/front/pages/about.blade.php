@@ -30,12 +30,12 @@
 <section class="about-pro-hero page-hero page-hero--about" @if(!empty($aboutHeroImage)) style="background-image: linear-gradient(120deg, rgba(7, 15, 32, 0.78), rgba(14, 58, 130, 0.72)), url('{{ $aboutHeroImage }}'); background-size: cover; background-position: center;" @endif>
     <div class="container">
         <p class="about-pro-kicker">Tech Sewing Machine</p>
-        <h1>{{ $siteContent['page_about_heading'] ?? ($siteContent['about_title'] ?? 'Gioi thieu doanh nghiep') }}</h1>
-        <p>{{ $siteContent['page_about_desc'] ?? ($siteContent['about_subtitle'] ?? 'Nang luc may moc, doi ngu ky thuat va dich vu sau ban hang duoc trien khai dong bo cho nha may may mac.') }}</p>
+        <h1>{{ $siteContent['page_about_heading'] ?? ($siteContent['about_title'] ?? 'Giới thiệu doanh nghiệp') }}</h1>
+        <p>{{ $siteContent['page_about_desc'] ?? ($siteContent['about_subtitle'] ?? 'Năng lực máy móc, đội ngũ kỹ thuật và dịch vụ sau bán hàng được triển khai đồng bộ cho nhà máy may mặc.') }}</p>
         <div class="about-pro-stats">
             <div><strong>15+</strong><span>Nam kinh nghiem</span></div>
             <div><strong>300+</strong><span>Du an trien khai</span></div>
-            <div><strong>24/7</strong><span>Ho tro ky thuat</span></div>
+            <div><strong>24/7</strong><span>Hỗ trợ kỹ thuật</span></div>
             <div><strong>63</strong><span>Tinh thanh phuc vu</span></div>
         </div>
     </div>
@@ -46,20 +46,20 @@
         <div class="about-pro-intro-grid">
             <article class="about-pro-card">
                 <h2>{{ $siteContent['about_company_name'] ?? 'Tech Sewing Machine' }}</h2>
-                <p>{{ $siteContent['about_intro'] ?? 'Chung toi cung cap giai phap may cong nghiep toan dien, tu tu van cau hinh den lap dat va dao tao van hanh.' }}</p>
-                <p>{{ $siteContent['about_body'] ?? 'Doi ngu tap trung vao tinh on dinh cua day chuyen, nang suat va chi phi van hanh toi uu cho doanh nghiep may mac.' }}</p>
+                <p>{{ $siteContent['about_intro'] ?? 'Chúng tôi cung cấp giải pháp máy công nghiệp toàn diện, từ tư vấn cấu hình đến lắp đặt và đào tạo vận hành.' }}</p>
+                <p>{{ $siteContent['about_body'] ?? 'Đội ngũ tập trung vào tính ổn định của dây chuyền, năng suất và chi phí vận hành tối ưu cho doanh nghiệp may mặc.' }}</p>
                 @if(!empty($siteContent['about_slogan']))
                     <blockquote>{{ $siteContent['about_slogan'] }}</blockquote>
                 @endif
             </article>
             <div class="about-pro-highlight">
-                <h3>Nang luc trien khai</h3>
+                <h3>Năng lực triển khai</h3>
                 <ul>
-                    <li>Tu van setup day chuyen theo tung quy mo nha xuong.</li>
-                    <li>Lap dat, can chinh va nghiem thu tai xuong.</li>
-                    <li>Bao tri dinh ky, thay the linh kien nhanh.</li>
-                    <li>Dao tao ky thuat cho to truong va cong nhan van hanh.</li>
-                    <li>Dong hanh toi uu nang suat sau dau tu.</li>
+                    <li>Tư vấn setup dây chuyền theo từng quy mô nhà xưởng.</li>
+                    <li>Lắp đặt, căn chỉnh và nghiệm thu tại xưởng.</li>
+                    <li>Bảo trì định kỳ, thay thế linh kiện nhanh.</li>
+                    <li>Đào tạo kỹ thuật cho tổ trưởng và công nhân vận hành.</li>
+                    <li>Đồng hành tối ưu năng suất sau đầu tư.</li>
                 </ul>
             </div>
         </div>
@@ -67,8 +67,8 @@
 
     <section class="about-pro-section">
         <div class="about-pro-headline">
-            <h2>Hinh anh hoat dong</h2>
-            <p>Goc van phong, xuong ky thuat, lap dat tai cong trinh va cac buoi huan luyen doi tac.</p>
+            <h2>Hình ảnh hoạt động</h2>
+            <p>Góc văn phòng, xưởng kỹ thuật, lắp đặt tại công trình và các buổi huấn luyện đối tác.</p>
         </div>
         <div class="about-pro-gallery">
             @foreach($aboutGallery as $image)
@@ -81,20 +81,20 @@
 
     <section class="about-pro-section">
         <div class="about-pro-headline">
-            <h2>Quy trinh lam viec</h2>
+            <h2>Quy trình làm việc</h2>
         </div>
         <div class="about-pro-timeline">
-            <article><span>01</span><h3>Khao sat nhu cau</h3><p>Danh gia san pham, luu luong va muc tieu nang suat.</p></article>
-            <article><span>02</span><h3>De xuat giai phap</h3><p>Len cau hinh may, chi phi dau tu va ke hoach trien khai.</p></article>
-            <article><span>03</span><h3>Lap dat va dao tao</h3><p>Ban giao van hanh voi quy trinh kiem tra chat luong ro rang.</p></article>
-            <article><span>04</span><h3>Dong hanh lau dai</h3><p>Ho tro bao tri va toi uu day chuyen theo tung giai doan.</p></article>
+            <article><span>01</span><h3>Khảo sát nhu cầu</h3><p>Đánh giá sản phẩm, lưu lượng và mục tiêu năng suất.</p></article>
+            <article><span>02</span><h3>Đề xuất giải pháp</h3><p>Lên cấu hình máy, chi phí đầu tư và kế hoạch triển khai.</p></article>
+            <article><span>03</span><h3>Lắp đặt và đào tạo</h3><p>Bàn giao vận hành với quy trình kiểm tra chất lượng rõ ràng.</p></article>
+            <article><span>04</span><h3>Đồng hành lâu dài</h3><p>Hỗ trợ bảo trì và tối ưu dây chuyền theo từng giai đoạn.</p></article>
         </div>
     </section>
 
     <section class="about-pro-section">
         <div class="about-pro-headline">
-            <h2>Thuong hieu dong hanh</h2>
-            <p>Danh sach logo doi tac va khach hang tieu bieu.</p>
+            <h2>Thương hiệu đồng hành</h2>
+            <p>Danh sách logo đối tác và khách hàng tiêu biểu.</p>
         </div>
         <div class="about-pro-logos">
             @forelse($partners as $partner)
@@ -118,12 +118,12 @@
 
     <section class="about-pro-section about-pro-cta">
         <div>
-            <h2>San sang nang cap day chuyen?</h2>
-            <p>Ket noi de nhan de xuat cau hinh may phu hop quy mo va ngan sach cua doanh nghiep.</p>
+            <h2>Sẵn sàng nâng cấp dây chuyền?</h2>
+            <p>Kết nối để nhận đề xuất cấu hình máy phù hợp quy mô và ngân sách của doanh nghiệp.</p>
         </div>
         <div class="about-pro-cta-actions">
-            <a href="{{ route('contact') }}" class="btn-service">Nhan tu van</a>
-            <a href="{{ route('products.index') }}" class="btn-service secondary">Xem danh muc may</a>
+            <a href="{{ route('contact') }}" class="btn-service">Nhận tư vấn</a>
+            <a href="{{ route('products.index') }}" class="btn-service secondary">Xem danh mục máy</a>
         </div>
     </section>
 </main>

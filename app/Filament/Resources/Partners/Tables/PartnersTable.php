@@ -26,13 +26,13 @@ class PartnersTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('url')
-                    ->label('Lien ket')
+                    ->label('Liên kết')
                     ->limit(30),
                 TextColumn::make('sort_order')
                     ->label('Thứ tự')
                     ->sortable(),
                 IconColumn::make('is_active')
-                    ->label('Hoat dong')
+                    ->label('Hoạt động')
                     ->boolean(),
             ])
             ->filters([

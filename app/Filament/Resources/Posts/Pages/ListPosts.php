@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Posts\Pages;
 
+use App\Filament\Actions\ImportSpreadsheetAction;
 use App\Filament\Exports\PostExporter;
 use App\Filament\Imports\PostImporter;
 use App\Filament\Resources\Posts\PostResource;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
-use Filament\Actions\ImportAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListPosts extends ListRecords
@@ -19,7 +19,7 @@ class ListPosts extends ListRecords
     {
         return [
             CreateAction::make(),
-            ImportAction::make()
+            ImportSpreadsheetAction::make()
                 ->label('Import bài viết')
                 ->importer(PostImporter::class),
             ExportAction::make()

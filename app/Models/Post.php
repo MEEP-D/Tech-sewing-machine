@@ -27,6 +27,15 @@ class Post extends Model
         'is_featured'  => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (Post $post): void {
+            if ($post->status === 'published' && blank($post->published_at)) {
+                $post->published_at = now();
+            }
+        });
+    }
+
     // ─── Relationships ────────────────────────────────────────────
 
     public function category(): BelongsTo

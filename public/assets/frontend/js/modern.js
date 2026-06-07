@@ -103,7 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         menuOverlay.addEventListener('click', () => {
-            closeDesktopDrawer();
+            if (desktopMoreDrawer.classList.contains('active')) {
+                closeDesktopDrawer();
+            }
         });
 
         document.addEventListener('click', (e) => {
@@ -241,28 +243,65 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuOverlayMobile = document.getElementById('menu-overlay');
     
     if (mobileToggle && navLinks && menuOverlayMobile) {
-        const toggleMenu = () => {
+        const setMobileMenuState = (open) => {
             if (window.innerWidth > 1024) {
                 return;
             }
-            const isActive = navLinks.classList.toggle('active');
-            menuOverlayMobile.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
+            navLinks.classList.toggle('active', open);
+            menuOverlayMobile.classList.toggle('active', open);
+            document.body.classList.toggle('menu-open', open);
+            mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
             
             const icon = mobileToggle.querySelector('i');
-            if (isActive) {
+            if (!icon) return;
+            if (open) {
                 icon.classList.replace('fa-bars', 'fa-times');
             } else {
                 icon.classList.replace('fa-times', 'fa-bars');
             }
         };
 
+        const openMobileMenu = () => setMobileMenuState(true);
+        const closeMobileMenu = () => setMobileMenuState(false);
+        const toggleMobileMenu = () => setMobileMenuState(!navLinks.classList.contains('active'));
+
+        mobileToggle.setAttribute('aria-controls', 'mobile-menu');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+        navLinks.setAttribute('id', 'mobile-menu');
+
         mobileToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            toggleMenu();
+            toggleMobileMenu();
         });
 
-        menuOverlayMobile.addEventListener('click', toggleMenu);
+        menuOverlayMobile.addEventListener('click', () => {
+            if (navLinks.classList.contains('active')) {
+                closeMobileMenu();
+            }
+        });
+
+        navLinks.addEventListener('click', (e) => {
+            if (window.innerWidth > 1024) return;
+
+            const eventTarget = e.target instanceof Element ? e.target : e.target.parentElement;
+            const link = eventTarget ? eventTarget.closest('a') : null;
+            if (!link || !navLinks.contains(link)) return;
+
+            const expandableItem = link.closest('.nav-item.has-children, .mega-links li.has-children');
+            if (!expandableItem) return;
+
+            const hasExpandablePanel = expandableItem.querySelector('.mega-menu, .sub-links');
+            if (!hasExpandablePanel) return;
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const siblingItems = expandableItem.parentElement ? expandableItem.parentElement.querySelectorAll('.is-open') : [];
+            siblingItems.forEach((item) => {
+                if (item !== expandableItem) item.classList.remove('is-open');
+            });
+            expandableItem.classList.toggle('is-open');
+        }, true);
 
         // Close menu when clicking a link inside, BUT NOT if it's a structural link (has children)
         const drawerLinks = navLinks.querySelectorAll('a');
@@ -275,9 +314,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 if (navLinks.classList.contains('active')) {
-                    toggleMenu();
+                    closeMobileMenu();
                 }
             });
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024 && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                menuOverlayMobile.classList.remove('active');
+                document.body.classList.remove('menu-open');
+                mobileToggle.setAttribute('aria-expanded', 'false');
+                const icon = mobileToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
         });
     }
 
@@ -288,12 +341,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const allLinks = document.querySelectorAll('.nav-link:not([href="#"])');
     allLinks.forEach(link => {
         link.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 1024 && navLinks) {
+                const parentLi = link.closest('li');
+                if (parentLi && (parentLi.classList.contains('has-children') || parentLi.querySelector('.mega-menu') || parentLi.querySelector('.sub-links'))) {
+                    return;
+                }
+
                 navLinks.classList.remove('active');
+                if (menuOverlayMobile) {
+                    menuOverlayMobile.classList.remove('active');
+                }
+                document.body.classList.remove('menu-open');
                 if (mobileToggle) {
+                    mobileToggle.setAttribute('aria-expanded', 'false');
                     const icon = mobileToggle.querySelector('i');
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
                 }
             }
         });

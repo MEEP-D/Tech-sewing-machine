@@ -58,7 +58,7 @@ class NewsletterService
             $campaign = NewsletterCampaign::query()->firstOrCreate(
                 ['post_id' => $post->id],
                 [
-                    'subject' => 'Tin moi: ' . $post->title,
+                    'subject' => 'Tin mới: ' . $post->title,
                     'queued_at' => now(),
                 ]
             );

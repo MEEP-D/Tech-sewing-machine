@@ -6,7 +6,7 @@
 @php($highlightDescription = $highlightProduct ? ($highlightProduct->long_description ?: $highlightProduct->short_description) : '')
 @php($highlightDescriptionLines = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) $highlightDescription)))->map(fn($line) => trim($line))->filter())
 @php($homeFaqs = collect($siteContent['home_faqs'] ?? [])->take(6))
-@php($bannerProducts = ($exclusiveProducts ?? collect())->values()->map(function($item){
+@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function($item){
     return [
         'name' => $item->code ?: $item->sku ?: $item->name,
         'image' => $item->display_image_url,
@@ -225,7 +225,7 @@
                         @if($product->display_image_url)
                             <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}">
                         @endif
-                        <span class="badge-installment">Tra gop {{ max(0, (int) $product->installment_percent) }}%</span>
+                        <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                         @if(((int) $product->discount_percent) > 0)
                             <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
                         @endif

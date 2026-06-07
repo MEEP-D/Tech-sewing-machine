@@ -8,7 +8,7 @@ H2 {
 	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-WEIGHT: bold; FONT-SIZE: 14px; PADDING-BOTTOM: 0px; MARGIN: 0px; COLOR: #c538b4; PADDING-TOP: 0px; FONT-FAMILY: verdana, arial, helvetica, sans-serif
 }
 H3 {
-	FONT-SIZE: 12px; COLOR: #000000; FONT-FAMILY: Verdana,Geneva,Arial,Helvetica,Sans Serif
+	FONT-SIZE: 12px; COLOR: #000000; FONT-FAMILY: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif
 }
 .container {
 	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: auto; WIDTH: 500px; PADDING-TOP: 0px
@@ -115,7 +115,7 @@ H3 {
 	text-decoration: none;
 }
 #bodyfooter a {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	font-size: 12px;
 }
 a:link {

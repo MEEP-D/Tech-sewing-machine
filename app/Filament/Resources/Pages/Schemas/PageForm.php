@@ -26,32 +26,39 @@ class PageForm
                                 TextInput::make('title')
                                     ->label('Tiêu đề trang')
                                     ->required()
+                                    ->maxLength(255)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
                                 TextInput::make('slug')
                                     ->label('Slug (URL)')
                                     ->required()
-                                    ->unique(ignoreRecord: true),
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
                                 Select::make('layout')
                                     ->label('Mẫu giao diện')
                                     ->options([
-                                        'default' => 'Mặc định (Bài viết có ảnh bìa)',
-                                        'full_width' => 'Tràn viền (Full Width)',
-                                        'blank' => 'Trang trống (Chỉ hiển thị nội dung)',
+                                        'default' => 'Mặc định (có ảnh bìa)',
+                                        'full_width' => 'Tràn viền (full width)',
+                                        'blank' => 'Trang trống (chỉ nội dung)',
                                     ])
                                     ->default('default')
+                                    ->live()
                                     ->required(),
                                 Select::make('layout_mode')
                                     ->label('Kiểu layout')
                                     ->options([
                                         'content' => 'Nội dung truyền thống',
-                                        'builder' => 'Trình dựng trực quan',
+                                        'builder' => 'Builder linh hoạt',
                                     ])
                                     ->default('content')
+                                    ->live()
+                                    ->helperText('Content: hiển thị chuẩn. Builder: dùng bố cục linh hoạt + style_config.')
                                     ->required(),
                                 TextInput::make('cache_ttl')
                                     ->label('Cache TTL (giây)')
                                     ->numeric()
+                                    ->minValue(60)
+                                    ->maxValue(86400)
                                     ->default(3600),
                                 Toggle::make('cache_enabled')
                                     ->label('Bật cache')
@@ -62,11 +69,14 @@ class PageForm
                             ]),
                             TextInput::make('excerpt')
                                 ->label('Mô tả ngắn')
+                                ->maxLength(500)
                                 ->columnSpanFull(),
                             FileUpload::make('image')
                                 ->label('Hình ảnh đại diện')
                                 ->image()->imageEditor()->disk('public')
                                 ->directory('pages')
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                ->maxSize(2048)
                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                 ->columnSpanFull(),
                             RichEditor::make('content')
@@ -74,7 +84,33 @@ class PageForm
                                 ->columnSpanFull(),
                             Textarea::make('style_config')
                                 ->label('Cấu hình style (JSON)')
+                                ->placeholder('{"max_width":"1100px","padding":"24px","background":"#fff","color":"#0f172a"}')
+                                ->visible(fn (callable $get) => $get('layout_mode') === 'builder')
+                                ->helperText('Chỉ áp dụng khi chọn Kiểu layout = Builder.')
+                                ->json()
+                                ->rows(4)
                                 ->columnSpanFull(),
+                            Grid::make(2)->schema([
+                                TextInput::make('container_class')
+                                    ->label('Container class')
+                                    ->maxLength(255),
+                                TextInput::make('bg_color')
+                                    ->label('Màu nền')
+                                    ->maxLength(20)
+                                    ->rules(['nullable', 'regex:/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/'])
+                                    ->validationMessages(['regex' => 'Màu nền phải là mã HEX hợp lệ, ví dụ #ffffff.']),
+                                TextInput::make('text_color')
+                                    ->label('Màu chữ')
+                                    ->maxLength(20)
+                                    ->rules(['nullable', 'regex:/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/'])
+                                    ->validationMessages(['regex' => 'Màu chữ phải là mã HEX hợp lệ, ví dụ #0f172a.']),
+                                TextInput::make('spacing_top')
+                                    ->label('Spacing top')
+                                    ->maxLength(20),
+                                TextInput::make('spacing_bottom')
+                                    ->label('Spacing bottom')
+                                    ->maxLength(20),
+                            ])->columnSpanFull(),
                         ]),
 
                     Tabs\Tab::make('SEO')

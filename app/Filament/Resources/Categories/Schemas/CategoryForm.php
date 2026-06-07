@@ -56,11 +56,13 @@ class CategoryForm
                                 Textarea::make('description')
                                     ->label('Mô tả')
                                     ->rows(3)
+                                    ->maxLength(1000)
                                     ->columnSpanFull(),
                                 FileUpload::make('image')
                                     ->label('Hình ảnh đại diện')
                                     ->image()->imageEditor()->directory('categories')
                                     ->disk('public')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                     ->maxSize(1024),
                                 Grid::make(2)->schema([
@@ -70,6 +72,7 @@ class CategoryForm
                                     TextInput::make('sort_order')
                                         ->label('Thứ tự sắp xếp')
                                         ->numeric()
+                                        ->minValue(0)
                                         ->default(0),
                                 ]),
                             ]),

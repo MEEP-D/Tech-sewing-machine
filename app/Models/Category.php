@@ -19,10 +19,17 @@ class Category extends Model
     {
         static::saved(function () {
             Cache::forget('front_menu_categories_v1');
+            Cache::forget('product_filter_data_v1');
         });
 
         static::deleted(function () {
             Cache::forget('front_menu_categories_v1');
+            Cache::forget('product_filter_data_v1');
+        });
+
+        static::restored(function () {
+            Cache::forget('front_menu_categories_v1');
+            Cache::forget('product_filter_data_v1');
         });
     }
 

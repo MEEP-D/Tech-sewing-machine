@@ -35,6 +35,8 @@ class ProductsTable
                 TextColumn::make('price')->label('Giá'),
                 IconColumn::make('is_new')->label('Mới')->boolean(),
                 IconColumn::make('is_hot')->label('Hot')->boolean(),
+                IconColumn::make('is_exclusive')->label('Đột phá')->boolean(),
+                IconColumn::make('show_in_banner_switcher')->label('Banner')->boolean(),
                 TextColumn::make('status')->label('Trạng thái')->badge(),
                 TextColumn::make('sort_order')->label('Thứ tự')->sortable(),
             ])

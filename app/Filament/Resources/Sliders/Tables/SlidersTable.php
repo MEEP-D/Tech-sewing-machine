@@ -19,7 +19,7 @@ class SlidersTable
             TextColumn::make('title')->label('Tiêu đề')->searchable(),
             TextColumn::make('subtitle')->label('Mô tả')->limit(40),
             TextColumn::make('sort_order')->label('Thứ tự')->sortable(),
-            IconColumn::make('show_overlay')->label('Phu den')->boolean(),
+            IconColumn::make('show_overlay')->label('Phủ đen')->boolean(),
             IconColumn::make('show_title')->label('Hiện tiêu đề')->boolean(),
             IconColumn::make('show_subtitle')->label('Hiện mô tả ngắn')->boolean(),
             IconColumn::make('show_button')->label('Hiện nút')->boolean(),

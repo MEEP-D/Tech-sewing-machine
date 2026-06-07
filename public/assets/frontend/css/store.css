@@ -3,7 +3,7 @@
 }
 
 BODY {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	font-size: 13px;
 	background-attachment: fixed;
 	BACKGROUND: url(../images/bg.jpg);
@@ -16,19 +16,19 @@ OBJECT {
 /*box dang nhap*/
 
 H1 {
-	FONT-WEIGHT: bold; FONT-FAMILY: Arial, "Helvetica Neue", Helvetica, Arial, sans-serif
+	FONT-WEIGHT: bold; FONT-FAMILY: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif
 }
 H2 {
-	FONT-WEIGHT: bold; FONT-FAMILY: Arial, "Helvetica Neue", Helvetica, Arial, sans-serif
+	FONT-WEIGHT: bold; FONT-FAMILY: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif
 }
 H3 {
-	FONT-WEIGHT: bold; FONT-FAMILY: Arial, "Helvetica Neue", Helvetica, Arial, sans-serif
+	FONT-WEIGHT: bold; FONT-FAMILY: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif
 }
 H4 {
-	FONT-WEIGHT: bold; FONT-FAMILY: Arial, "Helvetica Neue", Helvetica, Arial, sans-serif
+	FONT-WEIGHT: bold; FONT-FAMILY: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif
 }
 H5 {
-	FONT-WEIGHT: bold; FONT-FAMILY: Arial, "Helvetica Neue", Helvetica, Arial, sans-serif
+	FONT-WEIGHT: bold; FONT-FAMILY: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif
 }
 .left {
 	FONT-SIZE: 0px; FLOAT: left
@@ -56,7 +56,7 @@ H5 {
 	border-left-style: none;
 	background-color:#fdf46c;
 	color:#333333;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 18px;
 	font-size: 12px;
 	text-align: left;
@@ -68,7 +68,7 @@ H5 {
 	/*BORDER-TOP: #fff 1px solid;*/
 	PADDING-TOP: 0px;
 	ZOOM: 1;
-	FONT-FAMILY: Arial, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	FONT-FAMILY: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	font-size: 12px;
 	line-height: 20px;
 	background-color: #FFFFFF;
@@ -187,7 +187,7 @@ H5 {
 }
 #menu ul{
 list-style: none;
-font-family: Arial, san-serif;
+font-family: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 font-size: 12px;
 padding: 0;
 width:100%;
@@ -293,7 +293,7 @@ display:none;
 	line-height:32px;
 	padding:0 15px;
 	background-color: #003399;
-	font-family:"HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	
 }
 
@@ -327,7 +327,7 @@ display:none;
 	line-height:32px;
 	padding:0 5px;
 	background-color: #0099FF;
-	font-family:"HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	text-align:left;
 	
 }
@@ -341,7 +341,7 @@ display:none;
 	line-height:32px;
 	padding:0 5px;
 	background-color: #003399;
-	font-family:"HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	text-align:left;
 	
 }
@@ -479,7 +479,7 @@ display:none;
 	background-repeat:no-repeat;
 	color:#FFFFFF;
 	width:85px;
-	font-family:Arial, Helvetica, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 28px;
 	font-size: 11px;
 	text-align: center;
@@ -870,7 +870,7 @@ H2.bar {
 /* papge*/
 .box_timkiem {
 	color:#333333;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 14px;
 	font-size: 11px;
 	text-align: left;
@@ -888,7 +888,7 @@ H2.bar {
 	padding-top:2px;
 	background-repeat:no-repeat;
 	background-position:right;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	font-size:12px;
 	border:1px solid #7f9db9;
 }
@@ -902,7 +902,7 @@ H2.bar {
 	background-image:url(../images/search.png);
 	color:#CCCCCC;
 	background-repeat:no-repeat;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	border:1px solid #7f9db9;
 	position:absolute;
 }
@@ -913,7 +913,7 @@ H2.bar {
 	border:1px solid #7f9db9;
 	color:#333333;
 	width:360px;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 20px;
 	font-size: 12px;
 	padding-top:5px;
@@ -929,7 +929,7 @@ H2.bar {
 	width:382px;
 	margin-top:4px;
 	margin-bottom:4px;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 150px;
 	font-size: 12px;
 }
@@ -944,7 +944,7 @@ H2.bar {
 	margin-right:10px;
 	margin-top:4px;
 	margin-bottom:4px;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 150px;
 	font-size: 12px;
 }/*textarea_yeucau1*/
@@ -957,7 +957,7 @@ H2.bar {
 	margin-right:10px;
 	margin-top:4px;
 	margin-bottom:4px;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 150px;
 	font-size: 12px;
 }
@@ -1003,7 +1003,7 @@ H2.bar {
 	padding-top:6px;
 	padding-left:5px;
 	margin-top:4px;
-	font-family:tahoma, arial, sans-serif;
+	font-family:'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 	height: 20px;
 	font-size: 12px;
 }

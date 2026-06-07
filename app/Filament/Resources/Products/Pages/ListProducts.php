@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Products\Pages;
 
+use App\Filament\Actions\ImportSpreadsheetAction;
 use App\Filament\Exports\ProductExporter;
 use App\Filament\Imports\ProductImporter;
 use App\Filament\Resources\Products\ProductResource;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
-use Filament\Actions\ImportAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListProducts extends ListRecords
@@ -19,7 +19,7 @@ class ListProducts extends ListRecords
     {
         return [
             CreateAction::make(),
-            ImportAction::make()
+            ImportSpreadsheetAction::make()
                 ->label('Import sản phẩm')
                 ->importer(ProductImporter::class),
             ExportAction::make()

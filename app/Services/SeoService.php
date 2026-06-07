@@ -126,6 +126,14 @@ class SeoService
         $configuredOgImage = Setting::getValue('seo_default_og_image');
 
         if (is_string($configuredOgImage) && filled($configuredOgImage)) {
+            if (str_starts_with($configuredOgImage, 'http://') || str_starts_with($configuredOgImage, 'https://')) {
+                return $configuredOgImage;
+            }
+
+            if (str_starts_with($configuredOgImage, 'assets/')) {
+                return asset($configuredOgImage);
+            }
+
             return asset('storage/' . ltrim($configuredOgImage, '/'));
         }
 

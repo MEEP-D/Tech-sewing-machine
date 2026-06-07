@@ -219,13 +219,13 @@
 @endphp
 <section class="container contact-page">
     <div class="contact-hero page-hero page-hero--contact" @if(!empty($contactHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $contactHeroImage }}'); background-size: cover; background-position: center;" @endif>
-        <h1>{{ $siteContent['page_contact_heading'] ?? ($siteContent['contact_page_title'] ?? 'Lien he TechSewing') }}</h1>
-        <p>{{ $siteContent['page_contact_desc'] ?? ($siteContent['contact_page_subtitle'] ?? 'Nhan tu van giai phap may cong nghiep, bao gia nhanh va ho tro ky thuat theo nhu cau nha may cua ban.') }}</p>
+        <h1>{{ $siteContent['page_contact_heading'] ?? ($siteContent['contact_page_title'] ?? 'Liên hệ TechSewing') }}</h1>
+        <p>{{ $siteContent['page_contact_desc'] ?? ($siteContent['contact_page_subtitle'] ?? 'Nhận tư vấn giải pháp máy công nghiệp, báo giá nhanh và hỗ trợ kỹ thuật theo nhu cầu nhà máy của bạn.') }}</p>
     </div>
 
     <div class="contact-layout">
         <aside class="contact-card">
-            <h2>Thong tin lien he</h2>
+            <h2>Thông tin liên hệ</h2>
 
             <div class="contact-list">
                 <div class="contact-item">
@@ -249,28 +249,28 @@
                 <div class="contact-item">
                     <i class="fas fa-location-dot" aria-hidden="true"></i>
                     <div>
-                        <small>Dia chi</small><br>
+                        <small>Địa chỉ</small><br>
                         <strong>{{ $siteProfile['address'] ?? '-' }}</strong>
                     </div>
                 </div>
             </div>
 
             <div class="contact-benefits">
-                <span><i class="fas fa-circle-check" aria-hidden="true"></i> Tu van phuong an theo quy mo nha may</span>
-                <span><i class="fas fa-circle-check" aria-hidden="true"></i> Demo van hanh va huong dan su dung</span>
-                <span><i class="fas fa-circle-check" aria-hidden="true"></i> Ho tro giao, lap dat va bao hanh tan noi</span>
+                <span><i class="fas fa-circle-check" aria-hidden="true"></i> Tư vấn phương án theo quy mô nhà máy</span>
+                <span><i class="fas fa-circle-check" aria-hidden="true"></i> Demo vận hành và hướng dẫn sử dụng</span>
+                <span><i class="fas fa-circle-check" aria-hidden="true"></i> Hỗ trợ giao, lắp đặt và bảo hành tận nơi</span>
             </div>
         </aside>
 
         <div class="contact-card">
-            <h2>Gui yeu cau tu van</h2>
+            <h2>Gửi yêu cầu tư vấn</h2>
 
             @if (session('success'))
                 <div class="contact-alert success">{{ session('success') }}</div>
             @endif
 
             @if ($errors->any())
-                <div class="contact-alert error">Vui long kiem tra lai thong tin trong form.</div>
+                <div class="contact-alert error">Vui lòng kiểm tra lại thông tin trong form.</div>
             @endif
 
             <form method="post" action="{{ route('contact.store') }}" novalidate>
@@ -302,20 +302,20 @@
 
                     <div class="contact-field full">
                         <label for="contact_interest" class="contact-label">Nhu cau quan tam</label>
-                        <input id="contact_interest" type="text" name="interest" class="contact-input @error('interest') is-error @enderror" value="{{ old('interest') }}" placeholder="Vi du: May lap dau tu dong, may in nhan vai...">
+                        <input id="contact_interest" type="text" name="interest" class="contact-input @error('interest') is-error @enderror" value="{{ old('interest') }}" placeholder="Ví dụ: Máy lập đầu tự động, máy in nhãn vải...">
                         @error('interest')<p class="contact-error">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="contact-field full">
-                        <label for="contact_message" class="contact-label">Noi dung *</label>
+                        <label for="contact_message" class="contact-label">Nội dung *</label>
                         <textarea id="contact_message" name="message" rows="6" class="contact-input @error('message') is-error @enderror" required>{{ old('message') }}</textarea>
                         @error('message')<p class="contact-error">{{ $message }}</p>@enderror
                     </div>
                 </div>
 
                 <div class="contact-actions">
-                    <button type="submit" class="btn btn-primary">Gui yeu cau</button>
-                    <span class="contact-note">TechSewing se lien he voi ban trong thoi gian som nhat.</span>
+                    <button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
+                    <span class="contact-note">TechSewing sẽ liên hệ với bạn trong thời gian sớm nhất.</span>
                 </div>
             </form>
         </div>

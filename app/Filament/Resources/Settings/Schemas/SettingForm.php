@@ -14,26 +14,34 @@ class SettingForm
     {
         return $schema->components([
             Grid::make(2)->schema([
-                TextInput::make('key')->label('Khóa')->required()->alphaDash()->maxLength(100),
+                TextInput::make('key')->label('Khóa')->required()->alphaDash()->maxLength(100)->unique(ignoreRecord: true),
                 TextInput::make('label')->label('Nhãn')->required()->maxLength(255),
                 Select::make('group')->options([
-                    'general' => 'General',
+                    'general' => 'Tổng quan',
+                    'contact' => 'Liên hệ',
                     'seo' => 'SEO',
-                    'branding' => 'Branding',
-                    'homepage' => 'Homepage',
-                    'theme' => 'Theme',
-                    'navigation' => 'Navigation',
+                    'branding' => 'Thương hiệu',
+                    'homepage' => 'Trang chủ',
+                    'pages' => 'Trang tĩnh',
+                    'theme' => 'Giao diện',
+                    'navigation' => 'Điều hướng',
+                    'menu' => 'Menu',
+                    'mail' => 'Email',
                 ])->required(),
                 Select::make('type')->options([
-                    'text' => 'Text',
-                    'textarea' => 'Textarea',
-                    'image' => 'Image',
-                    'boolean' => 'Boolean',
+                    'text' => 'Văn bản ngắn',
+                    'textarea' => 'Văn bản dài',
+                    'image' => 'Hình ảnh',
+                    'boolean' => 'Bật / tắt',
                     'json' => 'JSON',
-                    'color' => 'Color',
-                    'number' => 'Number',
+                    'color' => 'Màu sắc',
+                    'number' => 'Số',
                 ])->required(),
-                Textarea::make('value')->columnSpanFull(),
+                Textarea::make('value')
+                    ->label('Giá trị')
+                    ->json(fn (callable $get): bool => $get('type') === 'json')
+                    ->maxLength(20000)
+                    ->columnSpanFull(),
             ]),
         ]);
     }

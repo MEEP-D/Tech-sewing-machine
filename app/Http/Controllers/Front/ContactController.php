@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
+use App\Models\Page;
 use App\Services\DynamicMailConfigService;
+use App\Services\PageRenderService;
 use App\Services\SeoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,9 +14,30 @@ use Illuminate\View\View;
 
 class ContactController extends Controller
 {
-    public function about(SeoService $seoService): View
+    public function about(SeoService $seoService, PageRenderService $renderer): View
     {
+        $page = Page::query()
+            ->whereIn('slug', ['gioi-thieu', '/gioi-thieu'])
+            ->where('is_active', true)
+            ->first();
+
+        if ($page) {
+            $seo = $seoService->forModel($page);
+            $isBuilderMode = $page->layout_mode === 'builder';
+            $html = $renderer->renderedHtml($page, $isBuilderMode);
+
+            $layout = $page->layout ?: 'default';
+            $view = "front.pages.page.layouts.{$layout}";
+
+            if (! view()->exists($view)) {
+                $view = 'front.pages.page.show';
+            }
+
+            return view($view, compact('page', 'seo', 'html'));
+        }
+
         $seo = $seoService->defaults('Về chúng tôi', 'Tìm hiểu về TechSewing - Giải pháp máy may công nghiệp hàng đầu.');
+
         return view('front.pages.about', compact('seo'));
     }
 
@@ -62,5 +85,4 @@ class ContactController extends Controller
             ->route('contact')
             ->with('success', 'Yêu cầu đã được gửi thành công. TechSewing sẽ liên hệ với bạn trong thời gian sớm nhất.');
     }
-
 }

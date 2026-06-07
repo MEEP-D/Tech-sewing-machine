@@ -1,12 +1,24 @@
 @php
     $failedRows = $record->failedRows;
-    $failedRowsCount = $record->getFailedRowsCount();
-    $status = blank($record->completed_at)
-        ? 'Đang xử lý'
-        : ($failedRowsCount > 0 ? 'Hoàn tất có lỗi' : 'Hoàn tất');
+    $failedRowsCount = $failedRowsCount ?? $failedRows->count();
+    $pendingBatchJobsCount = $pendingBatchJobsCount ?? 0;
+    $queueDriver = $queueDriver ?? config('queue.default');
+    $isProcessing = blank($record->completed_at);
+    $isWaiting = $isProcessing && ((int) $record->processed_rows === 0);
+    $status = $isWaiting
+        ? 'Đang chờ xử lý'
+        : ($isProcessing
+            ? 'Đang xử lý'
+            : ($failedRowsCount > 0 ? 'Hoàn tất có lỗi' : 'Hoàn tất'));
 @endphp
 
 <div class="space-y-5">
+    @if ($isWaiting && $pendingBatchJobsCount > 0)
+        <p class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/25 dark:text-amber-200">
+            Import đang chờ queue xử lý. Hiện còn {{ number_format($pendingBatchJobsCount) }} job trong batch. Queue driver: {{ $queueDriver }}.
+        </p>
+    @endif
+
     <div class="grid gap-3 md:grid-cols-4">
         <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900">
             <p class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Trạng thái</p>
@@ -52,7 +64,7 @@
 
         @if ($failedRows->isEmpty())
             <p class="mt-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-900/60 dark:bg-green-950/25 dark:text-green-200">
-                Không có dòng lỗi trong lần import này.
+                Chưa có dòng lỗi chi tiết trong failed_import_rows.
             </p>
         @else
             <div class="mt-3 space-y-3">

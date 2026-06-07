@@ -21,6 +21,8 @@ class PartnerForm
                     ->label('Logo')
                     ->image()->imageEditor()->disk('public')
                     ->directory('partners')
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(1024)
                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                     ->required(),
                 TextInput::make('url')

@@ -33,16 +33,23 @@ class AppServiceProvider extends ServiceProvider
         Post::observe(PostObserver::class);
 
         try {
-            $isAdminRequest = request()->is('admin') || request()->is('admin/*');
+            View::composer('front.*', function ($view): void {
+                $payload = [
+                    'siteSettings' => [],
+                    'siteProfile' => [],
+                    'siteContent' => [],
+                    'menuCategories' => collect(),
+                    'publicPages' => [],
+                    'siteMenus' => [],
+                ];
 
-            if (! $isAdminRequest && Schema::hasTable('settings')) {
-                View::composer('front.*', function ($view) {
-                    try {
+                try {
+                    if (Schema::hasTable('settings')) {
                         $siteSettings = Setting::allAsMap();
 
-                        $view->with('siteSettings', $siteSettings);
-                        $view->with('siteProfile', Setting::siteProfile());
-                        $view->with('siteContent', [
+                        $payload['siteSettings'] = $siteSettings;
+                        $payload['siteProfile'] = Setting::siteProfile();
+                        $payload['siteContent'] = [
                             'header_quote_label' => $siteSettings['header_quote_label'] ?? '',
                             'footer_about_title' => $siteSettings['footer_about_title'] ?? '',
                             'footer_about_text' => $siteSettings['footer_about_text'] ?? '',
@@ -65,57 +72,69 @@ class AppServiceProvider extends ServiceProvider
                             'about_body' => $siteSettings['about_body'] ?? '',
                             'contact_page_title' => $siteSettings['contact_page_title'] ?? '',
                             'contact_page_subtitle' => $siteSettings['contact_page_subtitle'] ?? '',
-                            'page_news_heading' => $siteSettings['page_news_heading'] ?? 'Tin tuc',
-                            'page_news_desc' => $siteSettings['page_news_desc'] ?? 'Cap nhat nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.',
+                            'page_news_heading' => $siteSettings['page_news_heading'] ?? 'Tin tức',
+                            'page_news_desc' => $siteSettings['page_news_desc'] ?? 'Cập nhật nhanh thị trường, sản phẩm và hướng dẫn vận hành thực tế cho xưởng may.',
                             'page_news_hero_image' => $siteSettings['page_news_hero_image'] ?? null,
-                            'page_products_heading' => $siteSettings['page_products_heading'] ?? 'San pham',
-                            'page_products_desc' => $siteSettings['page_products_desc'] ?? 'Giai phap may cong nghiep, may lap trinh va phu kien cho xuong san xuat.',
+                            'page_products_heading' => $siteSettings['page_products_heading'] ?? 'Sản phẩm',
+                            'page_products_desc' => $siteSettings['page_products_desc'] ?? 'Giải pháp máy công nghiệp, máy lập trình và phụ kiện cho xưởng sản xuất.',
                             'page_products_hero_image' => $siteSettings['page_products_hero_image'] ?? null,
-                            'page_about_heading' => $siteSettings['page_about_heading'] ?? ($siteSettings['about_title'] ?? 'Gioi thieu'),
+                            'page_about_heading' => $siteSettings['page_about_heading'] ?? ($siteSettings['about_title'] ?? 'Giới thiệu'),
                             'page_about_desc' => $siteSettings['page_about_desc'] ?? ($siteSettings['about_subtitle'] ?? ''),
                             'page_about_hero_image' => $siteSettings['page_about_hero_image'] ?? null,
-                            'page_contact_heading' => $siteSettings['page_contact_heading'] ?? ($siteSettings['contact_page_title'] ?? 'Lien he'),
+                            'page_contact_heading' => $siteSettings['page_contact_heading'] ?? ($siteSettings['contact_page_title'] ?? 'Liên hệ'),
                             'page_contact_desc' => $siteSettings['page_contact_desc'] ?? ($siteSettings['contact_page_subtitle'] ?? ''),
                             'page_contact_hero_image' => $siteSettings['page_contact_hero_image'] ?? null,
                             'newsletter_signup_image' => $siteSettings['newsletter_signup_image'] ?? null,
                             'home_faqs' => Setting::getValue('home_faqs', []),
-                        ]);
-                    } catch (\Throwable) {
-                        $view->with('siteSettings', []);
-                        $view->with('siteProfile', []);
-                        $view->with('siteContent', []);
+                        ];
                     }
-                });
-            }
 
-            if (! $isAdminRequest && Schema::hasTable('categories')) {
-                View::composer(['front.partials.header', 'front.partials.footer'], function ($view) {
-                    $view->with('menuCategories', Category::query()
-                        ->where('type', 'product')
-                        ->whereNull('parent_id')
-                        ->where('is_active', true)
-                        ->with('childrenRecursive')
-                        ->orderBy('sort_order')
-                        ->get());
-                });
-            }
+                    if (Schema::hasTable('categories')) {
+                        $payload['menuCategories'] = collect(Cache::rememberForever('front_menu_categories_v1', function (): array {
+                            $mapCategory = function (Category $category) use (&$mapCategory): array {
+                                return [
+                                    'name' => $category->name,
+                                    'slug' => $category->slug,
+                                    'children' => $category->childrenRecursive->map($mapCategory)->values()->all(),
+                                ];
+                            };
 
-            if (! $isAdminRequest && Schema::hasTable('pages')) {
-                View::share('publicPages', Cache::rememberForever('site_pages_v2', fn () => Page::query()
-                    ->active()
-                    ->orderBy('title')
-                    ->get(['title', 'slug'])
-                    ->map(fn (Page $page) => [
-                        'title' => $page->title,
-                        'slug' => $page->slug,
-                    ])
-                    ->values()
-                    ->all()));
-            }
+                            return Category::query()
+                                ->where('type', 'product')
+                                ->whereNull('parent_id')
+                                ->where('is_active', true)
+                                ->with('childrenRecursive')
+                                ->orderBy('sort_order')
+                                ->get()
+                                ->map($mapCategory)
+                                ->values()
+                                ->all();
+                        }));
+                    }
 
-            if (! $isAdminRequest && Schema::hasTable('menus')) {
-                View::share('siteMenus', Cache::rememberForever('site_menus_v2', fn () => app(MenuService::class)->grouped()));
-            }
+                    if (Schema::hasTable('pages')) {
+                        $payload['publicPages'] = Cache::rememberForever('site_pages_v2', fn () => Page::query()
+                            ->active()
+                            ->orderBy('title')
+                            ->get(['title', 'slug'])
+                            ->map(fn (Page $page) => [
+                                'title' => $page->title,
+                                'slug' => ltrim((string) $page->slug, '/'),
+                            ])
+                            ->filter(fn (array $page) => $page['slug'] !== '')
+                            ->values()
+                            ->all());
+                    }
+
+                    if (Schema::hasTable('menus')) {
+                        $payload['siteMenus'] = Cache::rememberForever('site_menus_v2', fn () => app(MenuService::class)->grouped());
+                    }
+                } catch (\Throwable) {
+                    // Table might not exist yet during migration.
+                }
+
+                $view->with($payload);
+            });
 
         } catch (\Throwable) {
             // Table might not exist yet during migration

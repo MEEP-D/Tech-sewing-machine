@@ -23,7 +23,17 @@ class MenuForm
                     ])
                     ->required(),
                 TextInput::make('label')->label('Nhãn hiển thị')->required()->maxLength(255),
-                TextInput::make('url')->label('URL')->url()->maxLength(500),
+                TextInput::make('url')
+                    ->label('URL')
+                    ->placeholder('/duong-dan-noi-bo-hoac-https://example.com')
+                    ->maxLength(500)
+                    ->rules([
+                        'nullable',
+                        'regex:/^(\\/.*|https?:\\/\\/.+)$/i',
+                    ])
+                    ->validationMessages([
+                        'regex' => 'URL phải là liên kết đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
+                    ]),
                 TextInput::make('route_name')->label('Tên route')->maxLength(255),
                 Select::make('target')->options([
                     '_self' => 'Mở cùng tab',

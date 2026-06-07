@@ -11,8 +11,8 @@
 @endphp
 <section class="products-hero page-hero" @if(!empty($productsHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $productsHeroImage }}'); background-size: cover; background-position: center;" @endif>
     <div class="products-hero-inner container">
-        <h1>{{ $siteContent['page_products_heading'] ?? 'San pham' }}</h1>
-        <p>{{ $siteContent['page_products_desc'] ?? 'Giai phap may cong nghiep, may lap trinh va phu kien cho xuong san xuat.' }}</p>
+        <h1>{{ $siteContent['page_products_heading'] ?? 'Sản phẩm' }}</h1>
+        <p>{{ $siteContent['page_products_desc'] ?? 'Giải pháp máy công nghiệp, máy lập trình và phụ kiện cho xưởng sản xuất.' }}</p>
     </div>
 </section>
 
@@ -36,7 +36,7 @@
                                     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                                 @endif
                             @endforeach
-                            <label for="per-page-category">So san pham/trang</label>
+                            <label for="per-page-category">Số sản phẩm/trang</label>
                             <select id="per-page-category" name="per_page" onchange="this.form.submit()">
                                 @foreach(($perPageOptions ?? [8, 12, 16, 24]) as $option)
                                     <option value="{{ $option }}" @selected((int) $products->perPage() === (int) $option)>{{ $option }}</option>
@@ -46,10 +46,11 @@
                     </div>
                     <div class="toolbar-right">Trang {{ $products->currentPage() }}/{{ $products->lastPage() }}</div>
                 </div>
-                @if(($toolbarTags ?? collect())->isNotEmpty())
+                @php($toolbarTagItems = collect($toolbarTags ?? [])->filter(fn ($tag) => is_object($tag) && isset($tag->slug, $tag->name)))
+                @if($toolbarTagItems->isNotEmpty())
                     <div class="products-tag-toolbar">
-                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except('tag', 'page')) }}" class="product-tag-chip {{ empty($selectedFilters['tag']) ? 'is-active' : '' }}">Tat ca</a>
-                        @foreach($toolbarTags as $tag)
+                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except('tag', 'page')) }}" class="product-tag-chip {{ empty($selectedFilters['tag']) ? 'is-active' : '' }}">Tất cả</a>
+                        @foreach($toolbarTagItems as $tag)
                             <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except('page'), ['tag' => $tag->slug])) }}" class="product-tag-chip {{ ($selectedFilters['tag'] ?? '') === $tag->slug ? 'is-active' : '' }}">{{ $tag->name }}</a>
                         @endforeach
                     </div>
@@ -65,22 +66,22 @@
                                 @if($cardImage)
                                     <img src="{{ $cardImage }}" alt="{{ $product->name }}">
                                 @endif
-                                <span class="badge-installment">Tra gop {{ max(0, (int) $product->installment_percent) }}%</span>
+                                <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                                 @if(((int) $product->discount_percent) > 0)
                                     <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
                                 @endif
                             </div>
                             <div class="product-info">
                                 <h3 class="product-name"><a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a></h3>
-                                <div class="product-price">{{ $product->price ?: 'Lien he' }}</div>
-                                <div class="product-meta">Ma SP: {{ $product->code ?: ($product->sku ?: 'Dang cap nhat') }}</div>
+                                <div class="product-price">{{ $product->price ?: 'Liên hệ' }}</div>
+                                <div class="product-meta">Mã SP: {{ $product->code ?: ($product->sku ?: 'Đang cập nhật') }}</div>
                                 @if($product->short_description)
                                     <p class="product-snippet">{{ \Illuminate\Support\Str::limit(strip_tags($product->short_description), 120) }}</p>
                                 @endif
                                 <div class="product-cat">{{ $product->category?->name }}</div>
                                 <div class="product-actions catalog-actions">
-                                    <a href="{{ route('contact') }}" class="btn-detail btn-buy">Lien he</a>
-                                    <a href="{{ route('products.show', $product->slug) }}" class="btn-detail btn-outline">Xem chi tiet</a>
+                                    <a href="{{ route('contact') }}" class="btn-detail btn-buy">Liên hệ</a>
+                                    <a href="{{ route('products.show', $product->slug) }}" class="btn-detail btn-outline">Xem chi tiết</a>
                                 </div>
                             </div>
                         </article>

@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Schema;
 class ProductController extends Controller
 {
     private const ALLOWED_PER_PAGES = [8, 12, 16, 24];
-
     private function resolvePerPage(Request $request): int
     {
         $perPage = (int) $request->input('per_page', 8);
@@ -77,7 +76,7 @@ class ProductController extends Controller
         ];
     }
 
-    private function buildFilterData(Request $request): array
+    private function baseFilterData(): array
     {
         $parentCategories = Category::query()
             ->where('type', 'product')
@@ -86,14 +85,23 @@ class ProductController extends Controller
             ->with([
                 'childrenRecursive' => fn ($query) => $query->where('is_active', true),
             ])
-            ->withCount('products')
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
 
-        $filterCategories = $parentCategories->map(function (Category $category) {
-            $allIds = $this->flattenCategoryIds($category);
-            $totalCount = Product::published()->whereIn('category_id', $allIds)->count();
+        $categoryIdsByParent = $parentCategories->mapWithKeys(
+            fn (Category $category): array => [$category->id => $this->flattenCategoryIds($category)]
+        );
+
+        $productCounts = Product::published()
+            ->whereIn('category_id', $categoryIdsByParent->flatten()->unique()->values())
+            ->selectRaw('category_id, count(*) as aggregate')
+            ->groupBy('category_id')
+            ->pluck('aggregate', 'category_id');
+
+        $filterCategories = $parentCategories->map(function (Category $category) use ($categoryIdsByParent, $productCounts) {
+            $totalCount = collect($categoryIdsByParent->get($category->id, []))
+                ->sum(fn (int $categoryId): int => (int) ($productCounts[$categoryId] ?? 0));
             $category->setAttribute('product_count', $totalCount);
 
             return $category;
@@ -112,6 +120,14 @@ class ProductController extends Controller
             'usageTags' => $splitTags['usageTags'],
             'toolbarTags' => $productTags->take(14),
             'perPageOptions' => self::ALLOWED_PER_PAGES,
+        ];
+    }
+
+    private function buildFilterData(Request $request): array
+    {
+        $filterData = $this->baseFilterData();
+
+        return $filterData + [
             'selectedFilters' => [
                 'types' => array_values(array_filter((array) $request->input('types', []))),
                 'functions' => array_values(array_filter((array) $request->input('functions', []))),
@@ -209,7 +225,7 @@ class ProductController extends Controller
 
         $products = $query->paginate($perPage)->withQueryString();
         $seo = $seoService->defaults(
-            \App\Models\Setting::getValue('seo_products_title', 'Tat ca san pham'),
+            \App\Models\Setting::getValue('seo_products_title', 'Tất cả sản phẩm'),
             \App\Models\Setting::getValue('seo_products_description', 'Danh sach may may cong nghiep chat luong cao')
         );
         $sort = $request->get('sort', 'latest');
@@ -236,7 +252,7 @@ class ProductController extends Controller
         $query = $this->applyFilters($query, $request);
 
         $products = $query->paginate($perPage)->withQueryString();
-        $seo = $seoService->defaults("Ket qua tim kiem: {$keyword}");
+        $seo = $seoService->defaults("Kết quả tìm kiếm: {$keyword}");
         $sort = $request->get('sort', 'latest');
 
         return view('front.pages.products.index', array_merge(
@@ -280,7 +296,7 @@ class ProductController extends Controller
             ->take(12)
             ->get();
 
-        // Fallback: neu cung category khong du, bo sung san pham tuong tu (khac category)
+        // Fallback: nếu cùng category không đủ, bổ sung sản phẩm tương tự (khác category).
         if ($relatedProducts->count() < 4) {
             $fallbackProducts = Product::published()
                 ->with('category')
@@ -296,8 +312,8 @@ class ProductController extends Controller
         $seo = $seoService->forModel($product);
         $seo['schema_markup'][] = $seoService->productSchema($product);
         $seo['schema_markup'][] = $seoService->breadcrumbSchema(array_filter([
-            ['name' => 'Trang chu', 'url' => route('home')],
-            ['name' => 'San pham', 'url' => route('products.index')],
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Sản phẩm', 'url' => route('products.index')],
             $product->category ? ['name' => $product->category->name, 'url' => route('products.category', $product->category->slug)] : null,
             ['name' => $product->name, 'url' => $product->url],
         ]));

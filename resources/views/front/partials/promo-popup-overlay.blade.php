@@ -4,7 +4,7 @@
     $promoDescription = trim((string) ($siteSettings['promo_popup_description'] ?? ''));
     $promoButtonText = trim((string) ($siteSettings['promo_popup_button_text'] ?? ''));
     $promoButtonUrl = trim((string) ($siteSettings['promo_popup_button_url'] ?? ''));
-    $promoContactText = trim((string) ($siteSettings['promo_popup_contact_text'] ?? 'Lien he ngay'));
+    $promoContactText = trim((string) ($siteSettings['promo_popup_contact_text'] ?? 'Liên hệ ngay'));
     $promoContactUrl = trim((string) ($siteSettings['promo_popup_contact_url'] ?? ''));
     if ($promoContactUrl === '') {
         $hotline = preg_replace('/\D+/', '', (string) ($siteSettings['contact_hotline'] ?? ''));
@@ -56,8 +56,8 @@
 
 @if($promoEnabled)
     <div id="promo-popup-overlay" class="promo-popup-overlay" aria-hidden="true">
-        <div class="promo-popup-card" role="dialog" aria-modal="true" aria-label="Khuyen mai">
-            <button type="button" class="promo-popup-close" data-promo-close aria-label="Dong">
+        <div class="promo-popup-card" role="dialog" aria-modal="true" aria-label="Khuyến mãi">
+            <button type="button" class="promo-popup-close" data-promo-close aria-label="Đóng">
                 <i class="fas fa-times"></i>
             </button>
             @if(count($promoImageUrls) > 0)
@@ -67,7 +67,7 @@
                             <img
                                 src="{{ $promoImageUrl }}"
                                 class="promo-popup-slide{{ $index === 0 ? ' is-active' : '' }}"
-                                alt="{{ $promoTitle !== '' ? $promoTitle : 'Khuyen mai' }}"
+                                alt="{{ $promoTitle !== '' ? $promoTitle : 'Khuyến mãi' }}"
                                 data-promo-slide
                             >
                         @endforeach

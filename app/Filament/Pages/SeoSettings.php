@@ -34,12 +34,15 @@ class SeoSettings extends Page
     public function mount(): void
     {
         $favicon = Setting::getValue('site_favicon', null);
+        $defaultOgImage = Setting::getValue('seo_default_og_image', null);
 
         $this->data = [
             'seo_default_title' => Setting::getValue('seo_default_title', config('app.name')),
             'seo_default_description' => Setting::getValue('seo_default_description', ''),
             'site_favicon_upload' => $this->normalizeUploadFieldState($favicon),
             'site_favicon' => $this->normalizeUploadInput($favicon),
+            'seo_default_og_image_upload' => $this->normalizeUploadFieldState($defaultOgImage),
+            'seo_default_og_image' => $this->normalizeUploadInput($defaultOgImage),
             'seo_default_canonical' => Setting::getValue('seo_default_canonical', config('app.url')),
             'seo_organization_name' => Setting::getValue('seo_organization_name', config('app.name')),
             'seo_organization_url' => Setting::getValue('seo_organization_url', config('app.url')),
@@ -63,6 +66,25 @@ class SeoSettings extends Page
                     Grid::make(2)->schema([
                         TextInput::make('seo_default_title')->label(self::u('SEO title m\\u1eb7c \\u0111\\u1ecbnh')),
                         TextInput::make('seo_default_canonical')->label(self::u('Canonical m\\u1eb7c \\u0111\\u1ecbnh')),
+                        TextInput::make('seo_default_og_image')
+                            ->label(self::u('\\u1ea2nh OG m\\u1eb7c \\u0111\\u1ecbnh'))
+                            ->maxLength(500)
+                            ->helperText(self::u('Nh\\u1eadp \\u0111\\u01b0\\u1eddng d\\u1eabn trong storage, assets/... ho\\u1eb7c URL \\u0111\\u1ea7y \\u0111\\u1ee7.')),
+                        FileUpload::make('seo_default_og_image_upload')
+                            ->label(self::u('T\\u1ea3i \\u1ea3nh OG m\\u1eb7c \\u0111\\u1ecbnh'))
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('seo')
+                            ->afterStateHydrated(function ($component, $state): void {
+                                if (is_array($state)) {
+                                    $component->state($state);
+                                    return;
+                                }
+
+                                $component->state(filled($state) ? [$state] : []);
+                            })
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                         FileUpload::make('site_favicon_upload')
                             ->label(self::u('Logo tab tr\\u00ecnh duy\\u1ec7t'))
                             ->image()
@@ -116,6 +138,7 @@ class SeoSettings extends Page
             'seo_default_title',
             'seo_default_description',
             'seo_default_canonical',
+            'seo_default_og_image',
             'seo_organization_name',
             'seo_organization_url',
             'seo_robots_default',
@@ -138,7 +161,7 @@ class SeoSettings extends Page
 
     protected function persistUploadSettings(): void
     {
-        foreach (['site_favicon_upload'] as $key) {
+        foreach (['site_favicon_upload', 'seo_default_og_image_upload'] as $key) {
             $targetKey = str_replace('_upload', '', $key);
             $value = $this->normalizeUploadInput($this->data[$key] ?? null)
                 ?? $this->normalizeUploadInput($this->data[$targetKey] ?? null);
@@ -146,7 +169,9 @@ class SeoSettings extends Page
             $this->data[$key] = $this->normalizeUploadFieldState($value);
             $this->data[$targetKey] = $value;
 
-            Setting::updateOrCreate(['key' => $targetKey], ['value' => $value, 'group' => 'branding']);
+            $group = $targetKey === 'site_favicon' ? 'branding' : 'seo';
+
+            Setting::updateOrCreate(['key' => $targetKey], ['value' => $value, 'group' => $group]);
         }
     }
 

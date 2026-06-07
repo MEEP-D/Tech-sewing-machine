@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Yêu cầu liên hệ mới</title>
     <style>
-        body { font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; }
         .header h2 { margin: 0; color: #2563eb; }
         .info-row { margin-bottom: 10px; }

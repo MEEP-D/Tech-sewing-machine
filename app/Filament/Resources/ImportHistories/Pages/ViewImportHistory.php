@@ -21,7 +21,7 @@ class ViewImportHistory extends ViewRecord
                 ->label('Tải lỗi CSV')
                 ->icon(Heroicon::ArrowDownTray)
                 ->color('danger')
-                ->visible(fn (ImportModel $record): bool => $record->getFailedRowsCount() > 0)
+                ->visible(fn (ImportModel $record): bool => ImportHistoryResource::getDisplayFailedRowsCount($record) > 0)
                 ->url(fn (ImportModel $record): string => URL::signedRoute('filament.imports.failed-rows.download', [
                     'authGuard' => Filament::getAuthGuard(),
                     'import' => $record,

@@ -16,7 +16,7 @@ class SectionForm
     {
         return $schema->components([
             FormSection::make('Nội dung block')->schema([
-                TextInput::make('key')->label('Mã block')->required()->alphaDash()->maxLength(100),
+                TextInput::make('key')->label('Mã block')->required()->alphaDash()->maxLength(100)->unique(ignoreRecord: true),
                 TextInput::make('title')->label('Tiêu đề')->maxLength(255),
                 TextInput::make('subtitle')->label('Tiêu đề phụ')->maxLength(255),
                 Select::make('type')->options([
@@ -30,6 +30,8 @@ class SectionForm
                 ])->required(),
                 Textarea::make('content')->label('Nội dung')->columnSpanFull(),
                 FileUpload::make('image')->label('Hình ảnh')->image()->imageEditor()->disk('public')->directory('sections')
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(2048)
                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                 TextInput::make('sort_order')->label('Thứ tự')->numeric()->minValue(0)->default(0),
                 Checkbox::make('is_active')->label('Hiển thị')->default(true),

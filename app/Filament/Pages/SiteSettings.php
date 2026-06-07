@@ -48,23 +48,38 @@ class SiteSettings extends Page
 
     public function mount(): void
     {
+        $siteLogo = Setting::getValue('site_logo', null);
+        $siteLogoDark = Setting::getValue('site_logo_dark', null);
+        $siteLogoMobile = Setting::getValue('site_logo_mobile', null);
+        $siteFavicon = Setting::getValue('site_favicon', null);
+        $homeHeroImage = Setting::getValue('home_hero_image', null);
+
         $this->data = [
             'site_title' => Setting::getValue('site_title', config('app.name')),
             'site_description' => Setting::getValue('site_description', ''),
             'site_logo_height' => Setting::getValue('site_logo_height', 48),
             'site_logo_width' => Setting::getValue('site_logo_width', 180),
-            'site_logo_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_logo', null)),
+            'site_logo_upload' => $this->normalizeUploadFieldState($siteLogo),
+            'site_logo' => $this->normalizeUploadInput($siteLogo),
+            'site_logo_dark_upload' => $this->normalizeUploadFieldState($siteLogoDark),
+            'site_logo_dark' => $this->normalizeUploadInput($siteLogoDark),
+            'site_logo_mobile_upload' => $this->normalizeUploadFieldState($siteLogoMobile),
+            'site_logo_mobile' => $this->normalizeUploadInput($siteLogoMobile),
             'site_logo_type' => Setting::getValue('site_logo_type', 'image'),
-            'site_favicon_upload' => $this->normalizeUploadFieldState(Setting::getValue('site_favicon', null)),
+            'site_favicon_upload' => $this->normalizeUploadFieldState($siteFavicon),
+            'site_favicon' => $this->normalizeUploadInput($siteFavicon),
             'seo_default_title' => Setting::getValue('seo_default_title', config('app.name')),
             'seo_default_description' => Setting::getValue('seo_default_description', ''),
             'seo_default_canonical' => Setting::getValue('seo_default_canonical', config('app.url')),
+            'seo_default_og_image' => Setting::getValue('seo_default_og_image', ''),
             'seo_organization_name' => Setting::getValue('seo_organization_name', config('app.name')),
             'seo_organization_url' => Setting::getValue('seo_organization_url', config('app.url')),
             'seo_robots_default' => Setting::getValue('seo_robots_default', 'index,follow'),
             'seo_description' => Setting::getValue('seo_description', ''),
             'home_slogan_title' => Setting::getValue('home_slogan_title', ''),
             'home_slogan_subtitle' => Setting::getValue('home_slogan_subtitle', ''),
+            'home_hero_image_upload' => $this->normalizeUploadFieldState($homeHeroImage),
+            'home_hero_image' => $this->normalizeUploadInput($homeHeroImage),
             'home_highlight_contact_primary_name' => Setting::getValue('home_highlight_contact_primary_name', self::u('Mr. S\\u00e1ng')),
             'home_highlight_contact_primary_phone' => Setting::getValue('home_highlight_contact_primary_phone', '0902 806 599'),
             'home_highlight_contact_secondary_name' => Setting::getValue('home_highlight_contact_secondary_name', self::u('Mr. B\\u1ea3o')),
@@ -83,20 +98,20 @@ class SiteSettings extends Page
             'mail_template_source_type' => Setting::getValue('mail_template_source_type', 'post'),
             'mail_template_source_id' => Setting::getValue('mail_template_source_id', ''),
             'mail_template_source_url' => Setting::getValue('mail_template_source_url', ''),
-            'mail_template_subject' => Setting::getValue('mail_template_subject', 'Noi dung moi tu TechSewing'),
-            'mail_template_html' => Setting::getValue('mail_template_html', '<h2>{{title}}</h2><p>{{excerpt}}</p><p><a href="{{url}}">Xem chi tiet</a></p>'),
+            'mail_template_subject' => Setting::getValue('mail_template_subject', 'Nội dung mới từ TechSewing'),
+            'mail_template_html' => Setting::getValue('mail_template_html', '<h2>{{title}}</h2><p>{{excerpt}}</p><p><a href="{{url}}">Xem chi tiết</a></p>'),
             'header_facebook_url' => Setting::getValue('header_facebook_url', ''),
             'header_zalo_url' => Setting::getValue('header_zalo_url', ''),
             'header_youtube_url' => Setting::getValue('header_youtube_url', ''),
             'page_contact_kicker' => Setting::getValue('page_contact_kicker', self::u('Li\\u00ean h\\u1ec7 & thu th\\u1eadp kh\\u00e1ch h\\u00e0ng ti\\u1ec1m n\\u0103ng')),
             'page_contact_heading' => Setting::getValue('page_contact_heading', self::u('\\u0110\\u1eb7t l\\u1ecbch t\\u01b0 v\\u1ea5n, demo gi\\u1ea3i ph\\u00e1p v\\u00e0 nh\\u1eadn b\\u00e1o gi\\u00e1 nhanh')),
             'page_contact_desc' => Setting::getValue('page_contact_desc', self::u('H\\u00e3y \\u0111\\u1ec3 l\\u1ea1i th\\u00f4ng tin \\u0111\\u1ec3 \\u0111\\u1ed9i ng\\u0169 chuy\\u00ean gia c\\u1ee7a ch\\u00fang t\\u00f4i h\\u1ed7 tr\\u1ee3 b\\u1ea1n t\\u1ed1t nh\\u1ea5t.')),
-            'page_products_kicker' => Setting::getValue('page_products_kicker', 'Product experience'),
+            'page_products_kicker' => Setting::getValue('page_products_kicker', 'Trải nghiệm sản phẩm'),
             'page_products_heading' => Setting::getValue('page_products_heading', self::u('Kh\\u00e1m ph\\u00e1 lineup m\\u00e1y may c\\u00f4ng nghi\\u1ec7p')),
             'page_products_desc' => Setting::getValue('page_products_desc', self::u('Cung c\\u1ea5p c\\u00e1c d\\u00f2ng m\\u00e1y may ch\\u00ednh h\\u00e3ng, ch\\u1ea5t l\\u01b0\\u1ee3ng cao \\u0111\\u00e1p \\u1ee9ng m\\u1ecdi nhu c\\u1ea7u s\\u1ea3n xu\\u1ea5t.')),
             'page_products_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_products_hero_image', null)),
-            'page_news_heading' => Setting::getValue('page_news_heading', 'Tin tuc'),
-            'page_news_desc' => Setting::getValue('page_news_desc', 'Cáº­p nháº­t nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
+            'page_news_heading' => Setting::getValue('page_news_heading', 'Tin tức'),
+            'page_news_desc' => Setting::getValue('page_news_desc', 'Cập nhật nhanh thị trường, sản phẩm và hướng dẫn vận hành thực tế cho xưởng may.'),
             'page_news_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_news_hero_image', null)),
             'page_about_heading' => Setting::getValue('page_about_heading', self::u('Gi\\u1edbi thi\\u1ec7u')),
             'page_about_desc' => Setting::getValue('page_about_desc', ''),
@@ -104,14 +119,14 @@ class SiteSettings extends Page
             'page_contact_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_contact_hero_image', null)),
             'newsletter_signup_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('newsletter_signup_image', null)),
             'promo_popup_enabled' => (string) Setting::getValue('promo_popup_enabled', '0'),
-            'promo_popup_title' => Setting::getValue('promo_popup_title', 'Uu dai danh cho khÃ¡ch hang moi'),
-            'promo_popup_description' => Setting::getValue('promo_popup_description', 'Nhan tu van nhanh va bao gia theo nhu cau xuong may cua ban.'),
-            'promo_popup_button_text' => Setting::getValue('promo_popup_button_text', 'Nhan uu dai ngay'),
+            'promo_popup_title' => Setting::getValue('promo_popup_title', 'Ưu đãi dành cho khách hàng mới'),
+            'promo_popup_description' => Setting::getValue('promo_popup_description', 'Nhận tư vấn nhanh và báo giá theo nhu cầu xưởng may của bạn.'),
+            'promo_popup_button_text' => Setting::getValue('promo_popup_button_text', 'Nhận ưu đãi ngay'),
             'promo_popup_button_url' => Setting::getValue('promo_popup_button_url', ''),
-            'promo_popup_contact_text' => Setting::getValue('promo_popup_contact_text', 'Lien he ngay'),
+            'promo_popup_contact_text' => Setting::getValue('promo_popup_contact_text', 'Liên hệ ngay'),
             'promo_popup_contact_url' => Setting::getValue('promo_popup_contact_url', ''),
             'promo_popup_countdown_end_at' => Setting::getValue('promo_popup_countdown_end_at', ''),
-            'promo_popup_countdown_note' => Setting::getValue('promo_popup_countdown_note', '(*) Chuong trinh ap dung co dieu kien den het ngay.'),
+            'promo_popup_countdown_note' => Setting::getValue('promo_popup_countdown_note', '(*) Chương trình áp dụng có điều kiện đến hết ngày.'),
             'promo_popup_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('promo_popup_image', null)),
             'promo_popup_images_upload' => $this->normalizeUploadListFieldState(Setting::getValue('promo_popup_images', [])),
             'promo_popup_delay_seconds' => (string) Setting::getValue('promo_popup_delay_seconds', '2'),
@@ -142,6 +157,12 @@ class SiteSettings extends Page
                             FileUpload::make('site_logo_upload')->label(self::u('Logo s\\u00e1ng'))->image()->disk('public')->directory('site')->imageEditor()
                                 ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                            FileUpload::make('site_logo_dark_upload')->label(self::u('Logo t\\u1ed1i'))->image()->disk('public')->directory('site')->imageEditor()
+                                ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                            FileUpload::make('site_logo_mobile_upload')->label(self::u('Logo mobile'))->image()->disk('public')->directory('site')->imageEditor()
+                                ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                             FileUpload::make('site_favicon_upload')->label('Favicon')->image()->disk('public')->directory('site')->imageEditor()
                                 ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
@@ -151,6 +172,7 @@ class SiteSettings extends Page
                         Grid::make(2)->schema([
                             TextInput::make('seo_default_title')->label(self::u('SEO title m\\u1eb7c \\u0111\\u1ecbnh')),
                             TextInput::make('seo_default_canonical')->label(self::u('Canonical m\\u1eb7c \\u0111\\u1ecbnh')),
+                            TextInput::make('seo_default_og_image')->label(self::u('\\u1ea2nh OG m\\u1eb7c \\u0111\\u1ecbnh'))->maxLength(500),
                             TextInput::make('seo_organization_name')->label(self::u('T\\u00ean t\\u1ed5 ch\\u1ee9c')),
                             TextInput::make('seo_organization_url')->label(self::u('URL t\\u1ed5 ch\\u1ee9c')),
                             TextInput::make('seo_robots_default')->label(self::u('Robots m\\u1eb7c \\u0111\\u1ecbnh')),
@@ -173,6 +195,16 @@ class SiteSettings extends Page
                     Section::make(self::u('N\\u1ed9i dung slogan trang ch\\u1ee7'))->schema([
                         TextInput::make('home_slogan_title')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 slogan')),
                         Textarea::make('home_slogan_subtitle')->label(self::u('M\\u00f4 t\\u1ea3 slogan')),
+                    ]),
+                    Section::make(self::u('\\u1ea2nh hero trang ch\\u1ee7'))->schema([
+                        FileUpload::make('home_hero_image_upload')
+                            ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->imageEditor()
+                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     ]),
                     Section::make(self::u('Li\\u00ean h\\u1ec7 s\\u1ea3n ph\\u1ea9m \\u0111\\u1ed9t ph\\u00e1'))->schema([
                         Grid::make(2)->schema([
@@ -208,7 +240,7 @@ class SiteSettings extends Page
                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     ]),
                     Section::make(self::u('N\\u1ed9i dung trang S\\u1ea3n ph\\u1ea9m'))->schema([
-                        TextInput::make('page_products_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 (Kicker)'))->default('Product experience'),
+                        TextInput::make('page_products_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 (Kicker)'))->default('Trải nghiệm sản phẩm'),
                         TextInput::make('page_products_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 ch\\u00ednh'))->default(self::u('Kh\\u00e1m ph\\u00e1 lineup m\\u00e1y may c\\u00f4ng nghi\\u1ec7p')),
                         Textarea::make('page_products_desc')->label(self::u('M\\u00f4 t\\u1ea3 ng\\u1eafn'))->default(self::u('Cung c\\u1ea5p c\\u00e1c d\\u00f2ng m\\u00e1y may ch\\u00ednh h\\u00e3ng, ch\\u1ea5t l\\u01b0\\u1ee3ng cao \\u0111\\u00e1p \\u1ee9ng m\\u1ecdi nhu c\\u1ea7u s\\u1ea3n xu\\u1ea5t.')),
                         FileUpload::make('page_products_hero_image_upload')
@@ -221,8 +253,8 @@ class SiteSettings extends Page
                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     ]),
                     Section::make(self::u('N\\u1ed9i dung trang Tin t\\u1ee9c'))->schema([
-                        TextInput::make('page_news_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 hero'))->default('Tin tuc'),
-                        Textarea::make('page_news_desc')->label(self::u('M\\u00f4 t\\u1ea3 hero'))->default('Cáº­p nháº­t nhanh thi truong, san pham va huong dan van hanh thuc te cho xuong may.'),
+                        TextInput::make('page_news_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 hero'))->default('Tin tức'),
+                        Textarea::make('page_news_desc')->label(self::u('M\\u00f4 t\\u1ea3 hero'))->default('Cập nhật nhanh thị trường, sản phẩm và hướng dẫn vận hành thực tế cho xưởng may.'),
                         FileUpload::make('page_news_hero_image_upload')
                             ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
                             ->image()
@@ -245,42 +277,42 @@ class SiteSettings extends Page
                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     ]),
                 ]),
-                Tabs\Tab::make('Popup Promo')->schema([
-                    Section::make('Cáº¥u hÃ¬nh popup khuyáº¿n mÃ£i')->schema([
+                Tabs\Tab::make('Popup khuyến mãi')->schema([
+                    Section::make('Cấu hình popup khuyến mãi')->schema([
                         Grid::make(2)->schema([
                             Select::make('promo_popup_enabled')
-                                ->label('Báº­t popup')
+                                ->label('Bật popup')
                                 ->options([
-                                    '1' => 'Báº­t',
-                                    '0' => 'Táº¯t',
+                                    '1' => 'Bật',
+                                    '0' => 'Tắt',
                                 ])
                                 ->default('0')
                                 ->native(false),
                             TextInput::make('promo_popup_delay_seconds')
-                                ->label('Äá»™ trá»… hiá»ƒn thá»‹ (giÃ¢y)')
+                                ->label('Độ trễ hiển thị (giây)')
                                 ->numeric()
                                 ->minValue(0)
                                 ->default('2'),
                             TextInput::make('promo_popup_frequency_hours')
-                                ->label('Táº§n suáº¥t hiá»‡n láº¡i (gio)')
+                                ->label('Tần suất hiện lại (giờ)')
                                 ->numeric()
                                 ->minValue(1)
                                 ->default('24'),
-                            TextInput::make('promo_popup_button_url')->label('Link nÃºt CTA')->url(),
+                            TextInput::make('promo_popup_button_url')->label('Link nút CTA')->url(),
 
-                            TextInput::make('promo_popup_contact_url')->label('Link nut lien he')->url(),
+                            TextInput::make('promo_popup_contact_url')->label('Link nút liên hệ')->url(),
                             TextInput::make('promo_popup_countdown_end_at')
-                                ->label('Thoi diem ket thuc dem nguoc')
+                                ->label('Thời điểm kết thúc đếm ngược')
                                 ->type('datetime-local'),
                         ]),
-                        TextInput::make('promo_popup_title')->label('TiÃªu Ä‘á» popup'),
-                        Textarea::make('promo_popup_description')->label('MÃ´ táº£ popup'),
-                        TextInput::make('promo_popup_button_text')->label('Text nÃºt CTA'),
+                        TextInput::make('promo_popup_title')->label('Tiêu đề popup'),
+                        Textarea::make('promo_popup_description')->label('Mô tả popup'),
+                        TextInput::make('promo_popup_button_text')->label('Text nút CTA'),
 
-                        TextInput::make('promo_popup_contact_text')->label('Text nut lien he'),
-                        TextInput::make('promo_popup_countdown_note')->label('Ghi chu dem nguoc'),
+                        TextInput::make('promo_popup_contact_text')->label('Text nút liên hệ'),
+                        TextInput::make('promo_popup_countdown_note')->label('Ghi chú đếm ngược'),
                         FileUpload::make('promo_popup_image_upload')
-                            ->label('áº¢nh popup')
+                            ->label('Ảnh popup')
                             ->image()
                             ->disk('public')
                             ->directory('site')
@@ -288,14 +320,14 @@ class SiteSettings extends Page
                             ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                         FileUpload::make('promo_popup_images_upload')
-                            ->label('Danh sÃ¡ch áº£nh popup (tá»± Ä‘á»™ng cháº¡y 3 giÃ¢y/áº£nh)')
+                            ->label('Danh sách ảnh popup (tự động chạy 3 giây/ảnh)')
                             ->image()
                             ->multiple()
                             ->reorderable()
                             ->appendFiles()
                             ->disk('public')
                             ->directory('site')
-                            ->helperText('Náº¿u cÃ³ nhiá»u áº£nh, popup sáº½ tá»± cháº¡y slideshow 3 giÃ¢y má»—i áº£nh.')
+                            ->helperText('Nếu có nhiều ảnh, popup sẽ tự chạy slideshow 3 giây mỗi ảnh.')
                             ->afterStateHydrated(function ($component, $state): void {
                                 $component->state($this->normalizeUploadListFieldState($state));
                             }),
@@ -328,41 +360,41 @@ class SiteSettings extends Page
                                 ->label('SMTP Password')
                                 ->password()
                                 ->revealable()
-                                ->placeholder('Äá»ƒ trá»‘ng Ä‘á»ƒ giá»¯ máº­t kháº©u hiá»‡n táº¡i'),
+                                ->placeholder('Để trống để giữ mật khẩu hiện tại'),
                             TextInput::make('mail_from_address')->label('From Email')->email(),
                             TextInput::make('mail_from_name')->label('From Name'),
                         ]),
                         Section::make('HTML Mail Template')->schema([
                             Grid::make(2)->schema([
                                 Select::make('mail_template_source_type')
-                                    ->label('Nguá»“n dá»¯ liá»‡u')
+                                    ->label('Nguồn dữ liệu')
                                     ->options([
-                                        'post' => 'BÃ i viáº¿t',
-                                        'product' => 'Sáº£n pháº©m',
-                                        'page' => 'Page tÄ©nh',
-                                        'url' => 'URL Ä‘á»™ng khÃ¡c',
+                                        'post' => 'Bài viết',
+                                        'product' => 'Sản phẩm',
+                                        'page' => 'Trang tĩnh',
+                                        'url' => 'URL động khác',
                                     ])
                                     ->default('post')
                                     ->native(false)
                                     ->live(),
                                 TextInput::make('mail_template_source_url')
-                                    ->label('URL Ä‘á»™ng')
+                                    ->label('URL động')
                                     ->url()
                                     ->visible(fn (callable $get): bool => $get('mail_template_source_type') === 'url')
-                                    ->helperText('Chá»‰ dÃ¹ng khi chá»n nguá»“n URL Ä‘á»™ng.'),
+                                    ->helperText('Chỉ dùng khi chọn nguồn URL động.'),
                                 Select::make('mail_template_source_id')
-                                    ->label('Ná»™i dung nguá»“n')
+                                    ->label('Nội dung nguồn')
                                     ->options(fn (callable $get): array => $this->sourceOptions((string) $get('mail_template_source_type')))
                                     ->searchable()
                                     ->native(false)
                                     ->visible(fn (callable $get): bool => in_array($get('mail_template_source_type'), ['post', 'product', 'page'], true)),
                                 TextInput::make('mail_template_subject')
-                                    ->label('TiÃªu Ä‘á» mail'),
+                                    ->label('Tiêu đề mail'),
                             ]),
                             Textarea::make('mail_template_html')
                                 ->label('HTML template')
                                 ->rows(12)
-                                ->helperText('Biáº¿n há»— trá»£: {{title}}, {{excerpt}}, {{content}}, {{url}}, {{image_url}}, {{site_name}}'),
+                                ->helperText('Biến hỗ trợ: {{title}}, {{excerpt}}, {{content}}, {{url}}, {{image_url}}, {{site_name}}'),
                         ]),
                         View::make('filament.pages.partials.smtp-test-email'),
                     ]),
@@ -391,7 +423,7 @@ class SiteSettings extends Page
     {
         $email = trim($this->testEmail);
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Notification::make()->title('Email nháº­n thá»­ khÃ´ng há»£p lá»‡.')->danger()->send();
+            Notification::make()->title('Email nhận thử không hợp lệ.')->danger()->send();
             return;
         }
 
@@ -410,9 +442,9 @@ class SiteSettings extends Page
                 $message->to($email)->subject($subject);
             });
 
-            Notification::make()->title('ÄÃ£ gá»­i email test thÃ nh cÃ´ng.')->success()->send();
+            Notification::make()->title('Đã gửi email test thành công.')->success()->send();
         } catch (\Throwable $exception) {
-            Notification::make()->title('Gá»­i email test tháº¥t báº¡i: ' . $exception->getMessage())->danger()->send();
+            Notification::make()->title('Gửi email test thất bại: ' . $exception->getMessage())->danger()->send();
         }
     }
 
@@ -420,7 +452,10 @@ class SiteSettings extends Page
     {
         foreach ([
             'site_logo_upload',
+            'site_logo_dark_upload',
+            'site_logo_mobile_upload',
             'site_favicon_upload',
+            'home_hero_image_upload',
             'page_news_hero_image_upload',
             'page_products_hero_image_upload',
             'page_about_hero_image_upload',
@@ -447,7 +482,7 @@ class SiteSettings extends Page
     {
         $keys = [
             'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width',
-            'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
+            'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_default_og_image', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
             'home_slogan_title', 'home_slogan_subtitle',
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
             'home_highlight_contact_secondary_name', 'home_highlight_contact_secondary_phone',
@@ -617,7 +652,7 @@ class SiteSettings extends Page
         $sourceId = (int) ($this->data['mail_template_source_id'] ?? 0);
         $fallback = [
             'title' => 'TechSewing',
-            'excerpt' => 'Noi dung duoc gui tu he thong.',
+            'excerpt' => 'Nội dung được gửi từ hệ thống.',
             'content' => '',
             'url' => config('app.url'),
             'image_url' => '',
@@ -702,7 +737,7 @@ class SiteSettings extends Page
     {
         $template = (string) ($this->data['mail_template_html'] ?? '');
         if ($template === '') {
-            $template = '<h2>{{title}}</h2><p>{{excerpt}}</p><p><a href="{{url}}">Xem chi tiet</a></p>';
+            $template = '<h2>{{title}}</h2><p>{{excerpt}}</p><p><a href="{{url}}">Xem chi tiết</a></p>';
         }
 
         $replace = [];

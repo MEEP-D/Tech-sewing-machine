@@ -23,7 +23,7 @@ class SliderResource extends Resource
 
     protected static ?string $modelLabel = 'Slider';
 
-    protected static ?string $pluralModelLabel = 'Sliders';
+    protected static ?string $pluralModelLabel = 'Slider';
 
     public static function form(Schema $schema): Schema
     {

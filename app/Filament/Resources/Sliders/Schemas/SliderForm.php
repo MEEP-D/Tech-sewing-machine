@@ -26,11 +26,14 @@ class SliderForm
                             ->preserveFilenames()
                             ->previewable()
                             ->downloadable()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->maxSize(4096)
                             ->helperText('Khuyến nghị: upload ảnh theo kích thước 1672x941px (tỷ lệ widescreen) để hiển thị đủ ảnh và đồng bộ.'),
 
                         TextInput::make('sort_order')
                             ->label('Thứ tự')
                             ->numeric()
+                            ->minValue(0)
                             ->default(0),
 
                         TextInput::make('title')
@@ -43,8 +46,11 @@ class SliderForm
 
                         TextInput::make('link')
                             ->label('Liên kết')
-                            ->url()
-                            ->maxLength(255),
+                            ->rules(['nullable', 'regex:/^(\/.*|https?:\/\/.+)$/i'])
+                            ->validationMessages([
+                                'regex' => 'Liên kết phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
+                            ])
+                            ->maxLength(500),
                     ]),
                 ]),
 

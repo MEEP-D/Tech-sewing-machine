@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Schema;
 class Setting extends Model
 {
     private const SETTINGS_CACHE_KEY = 'site_settings_array';
+    private const PROFILE_CACHE_KEY = 'site_profile_array';
 
     protected $fillable = ['key', 'value', 'label', 'type', 'group', 'sort_order', 'description'];
     protected $casts = [
@@ -19,10 +20,12 @@ class Setting extends Model
     {
         static::saved(function () {
             Cache::forget(self::SETTINGS_CACHE_KEY);
+            Cache::forget(self::PROFILE_CACHE_KEY);
         });
 
         static::deleted(function () {
             Cache::forget(self::SETTINGS_CACHE_KEY);
+            Cache::forget(self::PROFILE_CACHE_KEY);
         });
     }
 
@@ -55,16 +58,18 @@ class Setting extends Model
 
     public static function siteProfile(): array
     {
-        $row = null;
-        if (Schema::hasColumn('settings', 'hotline') && Schema::hasColumn('settings', 'email') && Schema::hasColumn('settings', 'address')) {
-            $row = self::query()->whereNotNull('hotline')->orWhereNotNull('email')->orWhereNotNull('address')->first();
-        }
+        return Cache::rememberForever(self::PROFILE_CACHE_KEY, static function (): array {
+            $row = null;
+            if (Schema::hasColumn('settings', 'hotline') && Schema::hasColumn('settings', 'email') && Schema::hasColumn('settings', 'address')) {
+                $row = self::query()->whereNotNull('hotline')->orWhereNotNull('email')->orWhereNotNull('address')->first();
+            }
 
-        return [
-            'hotline' => $row?->hotline ?: self::getValue('contact_hotline', self::getValue('hotline', '')),
-            'email' => $row?->email ?: self::getValue('contact_email', self::getValue('email', '')),
-            'address' => $row?->address ?: self::getValue('contact_address', self::getValue('address', '')),
-            'social_links' => $row?->social_links ?: self::getValue('social_links', []),
-        ];
+            return [
+                'hotline' => $row?->hotline ?: self::getValue('contact_hotline', self::getValue('hotline', '')),
+                'email' => $row?->email ?: self::getValue('contact_email', self::getValue('email', '')),
+                'address' => $row?->address ?: self::getValue('contact_address', self::getValue('address', '')),
+                'social_links' => $row?->social_links ?: self::getValue('social_links', []),
+            ];
+        });
     }
 }

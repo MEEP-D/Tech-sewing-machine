@@ -70,9 +70,11 @@ class PostForm
                                         ->label('Danh mục')
                                         ->relationship('category', 'name', fn ($query) => $query->where('type', 'news'))
                                         ->searchable()
-                                        ->preload(),
+                                        ->preload()
+                                        ->required(),
                                     DateTimePicker::make('published_at')
                                         ->label('Ngày xuất bản')
+                                        ->helperText('Nếu để trống khi công khai, hệ thống sẽ dùng thời điểm lưu.')
                                         ->native(false)
                                         ->displayFormat('d/m/Y H:i'),
                                 ]),
@@ -107,9 +109,11 @@ class PostForm
                                     TextInput::make('event_date')
                                         ->label('Ngày diễn ra')
                                         ->type('date')
+                                        ->rules(['nullable', 'date'])
                                         ->helperText('Chỉ điền nếu là Hội chợ / Hội thảo'),
                                     TextInput::make('event_location')
                                         ->label('Địa điểm')
+                                        ->required(fn (callable $get): bool => in_array($get('type'), ['event', 'fair', 'seminar'], true))
                                         ->maxLength(255)
                                         ->helperText('Ví dụ: TP. Hồ Chí Minh, Hà Nội, Barcelona...'),
                                 ]),

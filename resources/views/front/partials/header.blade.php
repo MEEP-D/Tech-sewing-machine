@@ -31,10 +31,10 @@
             $headerQuoteLabel = $toText($siteContent['header_quote_label'] ?? '', '');
             $headerHotline = trim((string) ($siteProfile['hotline'] ?? ''));
             $headerButtonText = $headerQuoteLabel !== '' ? $headerQuoteLabel : $headerHotline;
-            $headerHomeLink = $toText($siteContent['header_home_link'] ?? null, 'Trang Chu');
-            $headerProductsLink = $toText($siteContent['header_products_link'] ?? null, 'San Pham');
-            $headerNewsLink = $toText($siteContent['header_news_link'] ?? null, 'Tin tuc');
-            $headerContactLink = $toText($siteContent['header_contact_link'] ?? null, 'Lien He');
+            $headerHomeLink = $toText($siteContent['header_home_link'] ?? null, 'Trang chủ');
+            $headerProductsLink = $toText($siteContent['header_products_link'] ?? null, 'Sản phẩm');
+            $headerNewsLink = $toText($siteContent['header_news_link'] ?? null, 'Tin tức');
+            $headerContactLink = $toText($siteContent['header_contact_link'] ?? null, 'Liên hệ');
             $menuService = app(\App\Services\MenuService::class);
             $headerMenuSource = (array) data_get($siteMenus ?? [], 'header', []);
             if (empty($headerMenuSource) && is_array($siteMenus ?? null)) {
@@ -90,7 +90,7 @@
                                 <div class="mega-menu">
                                     @foreach($menuChildren as $child)
                                         @php
-                                            $childLabel = $toText(data_get($child, 'label'), 'Danh muc');
+                                            $childLabel = $toText(data_get($child, 'label'), 'Danh mục');
                                             $childUrl = $resolveMenuUrl($child);
                                             $grandChildren = collect(data_get($child, 'children', []));
                                         @endphp
@@ -100,7 +100,7 @@
                                                 <ul class="mega-links">
                                                     @foreach($grandChildren as $grandChild)
                                                         @php
-                                                            $grandLabel = $toText(data_get($grandChild, 'label'), 'Chi tiet');
+                                                            $grandLabel = $toText(data_get($grandChild, 'label'), 'Chi tiết');
                                                             $grandUrl = $resolveMenuUrl($grandChild);
                                                             $greatGrandChildren = collect(data_get($grandChild, 'children', []));
                                                         @endphp
@@ -110,7 +110,7 @@
                                                                 <ul class="sub-links">
                                                                     @foreach($greatGrandChildren as $greatGrandChild)
                                                                         @php
-                                                                            $greatGrandLabel = $toText(data_get($greatGrandChild, 'label'), 'Chi tiet');
+                                                                            $greatGrandLabel = $toText(data_get($greatGrandChild, 'label'), 'Chi tiết');
                                                                             $greatGrandUrl = $resolveMenuUrl($greatGrandChild);
                                                                         @endphp
                                                                         <li><a href="{{ $greatGrandUrl }}">{{ $greatGrandLabel }}</a></li>
@@ -132,7 +132,7 @@
                     @foreach(collect($publicPages ?? [])->take(4) as $publicPage)
                         @php
                             $pageTitle = $toText(data_get($publicPage, 'title'), 'Trang');
-                            $pageSlug = $toText(data_get($publicPage, 'slug'), '');
+                            $pageSlug = ltrim($toText(data_get($publicPage, 'slug'), ''), '/');
                         @endphp
                         @if($pageSlug !== '')
                             <li class="nav-item"><a href="{{ route('pages.show', ['slug' => $pageSlug]) }}" class="nav-link">{{ $pageTitle }}</a></li>
@@ -142,10 +142,15 @@
                         <a href="{{ route('products.index') }}" class="nav-link">{{ $headerProductsLink }} <i class="fas fa-chevron-down"></i></a>
                         <div class="mega-menu">
                             @foreach(($menuCategories ?? collect())->take(4) as $top)
+                                @php
+                                    $topName = $toText(data_get($top, 'name'), 'Danh mục');
+                                    $topSlug = $toText(data_get($top, 'slug'), '');
+                                    $topChildren = collect(data_get($top, 'children', []));
+                                @endphp
                                 <div class="mega-col">
-                                    <h5><a href="{{ route('products.category', $top->slug) }}">{{ $toText($top->name, 'Danh muc') }}</a></h5>
+                                    <h5><a href="{{ route('products.category', $topSlug) }}">{{ $topName }}</a></h5>
                                     <ul class="mega-links">
-                                        @include('front.partials.category-tree', ['categories' => $top->childrenRecursive, 'level' => 1])
+                                        @include('front.partials.category-tree', ['categories' => $topChildren, 'level' => 1])
                                     </ul>
                                 </div>
                             @endforeach

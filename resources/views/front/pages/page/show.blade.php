@@ -2,6 +2,11 @@
 
 @section('content')
 @php
+    $isBuilderMode = $page->layout_mode === 'builder';
+    $contentClass = $isBuilderMode
+        ? 'page-rich-content page-mode-builder'
+        : 'page-rich-content page-rich-content-centered';
+
     $pageCoverImage = $page->image_url;
     if (! $pageCoverImage) {
         $pageCoverImage = $siteContent['page_news_hero_image'] ?? null;
@@ -23,7 +28,7 @@
 
 <section class="container" style="padding: 2rem 1.5rem;">
     <div class="section-header"><h1 class="section-title">{{ $page->title }}</h1></div>
-    <div class="page-rich-content page-rich-content-centered">{!! $html !!}</div>
+    <div class="{{ $contentClass }}">{!! $html !!}</div>
 </section>
 
 @include('front.partials.newsletter-signup')

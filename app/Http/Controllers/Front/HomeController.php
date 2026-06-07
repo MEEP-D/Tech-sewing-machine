@@ -28,7 +28,10 @@ class HomeController extends Controller
         $newProducts = Product::query()
             ->published()
             ->with($newProductWith)
-            ->where('is_new', true)
+            ->where(function ($query): void {
+                $query->where('is_new', true)
+                    ->orWhere('is_featured', true);
+            })
             ->latest()
             ->take(8)
             ->get();
@@ -38,32 +41,31 @@ class HomeController extends Controller
             $exclusiveWith[] = 'specs';
         }
 
-        $hasCodeColumn = Schema::hasColumn('products', 'code');
         $hasExclusiveColumn = Schema::hasColumn('products', 'is_exclusive');
+        $hasBannerSwitcherColumn = Schema::hasColumn('products', 'show_in_banner_switcher');
 
-        $exclusiveProducts = Product::query()
+        $highlightProduct = Product::query()
             ->published()
             ->with($exclusiveWith)
-            ->where(function ($query) use ($hasCodeColumn, $hasExclusiveColumn) {
-                $query->where(function ($inner) use ($hasCodeColumn) {
-                    if ($hasCodeColumn) {
-                        $inner->where('code', 'X-1209D')->orWhere('sku', 'X-1209D');
-                        return;
-                    }
+            ->when(
+                $hasExclusiveColumn,
+                fn ($query) => $query->where('is_exclusive', true),
+                fn ($query) => $query->whereRaw('1 = 0')
+            )
+            ->latest()
+            ->first();
 
-                    $inner->where('sku', 'X-1209D');
-                });
-
-                if ($hasExclusiveColumn) {
-                    $query->orWhere('is_exclusive', true);
-                }
-            })
-            ->when($hasExclusiveColumn, fn ($query) => $query->orderByDesc('is_exclusive'))
+        $bannerSwitcherProducts = Product::query()
+            ->published()
+            ->with($exclusiveWith)
+            ->when(
+                $hasBannerSwitcherColumn,
+                fn ($query) => $query->where('show_in_banner_switcher', true),
+                fn ($query) => $query->whereRaw('1 = 0')
+            )
             ->latest()
             ->take(3)
             ->get();
-
-        $highlightProduct = $exclusiveProducts->first();
 
         $menuCategories = Category::query()
             ->where('type', 'product')
@@ -86,7 +88,8 @@ class HomeController extends Controller
         return view('front.pages.home', [
             'sliders' => $sliders,
             'newProducts' => $newProducts,
-            'exclusiveProducts' => $exclusiveProducts,
+            'exclusiveProducts' => collect(),
+            'bannerSwitcherProducts' => $bannerSwitcherProducts,
             'highlightProduct' => $highlightProduct,
             'menuCategories' => $menuCategories,
             'partners' => $partners,

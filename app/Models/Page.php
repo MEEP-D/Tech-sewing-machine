@@ -14,14 +14,23 @@ class Page extends Model
 {
     use HasFactory, ResolvesMediaUrl, SoftDeletes;
 
+    private const PAGE_CACHE_KEYS = [
+        'site_pages',
+        'site_pages_v2',
+    ];
+
     protected static function booted(): void
     {
         static::saved(function () {
-            Cache::forget('site_pages');
+            foreach (self::PAGE_CACHE_KEYS as $cacheKey) {
+                Cache::forget($cacheKey);
+            }
         });
 
         static::deleted(function () {
-            Cache::forget('site_pages');
+            foreach (self::PAGE_CACHE_KEYS as $cacheKey) {
+                Cache::forget($cacheKey);
+            }
         });
     }
 

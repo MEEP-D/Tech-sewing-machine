@@ -10,16 +10,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Product extends Model
 {
     use HasFactory, ResolvesMediaUrl, SoftDeletes;
 
+    private const PRODUCT_FILTER_CACHE_KEY = 'product_filter_data_v1';
+
     protected $fillable = [
         'name', 'slug', 'code', 'sku', 'short_description', 'long_description', 'description',
         'price', 'brand', 'origin', 'specifications', 'image', 'thumbnail',
         'gallery', 'video_id', 'category_id', 'status', 'is_featured', 'is_new', 'is_hot',
-        'is_exclusive', 'sort_order', 'view_count', 'discount_percent', 'installment_percent', 'support_prompt',
+        'is_exclusive', 'show_in_banner_switcher', 'sort_order', 'view_count', 'discount_percent', 'installment_percent', 'support_prompt',
         'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
         'overview_heading', 'overview_content', 'seo_heading', 'seo_content',
     ];
@@ -31,6 +34,7 @@ class Product extends Model
         'is_new'         => 'boolean',
         'is_hot'         => 'boolean',
         'is_exclusive'   => 'boolean',
+        'show_in_banner_switcher' => 'boolean',
         'discount_percent' => 'integer',
         'installment_percent' => 'integer',
     ];
@@ -38,6 +42,8 @@ class Product extends Model
     protected static function booted(): void
     {
         static::saved(function (Product $product): void {
+            Cache::forget(self::PRODUCT_FILTER_CACHE_KEY);
+
             if (! $product->is_exclusive) {
                 return;
             }
@@ -47,6 +53,9 @@ class Product extends Model
                 ->where('is_exclusive', true)
                 ->update(['is_exclusive' => false]);
         });
+
+        static::deleted(fn (): bool => Cache::forget(self::PRODUCT_FILTER_CACHE_KEY));
+        static::restored(fn (): bool => Cache::forget(self::PRODUCT_FILTER_CACHE_KEY));
     }
 
     // ─── Relationships ────────────────────────────────────────────

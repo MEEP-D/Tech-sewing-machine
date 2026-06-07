@@ -20,7 +20,7 @@ class NewsletterConfirmMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Xac nhan dang ky nhan tin tu TechSewing',
+            subject: 'Xác nhận đăng ký nhận tin từ TechSewing',
         );
     }
 
