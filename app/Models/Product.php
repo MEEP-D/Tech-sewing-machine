@@ -124,4 +124,41 @@ class Product extends Model
     {
         $this->increment('view_count');
     }
+
+    public function getPriceValueAttribute(): ?int
+    {
+        $digits = preg_replace('/[^0-9]/', '', (string) $this->price);
+
+        return $digits !== '' ? (int) $digits : null;
+    }
+
+    public function getDiscountedPriceValueAttribute(): ?int
+    {
+        $priceValue = $this->price_value;
+        $discountPercent = max(0, (int) $this->discount_percent);
+
+        if ($priceValue === null) {
+            return null;
+        }
+
+        if ($discountPercent <= 0) {
+            return $priceValue;
+        }
+
+        return (int) round($priceValue * (100 - min($discountPercent, 100)) / 100);
+    }
+
+    public function getFormattedPriceAttribute(): ?string
+    {
+        return $this->price_value !== null
+            ? number_format($this->price_value, 0, ',', '.') . ' đ'
+            : null;
+    }
+
+    public function getFormattedDiscountedPriceAttribute(): ?string
+    {
+        return $this->discounted_price_value !== null
+            ? number_format($this->discounted_price_value, 0, ',', '.') . ' đ'
+            : null;
+    }
 }

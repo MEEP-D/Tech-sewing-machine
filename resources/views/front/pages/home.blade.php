@@ -214,6 +214,7 @@
 <script>window.__homeBannerData = @json($bannerProducts);</script>
 @endif
 
+
 <section id="new-products" class="container" style="padding: 5px 1.5rem;">
     <div class="section-header"><h2 class="section-title">Sản Phẩm Mới Nhất</h2></div>
     <div class="slider-wrapper">
@@ -279,6 +280,75 @@
         <button class="slider-btn next-btn" data-target="product-grid-new"><i class="fas fa-chevron-right"></i></button>
     </div>
 </section>
+
+@foreach(($homeProductRows ?? collect()) as $homeProductRow)
+    @php($rowProducts = $homeProductRow->getRelation('products'))
+    @php($buttonText = data_get($homeProductRow->style_config, 'button_text') ?: 'Xem thêm')
+    @php($buttonUrl = data_get($homeProductRow->style_config, 'button_url') ?: route('products.index'))
+    @php($showButton = filter_var(data_get($homeProductRow->style_config, 'show_button', true), FILTER_VALIDATE_BOOLEAN))
+    @php($rowHeading = trim((string) ($homeProductRow->title ?: $homeProductRow->content ?: $homeProductRow->subtitle ?: '')))
+    @php($usesHighlightClass = str_contains(' ' . trim((string) $homeProductRow->container_class) . ' ', ' home-row-highlight '))
+    @php($rowClasses = trim(implode(' ', array_filter(['home-product-row', 'align-equal', 'linehome__item', $homeProductRow->container_class, $homeProductRow->spacing_top, $homeProductRow->spacing_bottom]))))
+    @php($rowStyles = trim(implode('; ', array_filter([
+        !$usesHighlightClass && $homeProductRow->bg_color ? 'background-color: ' . $homeProductRow->bg_color : null,
+        $homeProductRow->text_color ? 'color: ' . $homeProductRow->text_color : null,
+    ]))))
+    <section class="{{ $rowClasses }}" @if($rowStyles) style="{{ $rowStyles }}" @endif>
+        <div class="container">
+            @if($rowHeading !== '')
+                <div class="home-product-row-heading linehome__item__header">
+                    <span>{{ $rowHeading }}</span>
+                </div>
+            @endif
+            <div class="home-product-row-inner">
+                @if($homeProductRow->image_url)
+                    <div class="home-product-row-banner col-inner">
+                        <img src="{{ $homeProductRow->image_url }}" alt="{{ $homeProductRow->title ?: 'Danh mục sản phẩm' }}">
+                    </div>
+                @endif
+                <div class="home-product-row-products col-inner">
+                    <div class="home-product-row-grid">
+                        @foreach($rowProducts as $product)
+                            <article class="home-product-row-card product-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
+                                <div class="home-product-row-img">
+                                    @if($product->display_image_url)
+                                        <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}">
+                                    @endif
+                                    <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
+                                    @if(((int) $product->discount_percent) > 0)
+                                        <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
+                                    @endif
+                                </div>
+                                <h3 class="home-product-row-name">
+                                    <a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a>
+                                </h3>
+                                <div class="home-product-row-price">
+                                    @if($product->formatted_price)
+                                        @if(((int) $product->discount_percent) > 0 && $product->formatted_discounted_price && $product->formatted_discounted_price !== $product->formatted_price)
+                                            <span class="home-product-row-price-old">{{ $product->formatted_price }}</span>
+                                            <span class="home-product-row-price-current">{{ $product->formatted_discounted_price }}</span>
+                                        @else
+                                            <span class="home-product-row-price-current">{{ $product->formatted_price }}</span>
+                                        @endif
+                                    @else
+                                        <span class="home-product-row-price-current">Li�n h?</span>
+                                    @endif
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                    @if($showButton)
+                        <a href="{{ $buttonUrl }}" class="home-product-row-more">
+                            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                            <span>{{ $buttonText }}</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </section>
+@endforeach
+
 
 <section class="service-banner-section">
     <div class="container">

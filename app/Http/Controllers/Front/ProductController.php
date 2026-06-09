@@ -14,11 +14,13 @@ use Illuminate\Support\Facades\Schema;
 class ProductController extends Controller
 {
     private const ALLOWED_PER_PAGES = [8, 12, 16, 24];
+    private const DEFAULT_PER_PAGE = 12;
+
     private function resolvePerPage(Request $request): int
     {
-        $perPage = (int) $request->input('per_page', 8);
+        $perPage = (int) $request->input('per_page', self::DEFAULT_PER_PAGE);
 
-        return in_array($perPage, self::ALLOWED_PER_PAGES, true) ? $perPage : 8;
+        return in_array($perPage, self::ALLOWED_PER_PAGES, true) ? $perPage : self::DEFAULT_PER_PAGE;
     }
 
     private function flattenCategoryIds(Category $category): array
@@ -30,6 +32,70 @@ class ProductController extends Controller
         }
 
         return $ids;
+    }
+
+    private function normalizedPriceExpression(): string
+    {
+        return "CAST(NULLIF(REGEXP_REPLACE(price, '[^0-9]', ''), '') AS UNSIGNED)";
+    }
+
+    private function applyProductCountsToCategories(Collection $categories, Collection $productCounts): Collection
+    {
+        return $categories->map(function (Category $category) use ($productCounts) {
+            $children = $this->applyProductCountsToCategories($category->childrenRecursive, $productCounts);
+            $category->setRelation('childrenRecursive', $children);
+
+            $totalCount = (int) ($productCounts[$category->id] ?? 0)
+                + $children->sum(fn (Category $child): int => (int) $child->getAttribute('product_count'));
+
+            $category->setAttribute('product_count', $totalCount);
+
+            return $category;
+        });
+    }
+
+    private function filterCategoriesWithProducts(Collection $categories): Collection
+    {
+        return $categories
+            ->map(function (Category $category) {
+                $children = $this->filterCategoriesWithProducts($category->childrenRecursive);
+                $category->setRelation('childrenRecursive', $children);
+
+                return $category;
+            })
+            ->filter(fn (Category $category): bool => (int) $category->getAttribute('product_count') > 0)
+            ->values();
+    }
+
+    private function directChildCategoriesWithProducts(Collection $categories, Collection $productCounts): Collection
+    {
+        return $categories
+            ->flatMap(function (Category $category) use ($productCounts) {
+                $directCount = (int) ($productCounts[$category->id] ?? 0);
+                $items = collect();
+
+                if ($category->parent_id !== null && $directCount > 0) {
+                    $category->setAttribute('product_count', $directCount);
+                    $items->push($category);
+                }
+
+                return $items->concat($this->directChildCategoriesWithProducts($category->childrenRecursive, $productCounts));
+            })
+            ->values();
+    }
+
+    private function parentProductCategories(): Collection
+    {
+        return Category::query()
+            ->where('type', 'product')
+            ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->with([
+                'childrenRecursive' => fn ($query) => $query->where('is_active', true),
+            ])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
     }
 
     private function splitProductTags(Collection $tags): array
@@ -76,36 +142,51 @@ class ProductController extends Controller
         ];
     }
 
-    private function baseFilterData(): array
+    private function baseFilterData(Request $request, ?Category $scopeCategory = null): array
     {
-        $parentCategories = Category::query()
-            ->where('type', 'product')
-            ->where('is_active', true)
-            ->whereNull('parent_id')
-            ->with([
-                'childrenRecursive' => fn ($query) => $query->where('is_active', true),
-            ])
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get(['id', 'name', 'slug']);
+        $parentCategories = $this->parentProductCategories();
 
         $categoryIdsByParent = $parentCategories->mapWithKeys(
             fn (Category $category): array => [$category->id => $this->flattenCategoryIds($category)]
         );
 
-        $productCounts = Product::published()
+        $countQuery = Product::published();
+
+        if ($scopeCategory) {
+            $countQuery->whereIn('category_id', $this->flattenCategoryIds($scopeCategory));
+        }
+
+        $productCounts = $this->applyFilters($countQuery, $request, ['types'], false)
             ->whereIn('category_id', $categoryIdsByParent->flatten()->unique()->values())
             ->selectRaw('category_id, count(*) as aggregate')
             ->groupBy('category_id')
             ->pluck('aggregate', 'category_id');
 
-        $filterCategories = $parentCategories->map(function (Category $category) use ($categoryIdsByParent, $productCounts) {
-            $totalCount = collect($categoryIdsByParent->get($category->id, []))
-                ->sum(fn (int $categoryId): int => (int) ($productCounts[$categoryId] ?? 0));
-            $category->setAttribute('product_count', $totalCount);
+        $filterCategories = $this->applyProductCountsToCategories($parentCategories, $productCounts);
 
-            return $category;
-        });
+        $toolbarCountQuery = Product::published();
+
+        if ($scopeCategory) {
+            $toolbarCountQuery->whereIn('category_id', $this->flattenCategoryIds($scopeCategory));
+        }
+
+        $toolbarCounts = $this->applyFilters($toolbarCountQuery, $request, ['tag'], false)
+            ->whereIn('category_id', $categoryIdsByParent->flatten()->unique()->values())
+            ->selectRaw('category_id, count(*) as aggregate')
+            ->groupBy('category_id')
+            ->pluck('aggregate', 'category_id');
+        $toolbarTotalCount = (int) $toolbarCounts->sum();
+
+        $selectedTypes = array_values(array_filter((array) $request->input('types', [])));
+        $toolbarSourceCategories = $this->parentProductCategories();
+
+        if (!empty($selectedTypes)) {
+            $toolbarSourceCategories = $toolbarSourceCategories
+                ->filter(fn (Category $category): bool => in_array($category->slug, $selectedTypes, true))
+                ->values();
+        }
+
+        $toolbarCategories = $this->directChildCategoriesWithProducts($toolbarSourceCategories, $toolbarCounts);
 
         $productTags = Tag::query()
             ->where('type', 'product')
@@ -118,14 +199,16 @@ class ProductController extends Controller
             'filterCategories' => $filterCategories,
             'functionTags' => $splitTags['functionTags'],
             'usageTags' => $splitTags['usageTags'],
+            'toolbarCategories' => $toolbarCategories,
+            'toolbarTotalCount' => $toolbarTotalCount,
             'toolbarTags' => $productTags->take(14),
             'perPageOptions' => self::ALLOWED_PER_PAGES,
         ];
     }
 
-    private function buildFilterData(Request $request): array
+    private function buildFilterData(Request $request, ?Category $scopeCategory = null): array
     {
-        $filterData = $this->baseFilterData();
+        $filterData = $this->baseFilterData($request, $scopeCategory);
 
         return $filterData + [
             'selectedFilters' => [
@@ -140,23 +223,27 @@ class ProductController extends Controller
         ];
     }
 
-    private function applyFilters($query, Request $request)
+    private function applyFilters($query, Request $request, array $excludedFilters = [], bool $applySorting = true)
     {
-        if ($brand = $request->get('brand')) {
+        if (!in_array('brand', $excludedFilters, true) && ($brand = $request->get('brand'))) {
             $query->where('brand', $brand);
         }
 
-        $minPrice = $request->integer('min_price');
+        $minPrice = !in_array('min_price', $excludedFilters, true) ? $request->integer('min_price') : 0;
+        $priceExpression = $this->normalizedPriceExpression();
+
         if ($minPrice > 0) {
-            $query->where('price', '>=', $minPrice);
+            $query->whereRaw("{$priceExpression} >= ?", [$minPrice]);
         }
 
-        $maxPrice = $request->integer('max_price');
+        $maxPrice = !in_array('max_price', $excludedFilters, true) ? $request->integer('max_price') : 0;
         if ($maxPrice > 0) {
-            $query->where('price', '<=', $maxPrice);
+            $query->whereRaw("{$priceExpression} <= ?", [$maxPrice]);
         }
 
-        $selectedTypes = array_values(array_filter((array) $request->input('types', [])));
+        $selectedTypes = in_array('types', $excludedFilters, true)
+            ? []
+            : array_values(array_filter((array) $request->input('types', [])));
         if (!empty($selectedTypes)) {
             $selectedParents = Category::query()
                 ->where('type', 'product')
@@ -177,17 +264,23 @@ class ProductController extends Controller
             }
         }
 
-        $selectedFunctions = array_values(array_filter((array) $request->input('functions', [])));
+        $selectedFunctions = in_array('functions', $excludedFilters, true)
+            ? []
+            : array_values(array_filter((array) $request->input('functions', [])));
         if (!empty($selectedFunctions)) {
             $query->whereHas('tags', fn ($q) => $q->where('type', 'product')->whereIn('slug', $selectedFunctions));
         }
 
-        $selectedUsages = array_values(array_filter((array) $request->input('usages', [])));
+        $selectedUsages = in_array('usages', $excludedFilters, true)
+            ? []
+            : array_values(array_filter((array) $request->input('usages', [])));
         if (!empty($selectedUsages)) {
             $query->whereHas('tags', fn ($q) => $q->where('type', 'product')->whereIn('slug', $selectedUsages));
         }
 
-        $selectedTag = trim((string) $request->input('tag', ''));
+        $selectedTag = in_array('tag', $excludedFilters, true)
+            ? ''
+            : trim((string) $request->input('tag', ''));
         if ($selectedTag !== '') {
             $matchedCategory = Category::query()
                 ->where('type', 'product')
@@ -208,11 +301,15 @@ class ProductController extends Controller
             });
         }
 
+        if (!$applySorting) {
+            return $query;
+        }
+
         $sort = $request->get('sort', 'latest');
 
         return match ($sort) {
-            'price_asc' => $query->orderBy('price', 'asc'),
-            'price_desc' => $query->orderBy('price', 'desc'),
+            'price_asc' => $query->orderByRaw("{$priceExpression} IS NULL, {$priceExpression} ASC"),
+            'price_desc' => $query->orderByRaw("{$priceExpression} IS NULL, {$priceExpression} DESC"),
             default => $query->latest('updated_at'),
         };
     }
@@ -264,9 +361,16 @@ class ProductController extends Controller
     public function category(Request $request, $slug, SeoService $seoService)
     {
         $perPage = $this->resolvePerPage($request);
-        $category = Category::where('slug', $slug)->where('type', 'product')->firstOrFail();
+        $category = Category::where('slug', $slug)
+            ->where('type', 'product')
+            ->with([
+                'childrenRecursive' => fn ($query) => $query->where('is_active', true),
+            ])
+            ->firstOrFail();
 
-        $query = $category->products()->published()->with(['category', 'tags']);
+        $query = Product::published()
+            ->whereIn('category_id', $this->flattenCategoryIds($category))
+            ->with(['category', 'tags']);
         $query = $this->applyFilters($query, $request);
 
         $products = $query->paginate($perPage)->withQueryString();
@@ -275,7 +379,7 @@ class ProductController extends Controller
 
         return view('front.pages.products.category', array_merge(
             compact('category', 'products', 'seo', 'sort'),
-            $this->buildFilterData($request)
+            $this->buildFilterData($request, $category)
         ));
     }
 

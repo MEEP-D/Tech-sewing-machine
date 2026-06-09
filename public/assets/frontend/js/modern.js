@@ -133,6 +133,52 @@ document.addEventListener('DOMContentLoaded', () => {
         rebalanceOverflowMenu();
     }
 
+    let mobileSubmenuId = 0;
+    const getDirectChild = (parent, selector) => {
+        return Array.from(parent.children).find((child) => child.matches(selector)) || null;
+    };
+
+    const ensureMobileSubmenuToggles = () => {
+        const expandableItems = document.querySelectorAll('.nav-item.has-children, .mega-links li.has-children');
+        expandableItems.forEach((item) => {
+            const link = getDirectChild(item, 'a');
+            const panel = getDirectChild(item, '.mega-menu, .sub-links');
+            if (!link || !panel) return;
+
+            item.classList.add('has-mobile-toggle');
+
+            let toggle = getDirectChild(item, '.mobile-submenu-toggle');
+            if (!toggle) {
+                toggle = document.createElement('button');
+                toggle.type = 'button';
+                toggle.className = 'mobile-submenu-toggle';
+                toggle.innerHTML = '<i class="fas fa-chevron-down" aria-hidden="true"></i>';
+                item.insertBefore(toggle, panel);
+            }
+
+            if (!panel.id) {
+                mobileSubmenuId += 1;
+                panel.id = `mobile-submenu-${mobileSubmenuId}`;
+            }
+
+            toggle.setAttribute('aria-controls', panel.id);
+            toggle.setAttribute('aria-expanded', item.classList.contains('is-open') ? 'true' : 'false');
+            toggle.setAttribute('aria-label', item.classList.contains('is-open') ? 'Thu gọn menu con' : 'Mở menu con');
+        });
+    };
+
+    const syncMobileSubmenuToggle = (item) => {
+        if (!item) return;
+        const toggle = getDirectChild(item, '.mobile-submenu-toggle');
+        if (!toggle) return;
+
+        const isOpen = item.classList.contains('is-open');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        toggle.setAttribute('aria-label', isOpen ? 'Thu gọn menu con' : 'Mở menu con');
+    };
+
+    ensureMobileSubmenuToggles();
+
     // 4. Mega Menu Accordion Logic (Shared and Responsive)
     const setupAccordion = (selector, childSelector, forceAllSizes = false) => {
         const parents = document.querySelectorAll(selector);
@@ -142,6 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const link = parent.querySelector('a');
                 link.addEventListener('click', (e) => {
                     const isMobile = window.innerWidth <= 1024; // Align with CSS media queries
+                    if (isMobile && getDirectChild(parent, '.mobile-submenu-toggle')) {
+                        return;
+                    }
                     if (isMobile || forceAllSizes) {
                         // If closed, prevent navigation and open it
                         if (!parent.classList.contains('is-open')) {
@@ -151,10 +200,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Close other siblings for a clean accordion look
                             const siblings = parent.parentElement.querySelectorAll('.is-open');
                             siblings.forEach(sibling => {
-                                if (sibling !== parent) sibling.classList.remove('is-open');
+                                if (sibling !== parent) {
+                                    sibling.classList.remove('is-open');
+                                    syncMobileSubmenuToggle(sibling);
+                                }
                             });
 
                             parent.classList.add('is-open');
+                            syncMobileSubmenuToggle(parent);
                         }
                     }
                 });
@@ -284,13 +337,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.innerWidth > 1024) return;
 
             const eventTarget = e.target instanceof Element ? e.target : e.target.parentElement;
-            const link = eventTarget ? eventTarget.closest('a') : null;
-            if (!link || !navLinks.contains(link)) return;
+            const toggle = eventTarget ? eventTarget.closest('.mobile-submenu-toggle') : null;
+            if (!toggle || !navLinks.contains(toggle)) return;
 
-            const expandableItem = link.closest('.nav-item.has-children, .mega-links li.has-children');
+            const expandableItem = toggle.closest('.nav-item.has-children, .mega-links li.has-children');
             if (!expandableItem) return;
 
-            const hasExpandablePanel = expandableItem.querySelector('.mega-menu, .sub-links');
+            const hasExpandablePanel = getDirectChild(expandableItem, '.mega-menu, .sub-links');
             if (!hasExpandablePanel) return;
 
             e.preventDefault();
@@ -298,9 +351,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const siblingItems = expandableItem.parentElement ? expandableItem.parentElement.querySelectorAll('.is-open') : [];
             siblingItems.forEach((item) => {
-                if (item !== expandableItem) item.classList.remove('is-open');
+                if (item !== expandableItem) {
+                    item.classList.remove('is-open');
+                    syncMobileSubmenuToggle(item);
+                }
             });
             expandableItem.classList.toggle('is-open');
+            syncMobileSubmenuToggle(expandableItem);
         }, true);
 
         // Close menu when clicking a link inside, BUT NOT if it's a structural link (has children)

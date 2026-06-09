@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Partner;
 use App\Models\Product;
+use App\Models\Section;
 use App\Models\Setting;
 use App\Models\Slider;
 use App\Services\SeoService;
@@ -80,6 +81,44 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $homeProductRows = collect();
+
+        if (Schema::hasTable('sections')) {
+            $homeProductRows = Section::query()
+                ->where('is_active', true)
+                ->where('type', 'product_row')
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+                ->map(function (Section $section) use ($exclusiveWith) {
+                    $productIds = collect(data_get($section->style_config, 'product_ids', []))
+                        ->filter()
+                        ->map(fn ($id) => (int) $id)
+                        ->unique()
+                        ->values();
+
+                    if ($productIds->isEmpty()) {
+                        $section->setRelation('products', collect());
+
+                        return $section;
+                    }
+
+                    $products = Product::query()
+                        ->published()
+                        ->with($exclusiveWith)
+                        ->whereIn('id', $productIds)
+                        ->get()
+                        ->sortBy(fn (Product $product) => $productIds->search($product->id))
+                        ->values();
+
+                    $section->setRelation('products', $products);
+
+                    return $section;
+                })
+                ->filter(fn (Section $section) => $section->getRelation('products')->isNotEmpty())
+                ->values();
+        }
+
         $siteProfile = Schema::hasTable('settings') ? Setting::siteProfile() : [];
 
         $seo = $seoService->defaults();
@@ -91,6 +130,7 @@ class HomeController extends Controller
             'exclusiveProducts' => collect(),
             'bannerSwitcherProducts' => $bannerSwitcherProducts,
             'highlightProduct' => $highlightProduct,
+            'homeProductRows' => $homeProductRows,
             'menuCategories' => $menuCategories,
             'partners' => $partners,
             'siteProfile' => $siteProfile,

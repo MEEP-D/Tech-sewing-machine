@@ -14,10 +14,16 @@
 
     .contact-hero {
         background: linear-gradient(135deg, var(--contact-blue) 0%, var(--contact-blue-soft) 100%);
-        border-radius: 18px;
-        padding: clamp(1.5rem, 3vw, 2.75rem);
+        border-radius: 0;
+        padding: clamp(3rem, 8vw, 5.5rem) 1.5rem;
         color: #fff;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0;
+    }
+
+    .contact-hero-inner {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
     }
 
     .contact-hero h1 {
@@ -184,6 +190,28 @@
         font-size: 0.82rem;
     }
 
+    .contact-map-section {
+        width: 100%;
+        background: #f4f8fc;
+        padding: 0;
+    }
+
+    .contact-map-inner {
+        width: 100%;
+        height: clamp(384px, calc(42vw + 4rem), 584px);
+        overflow: hidden;
+        border-top: 1px solid var(--contact-border);
+        border-bottom: 1px solid var(--contact-border);
+        background: #dbeafe;
+    }
+
+    .contact-map-inner iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
     @media (max-width: 992px) {
         .contact-layout {
             grid-template-columns: 1fr;
@@ -196,6 +224,10 @@
             padding-bottom: 3rem;
         }
 
+        .contact-hero {
+            padding-inline: 1rem;
+        }
+
         .contact-form-grid {
             grid-template-columns: 1fr;
         }
@@ -203,6 +235,14 @@
         .contact-actions {
             flex-direction: column;
             align-items: stretch;
+        }
+
+        .contact-map-section {
+            padding-bottom: 0;
+        }
+
+        .contact-map-inner {
+            height: 384px;
         }
     }
 </style>
@@ -216,13 +256,17 @@
             ? asset($contactHeroImage)
             : \Illuminate\Support\Facades\Storage::disk('public')->url($contactHeroImage);
     }
+    $contactMapAddress = trim((string) ($siteProfile['address'] ?? ''));
+    $contactMapQuery = $contactMapAddress !== '' ? $contactMapAddress : 'TechSewing';
 @endphp
-<section class="container contact-page">
-    <div class="contact-hero page-hero page-hero--contact" @if(!empty($contactHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $contactHeroImage }}'); background-size: cover; background-position: center;" @endif>
+<section class="contact-hero page-hero page-hero--contact" @if(!empty($contactHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $contactHeroImage }}'); background-size: cover; background-position: center;" @endif>
+    <div class="contact-hero-inner">
         <h1>{{ $siteContent['page_contact_heading'] ?? ($siteContent['contact_page_title'] ?? 'Liên hệ TechSewing') }}</h1>
         <p>{{ $siteContent['page_contact_desc'] ?? ($siteContent['contact_page_subtitle'] ?? 'Nhận tư vấn giải pháp máy công nghiệp, báo giá nhanh và hỗ trợ kỹ thuật theo nhu cầu nhà máy của bạn.') }}</p>
     </div>
+</section>
 
+<section class="container contact-page">
     <div class="contact-layout">
         <aside class="contact-card">
             <h2>Thông tin liên hệ</h2>
@@ -319,6 +363,18 @@
                 </div>
             </form>
         </div>
+    </div>
+</section>
+
+<section class="contact-map-section" aria-label="Bản đồ">
+    <div class="contact-map-inner">
+        <iframe
+            src="https://www.google.com/maps?q={{ urlencode($contactMapQuery) }}&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+            title="Bản đồ {{ $contactMapQuery }}"
+        ></iframe>
     </div>
 </section>
 @endsection

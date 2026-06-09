@@ -83,7 +83,7 @@
                 <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.7rem 0 0;">
                     <span style="display:inline-flex;align-items:center;background:#d92d20;color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                     @if(((int) $product->discount_percent) > 0)
-                        <span style="display:inline-flex;align-items:center;background:#0f172a;color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Giam gia {{ (int) $product->discount_percent }}%</span>
+                        <span style="display:inline-flex;align-items:center;background:var(--primary-blue);color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Giam gia {{ (int) $product->discount_percent }}%</span>
                     @endif
                 </div>
                 <p class="special-description">{{ $product->short_description }}</p>

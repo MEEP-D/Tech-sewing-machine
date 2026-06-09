@@ -17,44 +17,14 @@
 </section>
 
 <section class="products-page products-page-full">
-    <div class="container" style="padding: 2rem 1.5rem;">
+    <div class="container">
         <div class="section-header"><h2 class="section-title">Sản phẩm</h2></div>
 
         <div class="products-layout">
             @include('front.pages.products._filters')
 
             <div class="catalog-content">
-                <div class="products-toolbar">
-                    <div class="toolbar-left">
-                        <form method="GET" action="{{ url()->current() }}" class="per-page-form">
-                            @foreach(request()->except('per_page', 'page') as $key => $value)
-                                @if(is_array($value))
-                                    @foreach($value as $item)
-                                        <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
-                                    @endforeach
-                                @else
-                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                @endif
-                            @endforeach
-                            <label for="per-page-index">Số sản phẩm/trang</label>
-                            <select id="per-page-index" name="per_page" onchange="this.form.submit()">
-                                @foreach(($perPageOptions ?? [8, 12, 16, 24]) as $option)
-                                    <option value="{{ $option }}" @selected((int) $products->perPage() === (int) $option)>{{ $option }}</option>
-                                @endforeach
-                            </select>
-                        </form>
-                    </div>
-                    <div class="toolbar-right">Trang {{ $products->currentPage() }}/{{ $products->lastPage() }}</div>
-                </div>
-                @php($toolbarTagItems = collect($toolbarTags ?? [])->filter(fn ($tag) => is_object($tag) && isset($tag->slug, $tag->name)))
-                @if($toolbarTagItems->isNotEmpty())
-                    <div class="products-tag-toolbar">
-                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except('tag', 'page')) }}" class="product-tag-chip {{ empty($selectedFilters['tag']) ? 'is-active' : '' }}">Tất cả</a>
-                        @foreach($toolbarTagItems as $tag)
-                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except('page'), ['tag' => $tag->slug])) }}" class="product-tag-chip {{ ($selectedFilters['tag'] ?? '') === $tag->slug ? 'is-active' : '' }}">{{ $tag->name }}</a>
-                        @endforeach
-                    </div>
-                @endif
+                @include('front.pages.products._toolbar', ['perPageId' => 'per-page-index'])
 
                 <div class="product-grid catalog-grid">
                     @foreach($products as $product)
