@@ -1,6 +1,6 @@
 @php
     $newsletterImage = $siteContent['newsletter_signup_image'] ?? null;
-    if (is_string($newsletterImage) && $newsletterImage !== '' && !str_starts_with($newsletterImage, 'http://') && !str_starts_with($newsletterImage, 'https://')) {
+    if (is_string($newsletterImage) && $newsletterImage !== '' && ! str_starts_with($newsletterImage, 'http://') && ! str_starts_with($newsletterImage, 'https://')) {
         $newsletterImage = str_starts_with($newsletterImage, 'assets/')
             ? asset($newsletterImage)
             : \Illuminate\Support\Facades\Storage::disk('public')->url($newsletterImage);

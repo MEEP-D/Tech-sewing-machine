@@ -78,6 +78,10 @@ class SiteSettings extends Page
             'seo_description' => Setting::getValue('seo_description', ''),
             'home_hero_image_upload' => $this->normalizeUploadFieldState($homeHeroImage),
             'home_hero_image' => $this->normalizeUploadInput($homeHeroImage),
+            'home_service_title' => Setting::getValue('home_service_title', ''),
+            'home_service_description' => Setting::getValue('home_service_description', ''),
+            'home_service_primary_cta' => Setting::getValue('home_service_primary_cta', ''),
+            'home_service_secondary_cta' => Setting::getValue('home_service_secondary_cta', ''),
             'home_highlight_contact_primary_name' => Setting::getValue('home_highlight_contact_primary_name', self::u('Mr. S\\u00e1ng')),
             'home_highlight_contact_primary_phone' => Setting::getValue('home_highlight_contact_primary_phone', '0902 806 599'),
             'home_highlight_contact_secondary_name' => Setting::getValue('home_highlight_contact_secondary_name', self::u('Mr. B\\u1ea3o')),
@@ -206,6 +210,17 @@ class SiteSettings extends Page
                             TextInput::make('home_highlight_contact_primary_phone')->label(self::u('S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i 1')),
                             TextInput::make('home_highlight_contact_secondary_name')->label(self::u('T\\u00ean li\\u00ean h\\u1ec7 2')),
                             TextInput::make('home_highlight_contact_secondary_phone')->label(self::u('S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i 2')),
+                        ]),
+                    ]),
+                    Section::make(self::u('Service banner trang ch\\u1ee7'))->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('home_service_title')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 section')),
+                            TextInput::make('home_service_primary_cta')->label(self::u('Text n\\u00fat CTA ch\\u00ednh')),
+                            Textarea::make('home_service_description')
+                                ->label(self::u('M\\u00f4 t\\u1ea3 section'))
+                                ->rows(4)
+                                ->columnSpanFull(),
+                            TextInput::make('home_service_secondary_cta')->label(self::u('Text n\\u00fat CTA ph\\u1ee5')),
                         ]),
                     ]),
                     Section::make(self::u('Newsletter Signup'))->schema([
@@ -477,6 +492,7 @@ class SiteSettings extends Page
         $keys = [
             'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width',
             'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_default_og_image', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
+            'home_service_title', 'home_service_description', 'home_service_primary_cta', 'home_service_secondary_cta',
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
             'home_highlight_contact_secondary_name', 'home_highlight_contact_secondary_phone',
             'contact_hotline', 'contact_email', 'contact_address',

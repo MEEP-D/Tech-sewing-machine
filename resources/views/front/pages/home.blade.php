@@ -1,20 +1,56 @@
 @extends('front.layouts.app')
 
 @section('content')
+@php($resolveProductSpecs = function ($product) {
+    if (! $product) {
+        return collect();
+    }
+
+    $specs = collect();
+
+    if ($product->relationLoaded('specs') && $product->specs->isNotEmpty()) {
+        $specs = $product->specs->map(fn ($spec) => [
+            'key' => trim((string) $spec->key),
+            'value' => trim((string) $spec->value),
+        ]);
+    }
+
+    if ($specs->isEmpty() && is_array($product->specifications) && ! empty($product->specifications)) {
+        $specs = collect($product->specifications)->map(function ($value, $key) {
+            if (is_array($value)) {
+                return [
+                    'key' => trim((string) ($value['key'] ?? (is_string($key) ? $key : ''))),
+                    'value' => trim((string) ($value['value'] ?? '')),
+                ];
+            }
+
+            return [
+                'key' => is_string($key) ? trim($key) : '',
+                'value' => trim((string) $value),
+            ];
+        });
+    }
+
+    return $specs
+        ->filter(fn ($spec) => filled($spec['key'] ?? null) || filled($spec['value'] ?? null))
+        ->values();
+})
 @php($highlightProduct = $highlightProduct ?? null)
-@php($highlightSpecs = ($highlightProduct && $highlightProduct->relationLoaded('specs')) ? $highlightProduct->specs->values() : collect())
+@php($highlightSpecs = $resolveProductSpecs($highlightProduct))
 @php($highlightDescription = $highlightProduct ? ($highlightProduct->long_description ?: $highlightProduct->short_description) : '')
 @php($highlightDescriptionLines = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) $highlightDescription)))->map(fn($line) => trim($line))->filter())
 @php($homeFaqs = collect($siteContent['home_faqs'] ?? [])->take(6))
-@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function($item){
+@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveProductSpecs) {
+    $productSpecs = $resolveProductSpecs($item);
+
     return [
         'name' => $item->code ?: $item->sku ?: $item->name,
         'image' => $item->display_image_url,
         'link' => route('products.show', $item->slug),
         'specs' => [
-            'size' => optional($item->specs->get(0))->value ?? '-',
-            'speed' => optional($item->specs->get(1))->value ?? '-',
-            'precision' => optional($item->specs->get(2))->value ?? '-',
+            'size' => data_get($productSpecs->get(0), 'value', '-'),
+            'speed' => data_get($productSpecs->get(1), 'value', '-'),
+            'precision' => data_get($productSpecs->get(2), 'value', '-'),
             'price' => $item->price ?: 'Liên hệ',
         ],
     ];
@@ -26,7 +62,7 @@
             <div
                 class="hero-slide {{ $index === 0 ? 'active' : '' }} {{ $slider->show_overlay ? '' : 'no-overlay' }}"
                 style="background-image: url('{{ $slider->image_url }}');"
-                aria-label="{{ $slider->title ?? 'Slider image' }}"
+                aria-label="{{ $slider->title ?? 'Ảnh trình chiếu' }}"
                 data-link="{{ $slider->link }}"
             ></div>
         @empty
@@ -76,7 +112,7 @@
                 @endif
             </div>
             <div class="special-product-content">
-                <span class="special-tag">Sản Phẩm Đột Phá</span>
+                <span class="special-tag">Sản phẩm đột phá</span>
                 <h2 class="special-title">{{ $highlightProduct->name }}</h2>
                 <span class="special-code">Mã SP: {{ $highlightProduct->code ?: $highlightProduct->sku }}</span>
                 <div class="special-price"><i class="fas fa-tag"></i> Giá: {{ $highlightProduct->price ?: 'Liên hệ' }}</div>
@@ -89,17 +125,17 @@
                 @endif
                 <div class="special-specs-grid">
                     @foreach($highlightSpecs->take(8) as $spec)
-                        <div class="spec-item"><span class="spec-label">{{ $spec->key }}</span><span class="spec-value">{{ $spec->value }}</span></div>
+                        <div class="spec-item"><span class="spec-label">{{ $spec['key'] }}</span><span class="spec-value">{{ $spec['value'] }}</span></div>
                     @endforeach
                 </div>
                 <div class="contact-box">
                     <a class="contact-btn highlight" href="tel:{{ preg_replace('/\D+/', '', $siteContent['home_highlight_contact_primary_phone'] ?? '0902806599') }}">
                         <i class="fas fa-phone"></i>
-                        <span>{{ $siteContent['home_highlight_contact_primary_phone'] ?? '0902 806 599' }} ({{ $siteContent['home_highlight_contact_primary_name'] ?? 'Mr. Sáng' }})</span>
+                        <span>{{ $siteContent['home_highlight_contact_primary_phone'] ?? '0902 806 599' }} ({{ $siteContent['home_highlight_contact_primary_name'] ?? 'Anh Sáng' }})</span>
                     </a>
                     <a class="contact-btn" href="tel:{{ preg_replace('/\D+/', '', $siteContent['home_highlight_contact_secondary_phone'] ?? '0898303287') }}">
                         <i class="fas fa-phone"></i>
-                        <span>{{ $siteContent['home_highlight_contact_secondary_phone'] ?? '0898 303 287' }} ({{ $siteContent['home_highlight_contact_secondary_name'] ?? 'Mr. Bảo' }})</span>
+                        <span>{{ $siteContent['home_highlight_contact_secondary_phone'] ?? '0898 303 287' }} ({{ $siteContent['home_highlight_contact_secondary_name'] ?? 'Anh Bảo' }})</span>
                     </a>
                 </div>
                 <div class="home-benefits">
@@ -134,7 +170,7 @@
             <button class="banner-arrow prev" id="banner-prev"><i class="fas fa-chevron-left"></i></button>
             <div class="banner-image-box">
                 <a href="{{ $bannerProducts->first()['link'] }}" id="banner-img-link">
-                    <img src="{{ $bannerProducts->first()['image'] ?: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==' }}" id="banner-img" alt="Product">
+                    <img src="{{ $bannerProducts->first()['image'] ?: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==' }}" id="banner-img" alt="Sản phẩm">
                 </a>
             </div>
             <button class="banner-arrow next" id="banner-next"><i class="fas fa-chevron-right"></i></button>
@@ -159,9 +195,8 @@
 <script>window.__homeBannerData = @json($bannerProducts);</script>
 @endif
 
-
 <section id="new-products" class="container" style="padding: 5px 1.5rem;">
-    <div class="section-header"><h2 class="section-title">Sản Phẩm Mới Nhất</h2></div>
+    <div class="section-header"><h2 class="section-title">Sản phẩm mới nhất</h2></div>
     <div class="slider-wrapper">
         <button class="slider-btn prev-btn" data-target="product-grid-new"><i class="fas fa-chevron-left"></i></button>
         <div class="product-grid" id="product-grid-new">
@@ -176,8 +211,8 @@
                             <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
                         @endif
                         @if($product->is_new)<span class="badge-new">Mới</span>@endif
-                        @if($product->is_hot)<span class="badge-hot">Hot</span>@endif
-                        @if($product->is_exclusive)<span class="badge-exclusive">Exclusive</span>@endif
+                        @if($product->is_hot)<span class="badge-hot">Nổi bật</span>@endif
+                        @if($product->is_exclusive)<span class="badge-exclusive">Độc quyền</span>@endif
                     </div>
                     <div class="product-info">
                         <div class="product-cat">{{ $product->category?->name }}</div>
@@ -190,17 +225,7 @@
                                 @endforeach
                             </ul>
                         @endif
-                        @php($cardSpecs = collect())
-                        @if($product->relationLoaded('specs') && $product->specs->isNotEmpty())
-                            @php($cardSpecs = $product->specs->map(fn($spec) => ['key' => $spec->key, 'value' => $spec->value])->take(2))
-                        @elseif(is_array($product->specifications) && !empty($product->specifications))
-                            @php($cardSpecs = collect($product->specifications)->map(function($spec){
-                                return [
-                                    'key' => $spec['key'] ?? null,
-                                    'value' => $spec['value'] ?? null,
-                                ];
-                            })->filter(fn($spec) => filled($spec['key']) || filled($spec['value']))->take(2))
-                        @endif
+                        @php($cardSpecs = $resolveProductSpecs($product)->take(2))
                         @if($cardSpecs->isNotEmpty())
                             <div class="product-specs-mini product-specs-middle">
                                 @foreach($cardSpecs as $spec)
@@ -235,7 +260,7 @@
     @php($usesHighlightClass = str_contains(' ' . trim((string) $homeProductRow->container_class) . ' ', ' home-row-highlight '))
     @php($rowClasses = trim(implode(' ', array_filter(['home-product-row', 'align-equal', 'linehome__item', $homeProductRow->container_class, $homeProductRow->spacing_top, $homeProductRow->spacing_bottom]))))
     @php($rowStyles = trim(implode('; ', array_filter([
-        !$usesHighlightClass && $homeProductRow->bg_color ? 'background-color: ' . $homeProductRow->bg_color : null,
+        ! $usesHighlightClass && $homeProductRow->bg_color ? 'background-color: ' . $homeProductRow->bg_color : null,
         $homeProductRow->text_color ? 'color: ' . $homeProductRow->text_color : null,
     ]))))
     <section class="{{ $rowClasses }}" @if($rowStyles) style="{{ $rowStyles }}" @endif>
@@ -276,7 +301,7 @@
                                             <span class="home-product-row-price-current">{{ $product->formatted_price }}</span>
                                         @endif
                                     @else
-                                        <span class="home-product-row-price-current">Li�n h?</span>
+                                        <span class="home-product-row-price-current">Liên hệ</span>
                                     @endif
                                 </div>
                             </article>
@@ -294,7 +319,6 @@
     </section>
 @endforeach
 
-
 <section class="service-banner-section">
     <div class="container">
         <div class="service-banner-content">
@@ -307,14 +331,14 @@
                 </div>
             </div>
             <div class="service-image-side">
-                <img src="{{ asset('assets/frontend/images/service-machine.png') }}" alt="Service & Warranty">
+                <img src="{{ asset('assets/frontend/images/service-machine.png') }}" alt="Dịch vụ và bảo hành">
             </div>
         </div>
     </div>
 </section>
 
 <section class="faq-section">
-    <div class="section-header"><h2 class="section-title">Câu Hỏi Thường Gặp</h2></div>
+    <div class="section-header"><h2 class="section-title">Câu hỏi thường gặp</h2></div>
     <div class="container">
         <div class="faq-grid">
             @foreach($homeFaqs as $faq)
@@ -323,6 +347,7 @@
         </div>
     </div>
 </section>
+
 <section class="partners-section">
     <div class="partners-title">{{ $siteContent['home_partners_title'] ?? '' }}</div>
     <div class="marquee-container">
