@@ -28,15 +28,19 @@ jobs:
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_SCRIPT: ${{ secrets.DEPLOY_SCRIPT }}
         run: |
-          test -n "$DEPLOY_USER"
+          DEPLOY_HOST_CLEAN="$(printf '%s' "$DEPLOY_HOST" | tr -d '\r\n')"
+          DEPLOY_USER_CLEAN="$(printf '%s' "$DEPLOY_USER" | tr -d '\r\n')"
+          DEPLOY_PORT_CLEAN="$(printf '%s' "${DEPLOY_PORT:-22}" | tr -d '\r\n')"
+          DEPLOY_SCRIPT_CLEAN="$(printf '%s' "${DEPLOY_SCRIPT:-/home/bncvyqjyhosting/deploy.sh}" | tr -d '\r\n')"
 
-          PORT="${DEPLOY_PORT:-22}"
-          SCRIPT_PATH="${DEPLOY_SCRIPT:-/home/bncvyqjyhosting/deploy.sh}"
+          test -n "$DEPLOY_HOST_CLEAN"
+          test -n "$DEPLOY_USER_CLEAN"
+          test -n "$DEPLOY_PORT_CLEAN"
 
           ssh \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
             -o ConnectTimeout=20 \
-            -p "$PORT" \
-            "$DEPLOY_USER@$DEPLOY_HOST" \
-            "bash $SCRIPT_PATH"
+            -p "$DEPLOY_PORT_CLEAN" \
+            "$DEPLOY_USER_CLEAN@$DEPLOY_HOST_CLEAN" \
+            "bash $DEPLOY_SCRIPT_CLEAN"
