@@ -224,9 +224,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const slides = document.querySelectorAll('.hero-slide');
     const contents = document.querySelectorAll('.hero-slide-content');
     const dots = document.querySelectorAll('.dot');
+    const heroSection = document.querySelector('.hero');
     let currentSlide = 0;
     const slideCount = slides.length;
     let slideInterval;
+
+    const getActiveSlide = () => slides[currentSlide] || null;
+    const getActiveSlideLink = () => {
+        const activeSlide = getActiveSlide();
+        return activeSlide ? (activeSlide.getAttribute('data-link') || '').trim() : '';
+    };
 
     const showSlide = (index) => {
         // Remove active states
@@ -238,6 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
         slides[index].classList.add('active');
         const slideLink = slides[index].getAttribute('data-link') || '';
         slides[index].style.cursor = slideLink ? 'pointer' : 'default';
+        if (heroSection) {
+            heroSection.style.cursor = slideLink && slides[index].classList.contains('no-overlay') ? 'pointer' : 'default';
+        }
         if (contents[index]) contents[index].classList.add('active');
         if (dots[index]) dots[index].classList.add('active');
         currentSlide = index;
@@ -259,11 +269,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (slideCount > 0 && dots.length > 0) {
         slides.forEach(slide => {
-            slide.addEventListener('click', () => {
+            slide.addEventListener('click', (event) => {
                 const href = slide.getAttribute('data-link');
-                if (href) window.location.href = href;
+                if (!href) return;
+
+                event.stopPropagation();
+                window.location.href = href;
             });
         });
+
+        if (heroSection) {
+            heroSection.addEventListener('click', (event) => {
+                const target = event.target instanceof Element ? event.target : null;
+                if (!target) return;
+                if (target.closest('a, button, .slider-nav, .hero-arrow')) return;
+
+                const activeSlide = getActiveSlide();
+                const href = getActiveSlideLink();
+                if (!activeSlide || !activeSlide.classList.contains('no-overlay') || !href) return;
+
+                window.location.href = href;
+            });
+        }
 
         dots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
