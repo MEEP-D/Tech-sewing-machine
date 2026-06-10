@@ -64,8 +64,6 @@ class HomePageSampleSeeder extends Seeder
         Setting::updateOrCreate(['key' => 'header_quote_label'], ['label' => 'Nhãn báo giá header', 'group' => 'homepage', 'type' => 'text', 'value' => 'Báo giá']);
         Setting::updateOrCreate(['key' => 'footer_about_title'], ['label' => 'Tiêu đề footer giới thiệu', 'group' => 'homepage', 'type' => 'text', 'value' => 'Về chúng tôi']);
         Setting::updateOrCreate(['key' => 'footer_about_text'], ['label' => 'Nội dung footer giới thiệu', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Cung cấp giải pháp máy may công nghiệp thông minh, tối ưu năng suất và chất lượng sản xuất.']);
-        Setting::updateOrCreate(['key' => 'home_slogan_title'], ['label' => 'Tiêu đề slogan trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Máy May Thông Minh - Chuyên Nghiệp - Uy Tín - Hiện Đại']);
-        Setting::updateOrCreate(['key' => 'home_slogan_subtitle'], ['label' => 'Mô tả slogan trang chủ', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Tiên phong công nghệ tự động hóa, nâng tầm hiệu suất ngành may mặc Việt Nam.']);
         Setting::updateOrCreate(['key' => 'home_partners_title'], ['label' => 'Tiêu đề đối tác trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Đối tác công nghệ hàng đầu']);
         Setting::updateOrCreate(['key' => 'home_service_title'], ['label' => 'Tiêu đề dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'text', 'value' => 'Bảo hành và dịch vụ']);
         Setting::updateOrCreate(['key' => 'home_service_description'], ['label' => 'Mô tả dịch vụ trang chủ', 'group' => 'homepage', 'type' => 'textarea', 'value' => 'Hệ thống showroom, phân phối và xưởng dịch vụ rộng khắp, đáp ứng nhanh nhu cầu vận hành của doanh nghiệp.']);

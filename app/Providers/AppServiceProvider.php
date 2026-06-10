@@ -55,8 +55,6 @@ class AppServiceProvider extends ServiceProvider
                             'header_quote_label' => $siteSettings['header_quote_label'] ?? '',
                             'footer_about_title' => $siteSettings['footer_about_title'] ?? '',
                             'footer_about_text' => $siteSettings['footer_about_text'] ?? '',
-                            'home_slogan_title' => $siteSettings['home_slogan_title'] ?? '',
-                            'home_slogan_subtitle' => $siteSettings['home_slogan_subtitle'] ?? '',
                             'home_partners_title' => $siteSettings['home_partners_title'] ?? '',
                             'home_service_title' => $siteSettings['home_service_title'] ?? '',
                             'home_service_description' => $siteSettings['home_service_description'] ?? '',

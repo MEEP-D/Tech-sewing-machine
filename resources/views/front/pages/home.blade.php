@@ -63,61 +63,6 @@
     @endif
 </section>
 
-<section class="slogan-section">
-    <div class="container">
-        <div class="slogan-content">
-            <h2 class="slogan-text">{{ $siteContent['home_slogan_title'] ?? 'Giải pháp may công nghiệp chính xác, bền bỉ, tối ưu chi phí' }}</h2>
-            <p class="slogan-subtext">{{ $siteContent['home_slogan_subtitle'] ?? 'Đồng hành cùng nhà máy từ tư vấn, lắp đặt đến bảo hành tận nơi.' }}</p>
-        </div>
-    </div>
-</section>
-
-<section class="partners-section">
-    <div class="partners-title">{{ $siteContent['home_partners_title'] ?? '' }}</div>
-    <div class="marquee-container">
-        <div class="marquee-track scroll-left">
-            <div class="marquee-group">
-                @foreach(($partners ?? collect()) as $partner)
-                    @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
-                        </a>
-                    @endif
-                @endforeach
-            </div>
-            <div class="marquee-group">
-                @foreach(($partners ?? collect()) as $partner)
-                    @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
-                        </a>
-                    @endif
-                @endforeach
-            </div>
-        </div>
-        <div class="marquee-track scroll-right">
-            <div class="marquee-group">
-                @foreach(($partners ?? collect()) as $partner)
-                    @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
-                        </a>
-                    @endif
-                @endforeach
-            </div>
-            <div class="marquee-group">
-                @foreach(($partners ?? collect()) as $partner)
-                    @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
-                        </a>
-                    @endif
-                @endforeach
-            </div>
-        </div>
-    </div>
-</section>
-
 @if($highlightProduct)
 <section class="special-product-section">
     <div class="container">
@@ -375,6 +320,51 @@
             @foreach($homeFaqs as $faq)
                 <div class="faq-item"><div class="faq-question">{{ $faq['question'] ?? '' }}<i class="fas fa-chevron-down"></i></div><div class="faq-answer">{{ $faq['answer'] ?? '' }}</div></div>
             @endforeach
+        </div>
+    </div>
+</section>
+<section class="partners-section">
+    <div class="partners-title">{{ $siteContent['home_partners_title'] ?? '' }}</div>
+    <div class="marquee-container">
+        <div class="marquee-track scroll-left">
+            <div class="marquee-group">
+                @foreach(($partners ?? collect()) as $partner)
+                    @if($partner->logo_url)
+                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+            <div class="marquee-group">
+                @foreach(($partners ?? collect()) as $partner)
+                    @if($partner->logo_url)
+                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+        <div class="marquee-track scroll-right">
+            <div class="marquee-group">
+                @foreach(($partners ?? collect()) as $partner)
+                    @if($partner->logo_url)
+                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+            <div class="marquee-group">
+                @foreach(($partners ?? collect()) as $partner)
+                    @if($partner->logo_url)
+                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                        </a>
+                    @endif
+                @endforeach
+            </div>
         </div>
     </div>
 </section>

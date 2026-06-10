@@ -76,8 +76,6 @@ class SiteSettings extends Page
             'seo_organization_url' => Setting::getValue('seo_organization_url', config('app.url')),
             'seo_robots_default' => Setting::getValue('seo_robots_default', 'index,follow'),
             'seo_description' => Setting::getValue('seo_description', ''),
-            'home_slogan_title' => Setting::getValue('home_slogan_title', ''),
-            'home_slogan_subtitle' => Setting::getValue('home_slogan_subtitle', ''),
             'home_hero_image_upload' => $this->normalizeUploadFieldState($homeHeroImage),
             'home_hero_image' => $this->normalizeUploadInput($homeHeroImage),
             'home_highlight_contact_primary_name' => Setting::getValue('home_highlight_contact_primary_name', self::u('Mr. S\\u00e1ng')),
@@ -192,10 +190,6 @@ class SiteSettings extends Page
                     ]),
                 ]),
                 Tabs\Tab::make(self::u('Trang ch\\u1ee7'))->schema([
-                    Section::make(self::u('N\\u1ed9i dung slogan trang ch\\u1ee7'))->schema([
-                        TextInput::make('home_slogan_title')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 slogan')),
-                        Textarea::make('home_slogan_subtitle')->label(self::u('M\\u00f4 t\\u1ea3 slogan')),
-                    ]),
                     Section::make(self::u('\\u1ea2nh hero trang ch\\u1ee7'))->schema([
                         FileUpload::make('home_hero_image_upload')
                             ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
@@ -483,7 +477,6 @@ class SiteSettings extends Page
         $keys = [
             'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width',
             'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_default_og_image', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
-            'home_slogan_title', 'home_slogan_subtitle',
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
             'home_highlight_contact_secondary_name', 'home_highlight_contact_secondary_phone',
             'contact_hotline', 'contact_email', 'contact_address',

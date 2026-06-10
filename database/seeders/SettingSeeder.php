@@ -25,8 +25,6 @@ class SettingSeeder extends Seeder
             ['key' => 'seo_default_og_image', 'label' => 'SEO OG image mặc định', 'value' => 'assets/frontend/images/anh1.jpg', 'type' => 'text', 'group' => 'seo'],
             ['key' => 'home_hero_image', 'label' => 'Ảnh hero trang chủ', 'value' => 'assets/frontend/images/anh2.jpg', 'type' => 'text', 'group' => 'homepage'],
             ['key' => 'home_hero_image_enabled', 'label' => 'Bật hero image', 'value' => '1', 'type' => 'boolean', 'group' => 'homepage'],
-            ['key' => 'home_slogan_title', 'label' => 'Tiêu đề slogan trang chủ', 'value' => 'Giải pháp công nghệ may mặc thông minh', 'type' => 'text', 'group' => 'homepage'],
-            ['key' => 'home_slogan_subtitle', 'label' => 'Mô tả slogan trang chủ', 'value' => 'Đồng hành cùng doanh nghiệp may mặc với hệ thống máy chuyên dụng và đội ngũ kỹ thuật thực chiến.', 'type' => 'textarea', 'group' => 'homepage'],
             ['key' => 'home_partners_title', 'label' => 'Tiêu đề đối tác', 'value' => 'Đối tác công nghệ hàng đầu', 'type' => 'text', 'group' => 'homepage'],
             ['key' => 'home_service_title', 'label' => 'Tiêu đề dịch vụ', 'value' => 'Bảo hành và dịch vụ', 'type' => 'text', 'group' => 'homepage'],
             ['key' => 'home_service_description', 'label' => 'Mô tả dịch vụ', 'value' => 'Dịch vụ triển khai, bảo trì và đào tạo vận hành nhanh cho nhà máy may.', 'type' => 'textarea', 'group' => 'homepage'],
