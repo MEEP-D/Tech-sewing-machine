@@ -542,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bannerImgLink = document.getElementById('banner-img-link');
     const bannerLink = document.getElementById('banner-link');
     const bannerWatermark = document.getElementById('banner-watermark');
+    const bannerProductCode = document.getElementById('banner-product-code');
     const specValues = document.querySelectorAll('.banner-spec-item .value');
     const btnPrev = document.getElementById('banner-prev');
     const btnNext = document.getElementById('banner-next');
@@ -575,9 +576,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (bannerLink) bannerLink.href = safeLink;
                 if (bannerRoot) bannerRoot.setAttribute('data-link', safeLink);
                 if (bannerWatermark) {
-                    bannerWatermark.textContent = data.name || '';
+                    bannerWatermark.textContent = data.code || data.name || '';
                     bannerWatermark.style.opacity = '1';
                 }
+                if (bannerProductCode) bannerProductCode.textContent = `Mã SP: ${data.code || data.name || '-'}`;
                 bannerImg.style.opacity = '1';
             }, 300);
         }

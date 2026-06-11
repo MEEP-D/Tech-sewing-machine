@@ -60,7 +60,8 @@
     $productSpecs = $resolveProductSpecs($item);
 
     return [
-        'name' => $item->code ?: $item->sku ?: $item->name,
+        'name' => $item->name,
+        'code' => $item->code ?: $item->sku ?: $item->name,
         'image' => $item->display_image_url,
         'link' => route('products.show', $item->slug),
         'specs' => [
@@ -186,13 +187,14 @@
 @if($bannerProducts->isNotEmpty())
 <div class="banner-switcher-section" id="banner-switcher-root" data-link="{{ $bannerProducts->first()['link'] }}">
     <div class="banner-switcher-wrapper">
-        <div class="banner-watermark" id="banner-watermark">{{ $bannerProducts->first()['name'] }}</div>
+        <div class="banner-watermark" id="banner-watermark">{{ $bannerProducts->first()['code'] }}</div>
         <div class="banner-main">
             <button class="banner-arrow prev" id="banner-prev"><i class="fas fa-chevron-left"></i></button>
             <div class="banner-image-box">
                 <a href="{{ $bannerProducts->first()['link'] }}" id="banner-img-link">
                     <img src="{{ $bannerProducts->first()['image'] ?: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==' }}" id="banner-img" alt="Sản phẩm" loading="lazy" decoding="async">
                 </a>
+                <div class="banner-product-code" id="banner-product-code">Mã SP: {{ $bannerProducts->first()['code'] }}</div>
             </div>
             <button class="banner-arrow next" id="banner-next"><i class="fas fa-chevron-right"></i></button>
         </div>

@@ -65,7 +65,7 @@ class HomeController extends Controller
                 fn ($query) => $query->whereRaw('1 = 0')
             )
             ->latest()
-            ->take(3)
+            ->take(12)
             ->get();
 
         $menuCategories = Category::query()

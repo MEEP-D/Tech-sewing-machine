@@ -4715,16 +4715,16 @@ body.no-scroll {
 
 .banner-watermark {
     position: absolute;
-    top: 0;
+    top: 0.15rem;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 8rem;
+    font-size: clamp(4.5rem, 9vw, 8rem);
     font-weight: 900;
     color: #f1f5f9;
     z-index: 0;
     white-space: nowrap;
     text-transform: uppercase;
-    letter-spacing: 0.5rem;
+    letter-spacing: 0.28rem;
     pointer-events: none;
     transition: all 0.5s ease;
 }
@@ -4735,23 +4735,45 @@ body.no-scroll {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 3rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    min-height: 430px;
 }
 
 .banner-image-box {
-    flex: 1;
+    flex: 0 1 min(760px, 100%);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 400px;
+    padding-top: 4.25rem;
+}
+
+.banner-image-box a {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .banner-image-box img {
-    max-width: 80%;
-    max-height: 450px;
+    width: min(100%, 680px);
+    max-height: 360px;
     object-fit: contain;
     transition: transform 0.5s ease, opacity 0.3s ease;
+}
+
+.banner-product-code {
+    margin-top: 0.85rem;
+    min-height: 1.35rem;
+    color: #334155;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-align: center;
+    text-transform: uppercase;
+    z-index: 2;
 }
 
 .banner-arrow {
@@ -4769,6 +4791,17 @@ body.no-scroll {
     z-index: 10;
     font-size: 1.2rem;
     font-weight: 900;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.banner-arrow.prev {
+    left: 1.5rem;
+}
+
+.banner-arrow.next {
+    right: 1.5rem;
 }
 
 .banner-arrow:hover {
@@ -5667,12 +5700,17 @@ body.no-scroll {
 
     .banner-image-box {
         min-height: 230px;
-        padding: 0 2.4rem;
+        padding: 3.2rem 2.4rem 0;
     }
 
     .banner-image-box img {
         max-width: 100%;
         max-height: 245px;
+    }
+
+    .banner-product-code {
+        margin-top: 0.65rem;
+        font-size: 0.8rem;
     }
 
     .banner-arrow {
@@ -5877,7 +5915,7 @@ body.no-scroll {
 
     .banner-image-box {
         min-height: clamp(260px, 74vw, 400px);
-        padding: 0 2.8rem;
+        padding: 3.5rem 2.8rem 0;
         background: radial-gradient(circle, #f8fafc 0%, #ffffff 70%);
     }
 
@@ -5944,7 +5982,7 @@ body.no-scroll {
     }
 
     .banner-image-box {
-        padding: 0 2.25rem;
+        padding: 3.35rem 2.25rem 0;
     }
 
     .home-product-row-grid {
