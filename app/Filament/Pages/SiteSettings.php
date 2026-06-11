@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Services\DynamicMailConfigService;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -53,6 +54,7 @@ class SiteSettings extends Page
         $siteLogoMobile = Setting::getValue('site_logo_mobile', null);
         $siteFavicon = Setting::getValue('site_favicon', null);
         $homeHeroImage = Setting::getValue('home_hero_image', null);
+        $homeServiceImage = Setting::getValue('home_service_image', null);
 
         $this->data = [
             'site_title' => Setting::getValue('site_title', config('app.name')),
@@ -78,10 +80,14 @@ class SiteSettings extends Page
             'seo_description' => Setting::getValue('seo_description', ''),
             'home_hero_image_upload' => $this->normalizeUploadFieldState($homeHeroImage),
             'home_hero_image' => $this->normalizeUploadInput($homeHeroImage),
+            'home_partners_title' => Setting::getValue('home_partners_title', self::u('\\u0110\\u1ed1i t\\u00e1c c\\u00f4ng ngh\\u1ec7 h\\u00e0ng \\u0111\\u1ea7u')),
             'home_service_title' => Setting::getValue('home_service_title', ''),
             'home_service_description' => Setting::getValue('home_service_description', ''),
             'home_service_primary_cta' => Setting::getValue('home_service_primary_cta', ''),
             'home_service_secondary_cta' => Setting::getValue('home_service_secondary_cta', ''),
+            'home_service_image_upload' => $this->normalizeUploadFieldState($homeServiceImage),
+            'home_service_image' => $this->normalizeUploadInput($homeServiceImage),
+            'home_faqs' => $this->normalizeFaqItems(Setting::getValue('home_faqs', [])),
             'home_highlight_contact_primary_name' => Setting::getValue('home_highlight_contact_primary_name', self::u('Mr. S\\u00e1ng')),
             'home_highlight_contact_primary_phone' => Setting::getValue('home_highlight_contact_primary_phone', '0902 806 599'),
             'home_highlight_contact_secondary_name' => Setting::getValue('home_highlight_contact_secondary_name', self::u('Mr. B\\u1ea3o')),
@@ -89,13 +95,13 @@ class SiteSettings extends Page
             'contact_hotline' => Setting::getValue('contact_hotline', ''),
             'contact_email' => Setting::getValue('contact_email', ''),
             'contact_address' => Setting::getValue('contact_address', ''),
-            'mail_mailer' => Setting::getValue('mail_mailer', 'smtp'),
-            'mail_host' => Setting::getValue('mail_host', ''),
-            'mail_port' => Setting::getValue('mail_port', '587'),
-            'mail_encryption' => Setting::getValue('mail_encryption', 'tls'),
-            'mail_username' => Setting::getValue('mail_username', ''),
+            'mail_mailer' => Setting::getValue('mail_mailer', config('mail.default', 'smtp')),
+            'mail_host' => Setting::getValue('mail_host', config('mail.mailers.smtp.host', '')),
+            'mail_port' => Setting::getValue('mail_port', (string) config('mail.mailers.smtp.port', '587')),
+            'mail_encryption' => Setting::getValue('mail_encryption', config('mail.mailers.smtp.scheme', 'tls')),
+            'mail_username' => Setting::getValue('mail_username', config('mail.mailers.smtp.username', '')),
             'mail_password' => '',
-            'mail_from_address' => Setting::getValue('mail_from_address', ''),
+            'mail_from_address' => Setting::getValue('mail_from_address', config('mail.from.address', '')),
             'mail_from_name' => Setting::getValue('mail_from_name', config('app.name')),
             'mail_template_source_type' => Setting::getValue('mail_template_source_type', 'post'),
             'mail_template_source_id' => Setting::getValue('mail_template_source_id', ''),
@@ -221,7 +227,34 @@ class SiteSettings extends Page
                                 ->rows(4)
                                 ->columnSpanFull(),
                             TextInput::make('home_service_secondary_cta')->label(self::u('Text n\\u00fat CTA ph\\u1ee5')),
+                            FileUpload::make('home_service_image_upload')
+                                ->label(self::u('\\u1ea2nh section'))
+                                ->image()
+                                ->disk('public')
+                                ->directory('site')
+                                ->imageEditor()
+                                ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
+                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                         ]),
+                    ]),
+                    Section::make(self::u('FAQ trang ch\\u1ee7'))->schema([
+                        Repeater::make('home_faqs')
+                            ->label(self::u('Danh s\\u00e1ch c\\u00e2u h\\u1ecfi'))
+                            ->schema([
+                                TextInput::make('question')
+                                    ->label(self::u('C\\u00e2u h\\u1ecfi'))
+                                    ->required()
+                                    ->maxLength(255),
+                                Textarea::make('answer')
+                                    ->label(self::u('C\\u00e2u tr\\u1ea3 l\\u1eddi'))
+                                    ->required()
+                                    ->rows(3),
+                            ])
+                            ->defaultItems(0)
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => filled($state['question'] ?? null) ? $state['question'] : null)
+                            ->columnSpanFull(),
                     ]),
                     Section::make(self::u('Newsletter Signup'))->schema([
                         FileUpload::make('newsletter_signup_image_upload')
@@ -422,6 +455,7 @@ class SiteSettings extends Page
         $this->persistUploadSettings();
         $this->persistMailSettings();
         $this->persistTextSettings();
+        $this->persistHomeFaqs();
         $this->form->fill($this->data);
         Cache::forget('site_settings_array');
 
@@ -465,6 +499,7 @@ class SiteSettings extends Page
             'site_logo_mobile_upload',
             'site_favicon_upload',
             'home_hero_image_upload',
+            'home_service_image_upload',
             'page_news_hero_image_upload',
             'page_products_hero_image_upload',
             'page_about_hero_image_upload',
@@ -492,7 +527,7 @@ class SiteSettings extends Page
         $keys = [
             'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width',
             'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_default_og_image', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
-            'home_service_title', 'home_service_description', 'home_service_primary_cta', 'home_service_secondary_cta',
+            'home_partners_title', 'home_service_title', 'home_service_description', 'home_service_primary_cta', 'home_service_secondary_cta',
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
             'home_highlight_contact_secondary_name', 'home_highlight_contact_secondary_phone',
             'contact_hotline', 'contact_email', 'contact_address',
@@ -511,6 +546,17 @@ class SiteSettings extends Page
             $group = str_starts_with($key, 'seo_') ? 'seo' : (str_starts_with($key, 'mail_') ? 'mail' : 'branding');
             Setting::updateOrCreate(['key' => $key], ['value' => $this->data[$key] ?? null, 'group' => $group]);
         }
+    }
+
+    protected function persistHomeFaqs(): void
+    {
+        $faqs = $this->normalizeFaqItems($this->data['home_faqs'] ?? []);
+        $this->data['home_faqs'] = $faqs;
+
+        Setting::updateOrCreate(
+            ['key' => 'home_faqs'],
+            ['value' => json_encode($faqs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'group' => 'homepage']
+        );
     }
 
     protected function persistMailSettings(): void
@@ -596,6 +642,22 @@ class SiteSettings extends Page
     protected function normalizeUploadListFieldState(mixed $value): array
     {
         return $this->normalizeUploadListInput($value);
+    }
+
+    protected function normalizeFaqItems(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        return collect($value)
+            ->map(fn ($item): array => [
+                'question' => trim((string) data_get($item, 'question', '')),
+                'answer' => trim((string) data_get($item, 'answer', '')),
+            ])
+            ->filter(fn (array $item): bool => $item['question'] !== '' || $item['answer'] !== '')
+            ->values()
+            ->all();
     }
 
     public function previewAsset(mixed $value): ?string

@@ -17,6 +17,11 @@
         }
     }
 @endphp
+@push('preload_assets')
+    @if(!empty($pageCoverImage))
+        <link rel="preload" as="image" href="{{ $pageCoverImage }}" fetchpriority="high">
+    @endif
+@endpush
 
 @if(!empty($pageCoverImage))
 <section class="page-hero page-hero-dynamic" style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $pageCoverImage }}'); background-size: cover; background-position: center;">

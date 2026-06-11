@@ -259,6 +259,11 @@
     $contactMapAddress = trim((string) ($siteProfile['address'] ?? ''));
     $contactMapQuery = $contactMapAddress !== '' ? $contactMapAddress : 'TechSewing';
 @endphp
+@push('preload_assets')
+    @if(!empty($contactHeroImage))
+        <link rel="preload" as="image" href="{{ $contactHeroImage }}" fetchpriority="high">
+    @endif
+@endpush
 <section class="contact-hero page-hero page-hero--contact" @if(!empty($contactHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $contactHeroImage }}'); background-size: cover; background-position: center;" @endif>
     <div class="contact-hero-inner">
         <h1>{{ $siteContent['page_contact_heading'] ?? ($siteContent['contact_page_title'] ?? 'Liên hệ TechSewing') }}</h1>

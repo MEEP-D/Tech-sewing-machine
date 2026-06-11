@@ -8,7 +8,7 @@
 
 <div class="fab_contact_wrap" aria-label="Liên hệ nhanh">
     <a class="fab_btn is-float is-visible fab-btn-zalo" href="{{ $fabZaloUrl !== '' ? $fabZaloUrl : 'javascript:void(0)' }}" @if($fabZaloUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="Zalo">
-        <img class="fab-zalo-img" src="{{ $fabZaloIconUrl }}" alt="Zalo">
+        <img class="fab-zalo-img" src="{{ $fabZaloIconUrl }}" alt="Zalo" loading="lazy" decoding="async">
     </a>
 
     <a class="fab_btn is-float is-visible fab-btn-facebook" href="{{ $fabFacebookUrl !== '' ? $fabFacebookUrl : 'javascript:void(0)' }}" @if($fabFacebookUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="Facebook">

@@ -9,6 +9,11 @@
             : \Illuminate\Support\Facades\Storage::disk('public')->url($productsHeroImage);
     }
 @endphp
+@push('preload_assets')
+    @if(!empty($productsHeroImage))
+        <link rel="preload" as="image" href="{{ $productsHeroImage }}" fetchpriority="high">
+    @endif
+@endpush
 <section class="products-hero page-hero" @if(!empty($productsHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $productsHeroImage }}'); background-size: cover; background-position: center;" @endif>
     <div class="products-hero-inner container">
         <h1>{{ $siteContent['page_products_heading'] ?? 'Sản phẩm' }}</h1>
@@ -34,7 +39,7 @@
                         <article class="product-card catalog-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                             <div class="product-img">
                                 @if($cardImage)
-                                    <img src="{{ $cardImage }}" alt="{{ $product->name }}">
+                                    <img src="{{ $cardImage }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                                 @endif
                                 <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                                 @if(((int) $product->discount_percent) > 0)

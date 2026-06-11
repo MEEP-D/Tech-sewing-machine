@@ -17,6 +17,11 @@
         }
     }
 @endphp
+@push('preload_assets')
+    @if(!empty($pageCoverImage))
+        <link rel="preload" as="image" href="{{ $pageCoverImage }}" fetchpriority="high">
+    @endif
+@endpush
 
 @if(!empty($pageCoverImage))
 <section class="page-hero page-hero-dynamic" style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $pageCoverImage }}'); background-size: cover; background-position: center;">
@@ -26,10 +31,17 @@
 </section>
 @endif
 
-<section class="container" style="padding: 2rem 1.5rem;">
-    <div class="section-header"><h1 class="section-title">{{ $page->title }}</h1></div>
-    <div class="{{ $contentClass }}">{!! $html !!}</div>
+<section class="page-default-section">
+    <div class="container page-layout-default">
+        <main class="page-default-main">
+            <div class="section-header"><h1 class="section-title">{{ $page->title }}</h1></div>
+            <div class="{{ $contentClass }}">{!! $html !!}</div>
+        </main>
+
+        @include('front.pages.news._sidebar')
+    </div>
 </section>
 
+@include('front.pages.page.partials.hot-latest-posts')
 @include('front.partials.newsletter-signup')
 @endsection

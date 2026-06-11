@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\ResolvesMediaUrl;
+use App\Models\Concerns\RendersRichContent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Product extends Model
 {
-    use HasFactory, ResolvesMediaUrl, SoftDeletes;
+    use HasFactory, ResolvesMediaUrl, RendersRichContent, SoftDeletes;
 
     private const PRODUCT_FILTER_CACHE_KEY = 'product_filter_data_v1';
 
@@ -160,5 +161,20 @@ class Product extends Model
         return $this->discounted_price_value !== null
             ? number_format($this->discounted_price_value, 0, ',', '.') . ' đ'
             : null;
+    }
+
+    public function getRenderedDescriptionAttribute(): string
+    {
+        return $this->renderRichContent($this->description);
+    }
+
+    public function getRenderedOverviewContentAttribute(): string
+    {
+        return $this->renderRichContent($this->overview_content);
+    }
+
+    public function getRenderedSeoContentAttribute(): string
+    {
+        return $this->renderRichContent($this->seo_content);
     }
 }

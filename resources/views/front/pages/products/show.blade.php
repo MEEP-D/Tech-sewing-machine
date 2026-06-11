@@ -48,11 +48,16 @@
                 $galleryImages = $galleryImages->filter()->unique()->values();
                 $mainImage = $galleryImages->first();
             @endphp
+            @push('preload_assets')
+                @if($mainImage)
+                    <link rel="preload" as="image" href="{{ $mainImage }}" fetchpriority="high">
+                @endif
+            @endpush
 
             <div class="special-product-image">
                 @if($mainImage)
                     <button type="button" class="product-main-image-btn" id="productMainImageBtn" aria-label="Phóng lớn ảnh sản phẩm">
-                        <img id="productMainImage" src="{{ $mainImage }}" alt="{{ $product->name }}">
+                        <img id="productMainImage" src="{{ $mainImage }}" alt="{{ $product->name }}" decoding="async" fetchpriority="high">
                     </button>
                 @endif
 
@@ -65,14 +70,14 @@
                                 data-image="{{ $imageUrl }}"
                                 aria-label="Anh thu {{ $index + 1 }}"
                             >
-                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} - anh {{ $index + 1 }}">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} - anh {{ $index + 1 }}" loading="lazy" decoding="async">
                             </button>
                         @endforeach
                     </div>
                 @endif
 
                 @if($product->video_id)
-                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $product->video_id }}" allowfullscreen></iframe></div>
+                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $product->video_id }}" loading="lazy" allowfullscreen></iframe></div>
                 @endif
             </div>
             <div class="special-product-content">
@@ -102,11 +107,11 @@
                     <div class="product-support-sections">
                         <section class="product-support-section">
                             <h3>{{ $product->overview_heading ?: 'Tổng quan về sản phẩm' }}</h3>
-                            <div>{!! $product->overview_content ?: ($product->long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
+                            <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($product->long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
                         </section>
                         <section class="product-support-section">
                             <h3>{{ $product->seo_heading ?: 'Tim hieu ve may lam seo' }}</h3>
-                            <div>{!! $product->seo_content ?: '<p>Nội dung đang cập nhật.</p>' !!}</div>
+                            <div class="page-rich-content product-rich-content">{!! $product->rendered_seo_content ?: '<p>Nội dung đang cập nhật.</p>' !!}</div>
                         </section>
                     </div>
                 </div>
@@ -131,7 +136,7 @@
 
             <div class="detail-tab-content active is-entering" id="tab-info" role="tabpanel" aria-labelledby="tab-btn-info">
                 <h3>Đặc điểm</h3>
-                <div>{!! $product->long_description ?: $product->description !!}</div>
+                <div class="page-rich-content product-rich-content">{!! $product->long_description ?: $product->rendered_description !!}</div>
             </div>
 
             <div class="detail-tab-content" id="tab-specs" role="tabpanel" aria-labelledby="tab-btn-specs">
@@ -180,7 +185,7 @@
                     <article class="product-card catalog-card related-product-card clickable-card {{ $index >= $initialRelatedVisible ? 'is-hidden' : '' }}" data-card-link="{{ route('products.show', $relatedProduct->slug) }}">
                 <div class="product-img">
                     @if($relatedProduct->display_image_url)
-                        <img src="{{ $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}">
+                        <img src="{{ $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}" loading="lazy" decoding="async">
                     @endif
                     <span class="badge-installment">Trả góp {{ max(0, (int) $relatedProduct->installment_percent) }}%</span>
                     @if(((int) $relatedProduct->discount_percent) > 0)

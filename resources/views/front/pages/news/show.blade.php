@@ -12,6 +12,11 @@
         }
     }
 @endphp
+@push('preload_assets')
+    @if($postCoverImage)
+        <link rel="preload" as="image" href="{{ $postCoverImage }}" fetchpriority="high">
+    @endif
+@endpush
 <section class="news-page news-detail-page">
     <div class="container news-layout">
         <article class="news-detail-main">
@@ -29,11 +34,11 @@
 
             @if($postCoverImage)
                 <div class="news-detail-image">
-                    <img src="{{ $postCoverImage }}" alt="{{ $post->title }}">
+                    <img src="{{ $postCoverImage }}" alt="{{ $post->title }}" decoding="async" fetchpriority="high">
                 </div>
             @endif
 
-            <div class="news-detail-content">{!! $post->rendered_content !!}</div>
+            <div class="news-detail-content page-rich-content">{!! $post->rendered_content !!}</div>
 
             @if($relatedPosts->isNotEmpty())
                 <section class="news-related">
@@ -43,7 +48,7 @@
                             <article class="news-related-card clickable-card" data-card-link="{{ route('news.show', $related->slug) }}">
                                 @if($related->thumbnail_url)
                                     <div class="news-related-image">
-                                        <img src="{{ $related->thumbnail_url }}" alt="{{ $related->title }}">
+                                        <img src="{{ $related->thumbnail_url }}" alt="{{ $related->title }}" loading="lazy" decoding="async">
                                     </div>
                                 @endif
                                 <div class="news-related-body">

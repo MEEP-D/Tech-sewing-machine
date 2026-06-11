@@ -60,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
                             'home_service_description' => $siteSettings['home_service_description'] ?? '',
                             'home_service_primary_cta' => $siteSettings['home_service_primary_cta'] ?? '',
                             'home_service_secondary_cta' => $siteSettings['home_service_secondary_cta'] ?? '',
+                            'home_service_image' => $siteSettings['home_service_image'] ?? null,
                             'home_highlight_contact_primary_name' => $siteSettings['home_highlight_contact_primary_name'] ?? 'Mr. Sáng',
                             'home_highlight_contact_primary_phone' => $siteSettings['home_highlight_contact_primary_phone'] ?? '0902 806 599',
                             'home_highlight_contact_secondary_name' => $siteSettings['home_highlight_contact_secondary_name'] ?? 'Mr. Bảo',

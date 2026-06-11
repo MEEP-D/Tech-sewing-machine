@@ -9,6 +9,11 @@
             : \Illuminate\Support\Facades\Storage::disk('public')->url($newsHeroImage);
     }
 @endphp
+@push('preload_assets')
+    @if(!empty($newsHeroImage))
+        <link rel="preload" as="image" href="{{ $newsHeroImage }}" fetchpriority="high">
+    @endif
+@endpush
 <section class="news-hero page-hero" @if(!empty($newsHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $newsHeroImage }}'); background-size: cover; background-position: center;" @endif>
     <div class="container">
         <h1>{{ $siteContent['page_news_heading'] ?? 'Tin tức' }}</h1>

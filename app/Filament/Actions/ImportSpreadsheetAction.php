@@ -64,14 +64,16 @@ class ImportSpreadsheetAction extends ImportAction
 
                         if (! $this->isXlsxFile($state)) {
                             $set('sheet_name', null);
+                            $this->syncColumnMapFromUploadedFile($set, $state);
 
                             return;
                         }
 
                         $sheetNames = $this->getXlsxSheetNames($state);
-                        $set('sheet_name', $sheetNames[0] ?? null);
+                        $selectedSheet = $sheetNames[0] ?? null;
+                        $set('sheet_name', $selectedSheet);
 
-                        $this->syncColumnMapFromUploadedFile($set, $state);
+                        $this->syncColumnMapFromUploadedFile($set, $state, $selectedSheet);
                     });
 
                 $fileComponentIndex = $index;
@@ -103,7 +105,7 @@ class ImportSpreadsheetAction extends ImportAction
                                 return;
                             }
 
-                            $this->syncColumnMapFromUploadedFile($set, $file);
+                            $this->syncColumnMapFromUploadedFile($set, $file, $get('sheet_name'));
                         }),
                 ]);
             }
@@ -181,8 +183,12 @@ class ImportSpreadsheetAction extends ImportAction
         return $names;
     }
 
-    protected function getSelectedSheetName(?TemporaryUploadedFile $file = null): ?string
+    protected function getSelectedSheetName(?TemporaryUploadedFile $file = null, ?string $preferredSheet = null): ?string
     {
+        if (filled($preferredSheet)) {
+            return (string) $preferredSheet;
+        }
+
         $selected = null;
 
         try {
@@ -210,7 +216,7 @@ class ImportSpreadsheetAction extends ImportAction
     /**
      * @return resource|false
      */
-    protected function convertXlsxToCsvStream(TemporaryUploadedFile $file)
+    protected function convertXlsxToCsvStream(TemporaryUploadedFile $file, ?string $preferredSheet = null)
     {
         $filePath = $file->getRealPath();
 
@@ -224,7 +230,7 @@ class ImportSpreadsheetAction extends ImportAction
             return false;
         }
 
-        $selectedSheet = $this->getSelectedSheetName($file);
+        $selectedSheet = $this->getSelectedSheetName($file, $preferredSheet);
 
         if (! in_array($selectedSheet, $sheetNames, true)) {
             $selectedSheet = $sheetNames[0];
@@ -284,9 +290,11 @@ class ImportSpreadsheetAction extends ImportAction
         return (string) $value;
     }
 
-    protected function syncColumnMapFromUploadedFile(Set $set, TemporaryUploadedFile $file): void
+    protected function syncColumnMapFromUploadedFile(Set $set, TemporaryUploadedFile $file, ?string $sheetName = null): void
     {
-        $csvStream = $this->getUploadedFileStream($file);
+        $csvStream = $this->isXlsxFile($file)
+            ? $this->convertXlsxToCsvStream($file, $sheetName)
+            : $this->getUploadedFileStream($file);
 
         if (! $csvStream) {
             return;
@@ -318,4 +326,3 @@ class ImportSpreadsheetAction extends ImportAction
         }, []));
     }
 }
-

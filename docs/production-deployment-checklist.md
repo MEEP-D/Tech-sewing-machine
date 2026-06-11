@@ -55,7 +55,9 @@ App dang dung `QUEUE_CONNECTION=database`. Cac tac vu can worker:
 - Gui newsletter sau khi bai viet duoc publish.
 - Gui mail dang ky/xac nhan neu mail duoc day vao queue.
 - Mail thong bao lead moi.
-- Import/export cua Filament neu duoc cau hinh chay qua queue.
+- Export cua Filament neu duoc cau hinh chay qua queue.
+
+Import san pham trong admin dang chay bang connection `sync` va co cache lock `product-imports`, nen khong can queue worker rieng cho thao tac import san pham. Neu admin import nhieu file gan nhau, request vao sau se doi request import truoc xu ly xong.
 
 Tren VPS co Supervisor, tao process:
 
@@ -101,7 +103,7 @@ Neu scheduler khong chay, bai viet publish theo lich se khong tu dong tao newsle
 Co 2 lop cau hinh mail:
 
 - `.env`: cau hinh SMTP fallback cho Laravel.
-- Admin Filament > Cai dat website > SMTP / Mail: cau hinh SMTP dong luu trong bang `settings`.
+- Admin Filament > Cai dat website > SMTP / Mail: cau hinh SMTP dong luu trong bang `settings`, chi can dien khi muon override `.env`.
 
 Sau khi dien SMTP trong admin, bam gui email test. Cac truong can co:
 

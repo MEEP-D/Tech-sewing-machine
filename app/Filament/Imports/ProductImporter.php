@@ -276,7 +276,12 @@ class ProductImporter extends Importer
 
     public function getJobQueue(): ?string
     {
-        return 'imports';
+        return null;
+    }
+
+    public function getJobConnection(): ?string
+    {
+        return 'sync';
     }
 
     public function getJobBatchName(): ?string

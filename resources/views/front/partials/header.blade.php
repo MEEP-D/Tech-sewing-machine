@@ -23,7 +23,7 @@
 
             $logoType = strtolower((string) ($siteSettings['site_logo_type'] ?? 'image'));
             $siteLogo = $siteSettings['site_logo'] ?? null;
-            $siteLogoUrl = asset('assets/frontend/images/anh1.jpg');
+            $siteLogoUrl = asset(is_file(public_path('assets/frontend/images/anh1.webp')) ? 'assets/frontend/images/anh1.webp' : 'assets/frontend/images/anh1.jpg');
             $siteTitle = trim((string) ($siteSettings['site_title'] ?? config('app.name')));
             $siteTitle = $siteTitle !== '' ? $siteTitle : config('app.name');
             $facebookUrl = trim((string) ($siteSettings['header_facebook_url'] ?? ''));
@@ -60,7 +60,10 @@
                 if (str_starts_with($siteLogo, 'http://') || str_starts_with($siteLogo, 'https://')) {
                     $siteLogoUrl = $siteLogo;
                 } elseif (str_starts_with($siteLogo, 'assets/')) {
-                    $siteLogoUrl = asset($siteLogo);
+                    $optimizedLogo = preg_replace('/\.(jpe?g|png)$/i', '.webp', $siteLogo);
+                    $siteLogoUrl = is_string($optimizedLogo) && is_file(public_path($optimizedLogo))
+                        ? asset($optimizedLogo)
+                        : asset($siteLogo);
                 } else {
                     $siteLogoUrl = \Illuminate\Support\Facades\Storage::url($siteLogo);
                 }
@@ -70,7 +73,7 @@
             @if($logoType === 'text')
                 <span class="logo-text">{{ $siteTitle }}</span>
             @else
-                <img src="{{ $siteLogoUrl }}" alt="{{ $siteTitle }}">
+                <img src="{{ $siteLogoUrl }}" alt="{{ $siteTitle }}" decoding="async" fetchpriority="high">
             @endif
         </a>
 

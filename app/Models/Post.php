@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\ResolvesMediaUrl;
+use App\Models\Concerns\RendersRichContent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use HasFactory, ResolvesMediaUrl, SoftDeletes;
+    use HasFactory, ResolvesMediaUrl, RendersRichContent, SoftDeletes;
 
     protected $fillable = [
         'title', 'slug', 'excerpt', 'content', 'thumbnail',
@@ -107,19 +108,7 @@ class Post extends Model
 
     public function getRenderedContentAttribute(): string
     {
-        $content = (string) ($this->content ?? '');
-        if ($content === '') {
-            return '';
-        }
-
-        return (string) preg_replace_callback(
-            '/(<img[^>]*\ssrc=["\'])([^"\']+)(["\'][^>]*>)/i',
-            function (array $matches): string {
-                $resolved = $this->resolveMediaUrl($matches[2]);
-                return $matches[1] . ($resolved ?? $matches[2]) . $matches[3];
-            },
-            $content
-        );
+        return $this->renderRichContent($this->content);
     }
 
     private function toPublicAbsoluteUrl(?string $url): ?string

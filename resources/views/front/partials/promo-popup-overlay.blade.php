@@ -67,6 +67,8 @@
                             <img
                                 src="{{ $promoImageUrl }}"
                                 class="promo-popup-slide{{ $index === 0 ? ' is-active' : '' }}"
+                                loading="lazy"
+                                decoding="async"
                                 alt="{{ $promoTitle !== '' ? $promoTitle : 'Khuyến mãi' }}"
                                 data-promo-slide
                             >

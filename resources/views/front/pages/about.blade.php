@@ -26,6 +26,11 @@
         asset('assets/frontend/images/anh8.jpg'),
     ];
 @endphp
+@push('preload_assets')
+    @if(!empty($aboutHeroImage))
+        <link rel="preload" as="image" href="{{ $aboutHeroImage }}" fetchpriority="high">
+    @endif
+@endpush
 
 <section class="about-pro-hero page-hero page-hero--about" @if(!empty($aboutHeroImage)) style="background-image: linear-gradient(120deg, rgba(7, 15, 32, 0.78), rgba(14, 58, 130, 0.72)), url('{{ $aboutHeroImage }}'); background-size: cover; background-position: center;" @endif>
     <div class="container">
@@ -73,7 +78,7 @@
         <div class="about-pro-gallery">
             @foreach($aboutGallery as $image)
                 <figure>
-                    <img src="{{ $image }}" alt="Tech Sewing machine image {{ $loop->iteration }}">
+                    <img src="{{ $image }}" alt="Tech Sewing machine image {{ $loop->iteration }}" loading="lazy" decoding="async">
                 </figure>
             @endforeach
         </div>
@@ -100,7 +105,7 @@
             @forelse($partners as $partner)
                 <a href="{{ $partner->url ?: 'javascript:void(0)' }}" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
                     @if($partner->logo_url)
-                        <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                        <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
                     @else
                         <span>{{ $partner->name }}</span>
                     @endif

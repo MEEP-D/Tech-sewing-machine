@@ -35,11 +35,27 @@
         ->filter(fn ($spec) => filled($spec['key'] ?? null) || filled($spec['value'] ?? null))
         ->values();
 })
+@php($resolveAssetUrl = function ($path, $fallback = null) {
+    if (! is_string($path) || trim($path) === '') {
+        return $fallback;
+    }
+
+    if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+        return $path;
+    }
+
+    if (str_starts_with($path, 'assets/')) {
+        return asset($path);
+    }
+
+    return \Illuminate\Support\Facades\Storage::url($path);
+})
 @php($highlightProduct = $highlightProduct ?? null)
 @php($highlightSpecs = $resolveProductSpecs($highlightProduct))
 @php($highlightDescription = $highlightProduct ? ($highlightProduct->long_description ?: $highlightProduct->short_description) : '')
 @php($highlightDescriptionLines = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) $highlightDescription)))->map(fn($line) => trim($line))->filter())
 @php($homeFaqs = collect($siteContent['home_faqs'] ?? [])->take(6))
+@php($serviceImageUrl = $resolveAssetUrl($siteContent['home_service_image'] ?? null, asset('assets/frontend/images/anh3.jpg')))
 @php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveProductSpecs) {
     $productSpecs = $resolveProductSpecs($item);
 
@@ -55,6 +71,11 @@
         ],
     ];
 }))
+@push('preload_assets')
+    @if(($sliders ?? collect())->first()?->image_url)
+        <link rel="preload" as="image" href="{{ ($sliders ?? collect())->first()->image_url }}" fetchpriority="high">
+    @endif
+@endpush
 
 <section class="hero">
     <div class="hero-slider">
@@ -105,10 +126,10 @@
         <div class="special-product-container">
             <div class="special-product-image">
                 @if($highlightProduct->display_image_url)
-                    <img src="{{ $highlightProduct->display_image_url }}" alt="{{ $highlightProduct->name }}">
+                    <img src="{{ $highlightProduct->display_image_url }}" alt="{{ $highlightProduct->name }}" loading="lazy" decoding="async">
                 @endif
                 @if($highlightProduct->video_id)
-                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $highlightProduct->video_id }}" allowfullscreen></iframe></div>
+                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $highlightProduct->video_id }}" loading="lazy" allowfullscreen></iframe></div>
                 @endif
             </div>
             <div class="special-product-content">
@@ -170,7 +191,7 @@
             <button class="banner-arrow prev" id="banner-prev"><i class="fas fa-chevron-left"></i></button>
             <div class="banner-image-box">
                 <a href="{{ $bannerProducts->first()['link'] }}" id="banner-img-link">
-                    <img src="{{ $bannerProducts->first()['image'] ?: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==' }}" id="banner-img" alt="Sản phẩm">
+                    <img src="{{ $bannerProducts->first()['image'] ?: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==' }}" id="banner-img" alt="Sản phẩm" loading="lazy" decoding="async">
                 </a>
             </div>
             <button class="banner-arrow next" id="banner-next"><i class="fas fa-chevron-right"></i></button>
@@ -204,7 +225,7 @@
                 <article class="product-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                     <div class="product-img">
                         @if($product->display_image_url)
-                            <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}">
+                            <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                         @endif
                         <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                         @if(((int) $product->discount_percent) > 0)
@@ -273,7 +294,7 @@
             <div class="home-product-row-inner">
                 @if($homeProductRow->image_url)
                     <div class="home-product-row-banner col-inner">
-                        <img src="{{ $homeProductRow->image_url }}" alt="{{ $homeProductRow->title ?: 'Danh mục sản phẩm' }}">
+                        <img src="{{ $homeProductRow->image_url }}" alt="{{ $homeProductRow->title ?: 'Danh mục sản phẩm' }}" loading="lazy" decoding="async">
                     </div>
                 @endif
                 <div class="home-product-row-products col-inner">
@@ -282,7 +303,7 @@
                             <article class="home-product-row-card product-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                                 <div class="home-product-row-img">
                                     @if($product->display_image_url)
-                                        <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}">
+                                        <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                                     @endif
                                     <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                                     @if(((int) $product->discount_percent) > 0)
@@ -319,7 +340,7 @@
     </section>
 @endforeach
 
-<section class="service-banner-section">
+<section class="service-banner-section" style="background-image: url('{{ $serviceImageUrl }}');">
     <div class="container">
         <div class="service-banner-content">
             <div class="service-text-side">
@@ -330,9 +351,6 @@
                     <a href="{{ route('about') }}" class="btn-service secondary">{{ $siteContent['home_service_secondary_cta'] ?? '' }}</a>
                 </div>
             </div>
-            <div class="service-image-side">
-                <img src="{{ asset('assets/frontend/images/service-machine.png') }}" alt="Dịch vụ và bảo hành">
-            </div>
         </div>
     </div>
 </section>
@@ -342,7 +360,7 @@
     <div class="container">
         <div class="faq-grid">
             @foreach($homeFaqs as $faq)
-                <div class="faq-item"><div class="faq-question">{{ $faq['question'] ?? '' }}<i class="fas fa-chevron-down"></i></div><div class="faq-answer">{{ $faq['answer'] ?? '' }}</div></div>
+                <div class="faq-item"><div class="faq-question">{{ $faq['question'] ?? '' }}<i class="fas fa-chevron-down"></i></div><div class="faq-answer">{!! nl2br(e($faq['answer'] ?? '')) !!}</div></div>
             @endforeach
         </div>
     </div>
@@ -356,7 +374,7 @@
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
                         <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
                         </a>
                     @endif
                 @endforeach
@@ -365,7 +383,7 @@
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
                         <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
                         </a>
                     @endif
                 @endforeach
@@ -376,7 +394,7 @@
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
                         <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
                         </a>
                     @endif
                 @endforeach
@@ -385,7 +403,7 @@
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
                         <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}">
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
                         </a>
                     @endif
                 @endforeach

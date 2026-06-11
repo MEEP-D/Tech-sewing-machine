@@ -4,23 +4,33 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Reveal Animations on Scroll
-    const revealCallback = (entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('reveal');
-                observer.unobserve(entry.target); // Only animate once
-            }
+    const setupRevealAnimations = () => {
+        if (!('IntersectionObserver' in window)) return;
+
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const revealObserver = new IntersectionObserver(revealCallback, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.product-card, .section-header').forEach(el => {
+            el.style.opacity = '0';
+            revealObserver.observe(el);
         });
     };
 
-    const revealObserver = new IntersectionObserver(revealCallback, {
-        threshold: 0.1
-    });
-
-    document.querySelectorAll('.product-card, .section-header').forEach(el => {
-        el.style.opacity = '0'; // Initial state for reveal
-        revealObserver.observe(el);
-    });
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(setupRevealAnimations, { timeout: 1800 });
+    } else {
+        setTimeout(setupRevealAnimations, 600);
+    }
 
     // 2. Header stays fixed at top via CSS; no hide/show behavior on scroll.
 
@@ -615,7 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    console.log('Modern JS initialized for Máy May Thông Minh');
     document.addEventListener('click', (event) => {
         const card = event.target.closest('.clickable-card[data-card-link]');
         if (!card) return;

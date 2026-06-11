@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Pages;
 
 use App\Filament\Actions\ImportSpreadsheetAction;
 use App\Filament\Exports\ProductExporter;
+use App\Filament\Imports\Jobs\ProductImportCsv;
 use App\Filament\Imports\ProductImporter;
 use App\Filament\Resources\Products\ProductResource;
 use Filament\Actions\CreateAction;
@@ -21,7 +22,9 @@ class ListProducts extends ListRecords
             CreateAction::make(),
             ImportSpreadsheetAction::make()
                 ->label('Import sản phẩm')
-                ->importer(ProductImporter::class),
+                ->importer(ProductImporter::class)
+                ->job(ProductImportCsv::class)
+                ->chunkSize(100000),
             ExportAction::make()
                 ->label('Export sản phẩm')
                 ->modalHeading('Chọn trường xuất sản phẩm')

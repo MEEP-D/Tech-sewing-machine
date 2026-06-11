@@ -23,7 +23,7 @@
                 </div>
             @endif
             @if($post->thumbnail_url)
-                <img src="{{ $post->thumbnail_url }}" alt="{{ $post->title }}">
+                <img src="{{ $post->thumbnail_url }}" alt="{{ $post->title }}" loading="lazy" decoding="async">
             @endif
         </div>
         <div class="news-card-body">

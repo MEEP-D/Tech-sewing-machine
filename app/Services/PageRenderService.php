@@ -2,12 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\Concerns\RendersRichContent;
+use App\Models\Concerns\ResolvesMediaUrl;
 use App\Models\Page;
-use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Illuminate\Support\Arr;
 
 class PageRenderService
 {
+    use RendersRichContent;
+    use ResolvesMediaUrl;
+
     public function renderedHtml(Page $page, bool $isBuilderMode = false): string
     {
         $html = $this->renderContent((string) ($page->content ?? ''));
@@ -43,22 +47,7 @@ class PageRenderService
 
     private function renderContent(string $content): string
     {
-        $trimmed = trim($content);
-
-        if ($trimmed === '') {
-            return '';
-        }
-
-        $decoded = null;
-        if (($trimmed[0] ?? '') === '{' || ($trimmed[0] ?? '') === '[') {
-            $decoded = json_decode($trimmed, true);
-        }
-
-        if (is_array($decoded) && class_exists(RichContentRenderer::class)) {
-            return RichContentRenderer::make($decoded)->toHtml();
-        }
-
-        return $content;
+        return $this->renderRichContent($content);
     }
 
     private function safeCssValue(mixed $value): ?string

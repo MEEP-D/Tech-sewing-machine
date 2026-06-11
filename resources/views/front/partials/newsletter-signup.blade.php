@@ -1,9 +1,17 @@
 @php
     $newsletterImage = $siteContent['newsletter_signup_image'] ?? null;
     if (is_string($newsletterImage) && $newsletterImage !== '' && ! str_starts_with($newsletterImage, 'http://') && ! str_starts_with($newsletterImage, 'https://')) {
-        $newsletterImage = str_starts_with($newsletterImage, 'assets/')
-            ? asset($newsletterImage)
-            : \Illuminate\Support\Facades\Storage::disk('public')->url($newsletterImage);
+        if (str_starts_with($newsletterImage, 'assets/')) {
+            $optimizedNewsletterImage = preg_replace('/\.(jpe?g|png)$/i', '.webp', $newsletterImage);
+            $newsletterImage = is_string($optimizedNewsletterImage) && is_file(public_path($optimizedNewsletterImage))
+                ? asset($optimizedNewsletterImage)
+                : asset($newsletterImage);
+        } else {
+            $optimizedNewsletterImage = preg_replace('/\.(jpe?g|png)$/i', '.webp', $newsletterImage);
+            $newsletterImage = is_string($optimizedNewsletterImage) && is_file(storage_path('app/public/' . ltrim($optimizedNewsletterImage, '/')))
+                ? \Illuminate\Support\Facades\Storage::disk('public')->url($optimizedNewsletterImage)
+                : \Illuminate\Support\Facades\Storage::disk('public')->url($newsletterImage);
+        }
     }
 @endphp
 <section class="newsletter-signup" @if(!empty($newsletterImage)) style="background-image: url('{{ $newsletterImage }}');" @endif>
