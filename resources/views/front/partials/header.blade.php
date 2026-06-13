@@ -1,6 +1,7 @@
 <header class="header-main">
     <div class="container header-container">
         @php
+            $media = app(\App\Support\OptimizedMedia::class);
             $toText = static function (mixed $value, string $default = ''): string {
                 if (is_string($value) || is_numeric($value)) {
                     $text = trim((string) $value);
@@ -57,16 +58,7 @@
             };
 
             if (is_string($siteLogo) && filled($siteLogo)) {
-                if (str_starts_with($siteLogo, 'http://') || str_starts_with($siteLogo, 'https://')) {
-                    $siteLogoUrl = $siteLogo;
-                } elseif (str_starts_with($siteLogo, 'assets/')) {
-                    $optimizedLogo = preg_replace('/\.(jpe?g|png)$/i', '.webp', $siteLogo);
-                    $siteLogoUrl = is_string($optimizedLogo) && is_file(public_path($optimizedLogo))
-                        ? asset($optimizedLogo)
-                        : asset($siteLogo);
-                } else {
-                    $siteLogoUrl = \Illuminate\Support\Facades\Storage::url($siteLogo);
-                }
+                $siteLogoUrl = $media->url($siteLogo, ['width' => 360, 'quality' => 82]) ?? $siteLogoUrl;
             }
         @endphp
         <a href="{{ route('home') }}" class="logo">
@@ -196,4 +188,3 @@
     </div>
     <ul class="desktop-more-list" id="desktop-more-list"></ul>
 </aside>
-

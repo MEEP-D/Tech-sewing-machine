@@ -1,20 +1,10 @@
 @php
+    $media = app(\App\Support\OptimizedMedia::class);
     $newsletterImage = $siteContent['newsletter_signup_image'] ?? null;
-    if (is_string($newsletterImage) && $newsletterImage !== '' && ! str_starts_with($newsletterImage, 'http://') && ! str_starts_with($newsletterImage, 'https://')) {
-        if (str_starts_with($newsletterImage, 'assets/')) {
-            $optimizedNewsletterImage = preg_replace('/\.(jpe?g|png)$/i', '.webp', $newsletterImage);
-            $newsletterImage = is_string($optimizedNewsletterImage) && is_file(public_path($optimizedNewsletterImage))
-                ? asset($optimizedNewsletterImage)
-                : asset($newsletterImage);
-        } else {
-            $optimizedNewsletterImage = preg_replace('/\.(jpe?g|png)$/i', '.webp', $newsletterImage);
-            $newsletterImage = is_string($optimizedNewsletterImage) && is_file(storage_path('app/public/' . ltrim($optimizedNewsletterImage, '/')))
-                ? \Illuminate\Support\Facades\Storage::disk('public')->url($optimizedNewsletterImage)
-                : \Illuminate\Support\Facades\Storage::disk('public')->url($newsletterImage);
-        }
-    }
+    $newsletterImage = $media->url($newsletterImage, ['width' => 1280, 'quality' => 74])
+        ?? $media->url('assets/frontend/images/service-machine.png', ['width' => 1280, 'quality' => 74]);
 @endphp
-<section class="newsletter-signup" @if(!empty($newsletterImage)) style="background-image: url('{{ $newsletterImage }}');" @endif>
+<section class="newsletter-signup" @if(!empty($newsletterImage)) data-bg="{{ $newsletterImage }}" @endif>
     <div class="container">
         <div class="newsletter-signup-inner">
             <h2 class="newsletter-signup-title">Đăng ký nhận thông tin</h2>

@@ -3,6 +3,15 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    const scheduleTask = (callback, timeout = 1200) => {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(callback, { timeout });
+            return;
+        }
+
+        setTimeout(callback, Math.min(timeout, 400));
+    };
+
     // 1. Reveal Animations on Scroll
     const setupRevealAnimations = () => {
         if (!('IntersectionObserver' in window)) return;
@@ -26,10 +35,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(setupRevealAnimations, { timeout: 1800 });
+    scheduleTask(setupRevealAnimations, 1800);
+
+    const deferredBackgrounds = document.querySelectorAll('[data-bg]');
+    const applyDeferredBackground = (element) => {
+        if (!element || element.dataset.bgLoaded === '1') return;
+
+        const bg = element.getAttribute('data-bg');
+        if (!bg) return;
+
+        element.style.backgroundImage = `url("${bg}")`;
+        element.dataset.bgLoaded = '1';
+    };
+
+    if ('IntersectionObserver' in window) {
+        const backgroundObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                applyDeferredBackground(entry.target);
+                observer.unobserve(entry.target);
+            });
+        }, {
+            rootMargin: '300px 0px'
+        });
+
+        deferredBackgrounds.forEach((element) => {
+            if (element.classList.contains('hero-slide') && !element.classList.contains('active')) {
+                return;
+            }
+
+            backgroundObserver.observe(element);
+        });
     } else {
-        setTimeout(setupRevealAnimations, 600);
+        deferredBackgrounds.forEach(applyDeferredBackground);
     }
 
     // 2. Header stays fixed at top via CSS; no hide/show behavior on scroll.
@@ -239,6 +277,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const slideCount = slides.length;
     let slideInterval;
 
+    const loadHeroSlideBackground = (slide) => {
+        if (!slide) return;
+        applyDeferredBackground(slide);
+    };
+
+    const warmHeroSlides = (index) => {
+        if (slideCount <= 1) return;
+
+        const nextIndexes = [
+            (index + 1) % slideCount,
+            (index - 1 + slideCount) % slideCount,
+        ];
+
+        scheduleTask(() => {
+            nextIndexes.forEach((slideIndex) => loadHeroSlideBackground(slides[slideIndex]));
+        }, 900);
+    };
+
     const getActiveSlide = () => slides[currentSlide] || null;
     const getActiveSlideLink = () => {
         const activeSlide = getActiveSlide();
@@ -246,6 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const showSlide = (index) => {
+        loadHeroSlideBackground(slides[index]);
+
         // Remove active states
         slides.forEach(s => s.classList.remove('active'));
         contents.forEach(c => c.classList.remove('active'));
@@ -261,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (contents[index]) contents[index].classList.add('active');
         if (dots[index]) dots[index].classList.add('active');
         currentSlide = index;
+        warmHeroSlides(index);
     };
 
     const nextSlide = () => {
@@ -278,6 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (slideCount > 0 && dots.length > 0) {
+        loadHeroSlideBackground(slides[0]);
+        warmHeroSlides(0);
+
         slides.forEach(slide => {
             slide.addEventListener('click', (event) => {
                 const href = slide.getAttribute('data-link');
@@ -531,8 +593,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Run on load and resize
-    updateSliderButtons();
-    window.addEventListener('resize', updateSliderButtons);
+    let sliderButtonFrame = 0;
+    const queueSliderButtonUpdate = () => {
+        if (sliderButtonFrame) {
+            cancelAnimationFrame(sliderButtonFrame);
+        }
+
+        sliderButtonFrame = requestAnimationFrame(() => {
+            sliderButtonFrame = 0;
+            updateSliderButtons();
+        });
+    };
+
+    queueSliderButtonUpdate();
+    window.addEventListener('resize', queueSliderButtonUpdate);
 
     // 10. Banner Switcher Logic
     const bannerData = Array.isArray(window.__homeBannerData) ? window.__homeBannerData : [];
@@ -637,4 +711,3 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = href;
     });
 });
-

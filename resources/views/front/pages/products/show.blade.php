@@ -5,6 +5,7 @@
     <div class="container">
         <div class="special-product-container">
             @php
+                $media = app(\App\Support\OptimizedMedia::class);
                 $toText = static function (mixed $value, string $default = ''): string {
                     if (is_string($value) || is_numeric($value)) {
                         $text = trim((string) $value);
@@ -28,7 +29,7 @@
                 $galleryImages = collect();
 
                 if ($product->display_image_url) {
-                    $galleryImages->push($product->display_image_url);
+                    $galleryImages->push($media->url($product->display_image, ['width' => 1280, 'quality' => 78]) ?? $product->display_image_url);
                 }
 
                 foreach ((array) ($product->gallery ?? []) as $galleryPath) {
@@ -36,13 +37,12 @@
                         continue;
                     }
 
-                    if (str_starts_with($galleryPath, 'http://') || str_starts_with($galleryPath, 'https://')) {
-                        $galleryImages->push($galleryPath);
-                    } elseif (str_starts_with($galleryPath, '/')) {
-                        $galleryImages->push(asset(ltrim($galleryPath, '/')));
-                    } else {
-                        $galleryImages->push(\Illuminate\Support\Facades\Storage::disk('public')->url($galleryPath));
-                    }
+                    $galleryImages->push(
+                        $media->url($galleryPath, ['width' => 1280, 'quality' => 78])
+                        ?? (str_starts_with($galleryPath, '/')
+                            ? asset(ltrim($galleryPath, '/'))
+                            : \Illuminate\Support\Facades\Storage::disk('public')->url($galleryPath))
+                    );
                 }
 
                 $galleryImages = $galleryImages->filter()->unique()->values();
@@ -185,7 +185,7 @@
                     <article class="product-card catalog-card related-product-card clickable-card {{ $index >= $initialRelatedVisible ? 'is-hidden' : '' }}" data-card-link="{{ route('products.show', $relatedProduct->slug) }}">
                 <div class="product-img">
                     @if($relatedProduct->display_image_url)
-                        <img src="{{ $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}" loading="lazy" decoding="async">
+                        <img src="{{ $media->url($relatedProduct->display_image, ['width' => 640, 'quality' => 76]) ?? $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}" loading="lazy" decoding="async">
                     @endif
                     <span class="badge-installment">Trả góp {{ max(0, (int) $relatedProduct->installment_percent) }}%</span>
                     @if(((int) $relatedProduct->discount_percent) > 0)

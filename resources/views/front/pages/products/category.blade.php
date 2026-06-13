@@ -2,12 +2,9 @@
 
 @section('content')
 @php
+    $media = app(\App\Support\OptimizedMedia::class);
     $productsHeroImage = $siteContent['page_products_hero_image'] ?? null;
-    if (is_string($productsHeroImage) && $productsHeroImage !== '' && !str_starts_with($productsHeroImage, 'http://') && !str_starts_with($productsHeroImage, 'https://')) {
-        $productsHeroImage = str_starts_with($productsHeroImage, 'assets/')
-            ? asset($productsHeroImage)
-            : \Illuminate\Support\Facades\Storage::disk('public')->url($productsHeroImage);
-    }
+    $productsHeroImage = $media->url($productsHeroImage, ['width' => 1600, 'quality' => 74]);
 @endphp
 @push('preload_assets')
     @if(!empty($productsHeroImage))
@@ -39,7 +36,7 @@
                         <article class="product-card catalog-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                             <div class="product-img">
                                 @if($cardImage)
-                                    <img src="{{ $cardImage }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                                    <img src="{{ $media->url($product->display_image, ['width' => 640, 'quality' => 76]) ?? $cardImage }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                                 @endif
                                 <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                                 @if(((int) $product->discount_percent) > 0)

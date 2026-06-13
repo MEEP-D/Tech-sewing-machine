@@ -1,4 +1,5 @@
 @php
+    $media = app(\App\Support\OptimizedMedia::class);
     $promoEnabled = (string) ($siteSettings['promo_popup_enabled'] ?? '0') === '1';
     $promoTitle = trim((string) ($siteSettings['promo_popup_title'] ?? ''));
     $promoDescription = trim((string) ($siteSettings['promo_popup_description'] ?? ''));
@@ -30,17 +31,11 @@
             continue;
         }
 
-        if (str_starts_with($promoImageItem, 'http://') || str_starts_with($promoImageItem, 'https://')) {
-            $promoImageUrls[] = $promoImageItem;
-            continue;
-        }
+        $promoImageUrl = $media->url($promoImageItem, ['width' => 960, 'quality' => 74]);
 
-        if (str_starts_with($promoImageItem, 'assets/')) {
-            $promoImageUrls[] = asset($promoImageItem);
-            continue;
+        if ($promoImageUrl) {
+            $promoImageUrls[] = $promoImageUrl;
         }
-
-        $promoImageUrls[] = \Illuminate\Support\Facades\Storage::url($promoImageItem);
     }
 
     $promoImageUrls = array_values(array_unique($promoImageUrls));
@@ -65,7 +60,8 @@
                     <div class="promo-popup-slides" data-promo-slides>
                         @foreach($promoImageUrls as $index => $promoImageUrl)
                             <img
-                                src="{{ $promoImageUrl }}"
+                                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+                                data-src="{{ $promoImageUrl }}"
                                 class="promo-popup-slide{{ $index === 0 ? ' is-active' : '' }}"
                                 loading="lazy"
                                 decoding="async"
@@ -129,6 +125,13 @@
             var slides = Array.prototype.slice.call(overlay.querySelectorAll('[data-promo-slide]'));
             var slideIndex = 0;
 
+            function loadSlide(slide) {
+                if (!slide) return;
+                var nextSrc = slide.getAttribute('data-src');
+                if (!nextSrc || slide.getAttribute('src') === nextSrc) return;
+                slide.src = nextSrc;
+            }
+
             function showSlide(index) {
                 if (!slides.length) return;
 
@@ -137,6 +140,7 @@
 
                 slides.forEach(function (slide, idx) {
                     if (idx === slideIndex) {
+                        loadSlide(slide);
                         slide.classList.add('is-active');
                     } else {
                         slide.classList.remove('is-active');
@@ -194,6 +198,11 @@
 
             setTimeout(function () {
                 showSlide(0);
+                slides.slice(1).forEach(function (slide, index) {
+                    setTimeout(function () {
+                        loadSlide(slide);
+                    }, 180 * (index + 1));
+                });
                 overlay.classList.add('is-open');
                 overlay.setAttribute('aria-hidden', 'false');
                 startSlides();

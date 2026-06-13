@@ -61,14 +61,6 @@ img {
     display: block;
 }
 
-.special-product-section,
-.banner-switcher-section,
-#new-products,
-.home-product-row,
-.service-banner-section,
-.faq-section,
-.partners-section,
-.newsletter-signup,
 .products-page,
 .news-page,
 .page-default-section,
@@ -2816,7 +2808,10 @@ body.no-scroll {
 
 .newsletter-signup {
     margin-top: 1.8rem;
-    background: url('/assets/frontend/images/service-machine.png') center/cover no-repeat;
+    background-color: #0b2a68;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     color: #fff;
 }
 
