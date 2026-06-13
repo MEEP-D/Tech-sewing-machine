@@ -45,6 +45,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    document.querySelectorAll('.video-lite[data-youtube-id]').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const videoId = trigger.getAttribute('data-youtube-id');
+            if (!videoId) return;
+
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0`;
+            iframe.title = trigger.getAttribute('aria-label') || 'Video';
+            iframe.loading = 'lazy';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            iframe.allowFullscreen = true;
+
+            trigger.replaceWith(iframe);
+        }, { once: true });
+    });
+
     // 3.1 Desktop overflow menu (right drawer)
     const navLinksRoot = document.querySelector('.nav-links');
     const desktopMoreToggle = document.getElementById('desktop-more-toggle');
@@ -341,6 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
             menuOverlayMobile.classList.toggle('active', open);
             document.body.classList.toggle('menu-open', open);
             mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            mobileToggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
             
             const icon = mobileToggle.querySelector('i');
             if (!icon) return;
@@ -419,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 menuOverlayMobile.classList.remove('active');
                 document.body.classList.remove('menu-open');
                 mobileToggle.setAttribute('aria-expanded', 'false');
+                mobileToggle.setAttribute('aria-label', 'Mở menu');
                 const icon = mobileToggle.querySelector('i');
                 if (icon) {
                     icon.classList.remove('fa-times');
@@ -448,6 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('menu-open');
                 if (mobileToggle) {
                     mobileToggle.setAttribute('aria-expanded', 'false');
+                    mobileToggle.setAttribute('aria-label', 'Mở menu');
                     const icon = mobileToggle.querySelector('i');
                     if (icon) {
                         icon.classList.remove('fa-times');
@@ -543,12 +562,65 @@ document.addEventListener('DOMContentLoaded', () => {
     const bannerLink = document.getElementById('banner-link');
     const bannerWatermark = document.getElementById('banner-watermark');
     const bannerProductCode = document.getElementById('banner-product-code');
-    const specValues = document.querySelectorAll('.banner-spec-item .value');
+    const bannerSpecsRow = document.querySelector('.banner-specs-row');
     const btnPrev = document.getElementById('banner-prev');
     const btnNext = document.getElementById('banner-next');
     const bannerRoot = document.getElementById('banner-switcher-root');
 
     let currentBannerIndex = 0;
+
+    const normalizeBannerSpecs = (specs) => {
+        if (Array.isArray(specs)) {
+            return specs
+                .filter((spec) => spec && (spec.label || spec.key || spec.value))
+                .map((spec) => ({
+                    label: spec.label || spec.key || 'Thông số',
+                    value: spec.value || '-',
+                }));
+        }
+
+        if (specs && typeof specs === 'object') {
+            return Object.entries(specs)
+                .filter(([key]) => key !== 'price')
+                .map(([key, value]) => ({
+                    label: key || 'Thông số',
+                    value: value || '-',
+                }));
+        }
+
+        return [];
+    };
+
+    const buildSpecItem = (label, value, extraClass = '') => {
+        const item = document.createElement('div');
+        item.className = `banner-spec-item${extraClass ? ` ${extraClass}` : ''}`;
+
+        const labelEl = document.createElement('span');
+        labelEl.className = 'label';
+        labelEl.textContent = label || 'Thông số';
+
+        const valueEl = document.createElement('span');
+        valueEl.className = 'value changing';
+        valueEl.textContent = value || '-';
+
+        item.append(labelEl, valueEl);
+        return item;
+    };
+
+    const updateBannerSpecs = (data) => {
+        if (!bannerSpecsRow) return;
+
+        const nextItems = normalizeBannerSpecs(data.specs).map((spec) => buildSpecItem(spec.label, spec.value));
+        nextItems.push(buildSpecItem('Giá tham khảo', data.price || data.specs?.price || 'Liên hệ', 'banner-spec-price'));
+
+        bannerSpecsRow.replaceChildren(...nextItems);
+
+        requestAnimationFrame(() => {
+            bannerSpecsRow.querySelectorAll('.value.changing').forEach((value) => {
+                value.classList.remove('changing');
+            });
+        });
+    };
 
     const updateBanner = (index) => {
         const data = bannerData[index];
@@ -556,7 +628,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const safeImage = data.image || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
         const safeLink = data.link || '#';
-        const safeSpecs = data.specs || {};
         currentBannerIndex = index;
 
         // Update dots
@@ -584,19 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         }
 
-        // Update Specs: only animate if value actually changes
-        specValues.forEach(spec => {
-            const type = spec.getAttribute('data-spec');
-            const newValue = safeSpecs[type] || '-';
-            
-            if (spec.textContent !== newValue) {
-                spec.classList.add('changing');
-                setTimeout(() => {
-                    spec.textContent = newValue;
-                    spec.classList.remove('changing');
-                }, 300);
-            }
-        });
+        updateBannerSpecs(data);
     };
 
     if (bannerDots.length > 0 && bannerData.length > 0) {
@@ -637,4 +696,3 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = href;
     });
 });
-

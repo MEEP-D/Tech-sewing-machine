@@ -77,7 +77,10 @@
                 @endif
 
                 @if($product->video_id)
-                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $product->video_id }}" loading="lazy" allowfullscreen></iframe></div>
+                    <button class="video-container video-lite" type="button" data-youtube-id="{{ $product->video_id }}" aria-label="Phát video {{ $product->name }}">
+                        <img src="https://i.ytimg.com/vi/{{ $product->video_id }}/hqdefault.jpg" alt="" loading="lazy" decoding="async">
+                        <span class="video-play" aria-hidden="true"><i class="fas fa-play"></i></span>
+                    </button>
                 @endif
             </div>
             <div class="special-product-content">
@@ -107,7 +110,7 @@
                     <div class="product-support-sections">
                         <section class="product-support-section">
                             <h3>{{ $product->overview_heading ?: 'Tổng quan về sản phẩm' }}</h3>
-                            <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($product->long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
+                            <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($product->rendered_long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
                         </section>
                         <section class="product-support-section">
                             <h3>{{ $product->seo_heading ?: 'Tim hieu ve may lam seo' }}</h3>
@@ -119,7 +122,34 @@
         </div>
 
         @php
-            $productSpecs = $product->relationLoaded('specs') ? $product->specs : collect();
+            $productSpecs = collect();
+
+            if (is_array($product->specifications) && ! empty($product->specifications)) {
+                $productSpecs = collect($product->specifications)->map(function ($value, $key) {
+                    if (is_array($value)) {
+                        return [
+                            'key' => trim((string) ($value['key'] ?? (is_string($key) ? $key : ''))),
+                            'value' => trim((string) ($value['value'] ?? '')),
+                        ];
+                    }
+
+                    return [
+                        'key' => is_string($key) ? trim($key) : '',
+                        'value' => trim((string) $value),
+                    ];
+                });
+            }
+
+            if ($productSpecs->isEmpty() && $product->relationLoaded('specs') && $product->specs->isNotEmpty()) {
+                $productSpecs = $product->specs->map(fn ($spec) => [
+                    'key' => trim((string) $spec->key),
+                    'value' => trim((string) $spec->value),
+                ]);
+            }
+
+            $productSpecs = $productSpecs
+                ->filter(fn ($spec) => filled($spec['key'] ?? null) || filled($spec['value'] ?? null))
+                ->values();
         @endphp
         <div class="product-detail-tabs">
             <div class="detail-tab-nav" role="tablist" aria-label="Chi tiết sản phẩm">
@@ -136,20 +166,14 @@
 
             <div class="detail-tab-content active is-entering" id="tab-info" role="tabpanel" aria-labelledby="tab-btn-info">
                 <h3>Đặc điểm</h3>
-                <div class="page-rich-content product-rich-content">{!! $product->long_description ?: $product->rendered_description !!}</div>
+                <div class="page-rich-content product-rich-content">{!! $product->rendered_long_description ?: $product->rendered_description !!}</div>
             </div>
 
             <div class="detail-tab-content" id="tab-specs" role="tabpanel" aria-labelledby="tab-btn-specs">
                 @if($productSpecs->isNotEmpty())
                     <div class="special-specs-grid" style="margin-top: 1rem;">
                         @foreach($productSpecs as $spec)
-                            <div class="spec-item"><span class="spec-label">{{ $spec->key }}</span><span class="spec-value">{{ $spec->value }}</span></div>
-                        @endforeach
-                    </div>
-                @elseif(!empty($product->specifications))
-                    <div class="special-specs-grid" style="margin-top: 1rem;">
-                        @foreach((array) $product->specifications as $key => $value)
-                            <div class="spec-item"><span class="spec-label">{{ $toText($key, '-') }}</span><span class="spec-value">{{ $toText($value, '-') }}</span></div>
+                            <div class="spec-item"><span class="spec-label">{{ $toText($spec['key'], '-') }}</span><span class="spec-value">{{ $toText($spec['value'], '-') }}</span></div>
                         @endforeach
                     </div>
                 @else

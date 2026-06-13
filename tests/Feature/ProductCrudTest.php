@@ -58,4 +58,29 @@ class ProductCrudTest extends TestCase
         $response->assertSee('25.000.000');
         $response->assertSee('5000rpm');
     }
+
+    public function test_product_detail_preserves_description_formatting(): void
+    {
+        $category = Category::create([
+            'name' => 'May cong nghiep',
+            'slug' => 'may-cong-nghiep',
+            'type' => 'product',
+        ]);
+
+        Product::create([
+            'name' => 'May format test',
+            'slug' => 'may-format-test',
+            'long_description' => "Line 1\nLine 2",
+            'overview_content' => '<p style="text-align: center;">Centered line</p>',
+            'category_id' => $category->id,
+            'status' => 'published',
+        ]);
+
+        $response = $this->get('/san-pham/may-format-test');
+
+        $response->assertStatus(200);
+        $response->assertSeeHtml('Line 1<br>');
+        $response->assertSeeHtml('Line 2');
+        $response->assertSeeHtml('<p style="text-align: center;">Centered line</p>');
+    }
 }
