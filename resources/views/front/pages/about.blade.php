@@ -103,13 +103,23 @@
         </div>
         <div class="about-pro-logos">
             @forelse($partners as $partner)
-                <a href="{{ $partner->url ?: 'javascript:void(0)' }}" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                    @if($partner->logo_url)
-                        <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
-                    @else
-                        <span>{{ $partner->name }}</span>
-                    @endif
-                </a>
+                @if($partner->url)
+                    <a href="{{ $partner->url }}" target="_blank" rel="noopener noreferrer">
+                        @if($partner->logo_url)
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
+                        @else
+                            <span>{{ $partner->name }}</span>
+                        @endif
+                    </a>
+                @else
+                    <span>
+                        @if($partner->logo_url)
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
+                        @else
+                            <span>{{ $partner->name }}</span>
+                        @endif
+                    </span>
+                @endif
             @empty
                 <div><span>Garment One</span></div>
                 <div><span>Factory Plus</span></div>
@@ -165,7 +175,7 @@
     .about-pro-timeline h3 { margin-bottom: .4rem; font-size: 1.02rem; }
     .about-pro-timeline p { color: #475569; line-height: 1.6; }
     .about-pro-logos { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .75rem; }
-    .about-pro-logos a, .about-pro-logos > div { min-height: 80px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; padding: .7rem; box-shadow: 0 8px 22px rgba(15, 23, 42, .06); }
+    .about-pro-logos a, .about-pro-logos > div, .about-pro-logos > span { min-height: 80px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; padding: .7rem; box-shadow: 0 8px 22px rgba(15, 23, 42, .06); }
     .about-pro-logos img { max-height: 46px; width: auto; max-width: 100%; object-fit: contain; filter: grayscale(100%); opacity: .92; transition: all .2s ease; }
     .about-pro-logos a:hover img { filter: grayscale(0); opacity: 1; transform: scale(1.04); }
     .about-pro-logos span { font-weight: 700; color: #334155; font-size: .95rem; text-align: center; }

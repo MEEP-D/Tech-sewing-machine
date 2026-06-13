@@ -50,31 +50,72 @@
 
     return \Illuminate\Support\Facades\Storage::url($path);
 })
+@php($resolveOptimizedAssetUrl = function ($path, $fallback = null) use ($resolveAssetUrl) {
+    if (! is_string($path) || trim($path) === '') {
+        return $fallback;
+    }
+
+    if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+        return $path;
+    }
+
+    $webpPath = preg_replace('/\.(jpe?g|png)$/i', '.webp', $path);
+    if (! is_string($webpPath)) {
+        return $resolveAssetUrl($path, $fallback);
+    }
+
+    if (str_starts_with($path, 'assets/')) {
+        return is_file(public_path($webpPath)) ? asset($webpPath) : $resolveAssetUrl($path, $fallback);
+    }
+
+    return is_file(storage_path('app/public/' . ltrim($webpPath, '/')))
+        ? \Illuminate\Support\Facades\Storage::disk('public')->url($webpPath)
+        : $resolveAssetUrl($path, $fallback);
+})
 @php($highlightProduct = $highlightProduct ?? null)
 @php($highlightSpecs = $resolveProductSpecs($highlightProduct))
 @php($highlightDescription = $highlightProduct ? ($highlightProduct->long_description ?: $highlightProduct->short_description) : '')
-@php($highlightDescriptionLines = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) $highlightDescription)))->map(fn($line) => trim($line))->filter())
+@php($renderProductDescription = function ($content) {
+    $content = trim((string) $content);
+
+    if ($content === '') {
+        return '';
+    }
+
+    $content = str_replace(["\\r\\n", "\\n", "\\r"], "\n", $content);
+
+    return $content !== strip_tags($content)
+        ? preg_replace('/(?<!>)\R(?!<)/u', '<br>', $content)
+        : nl2br(e($content), false);
+})
+@php($highlightDescriptionHtml = $renderProductDescription($highlightDescription))
 @php($homeFaqs = collect($siteContent['home_faqs'] ?? [])->take(6))
-@php($serviceImageUrl = $resolveAssetUrl($siteContent['home_service_image'] ?? null, asset('assets/frontend/images/anh3.jpg')))
-@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveProductSpecs) {
+@php($serviceImageUrl = $resolveOptimizedAssetUrl($siteContent['home_service_image'] ?? null, asset('assets/frontend/images/anh3.webp')))
+@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveProductSpecs, $resolveOptimizedAssetUrl) {
     $productSpecs = $resolveProductSpecs($item);
+    $bannerSpecs = $productSpecs->map(fn ($spec) => [
+        'label' => trim((string) ($spec['key'] ?? '')),
+        'value' => trim((string) ($spec['value'] ?? '')),
+    ])->filter(fn ($spec) => filled($spec['label']) || filled($spec['value']))->values();
+
+    if ($bannerSpecs->isEmpty()) {
+        $bannerSpecs = collect([[
+            'label' => 'Giá tham khảo',
+            'value' => $item->price ?: 'Liên hệ',
+        ]]);
+    }
 
     return [
         'name' => $item->name,
         'code' => $item->code ?: $item->sku ?: $item->name,
-        'image' => $item->display_image_url,
+        'image' => $resolveOptimizedAssetUrl($item->image ?: $item->thumbnail ?: null, $item->display_image_url),
         'link' => route('products.show', $item->slug),
-        'specs' => [
-            'size' => data_get($productSpecs->get(0), 'value', '-'),
-            'speed' => data_get($productSpecs->get(1), 'value', '-'),
-            'precision' => data_get($productSpecs->get(2), 'value', '-'),
-            'price' => $item->price ?: 'Liên hệ',
-        ],
+        'specs' => $bannerSpecs,
     ];
 }))
 @push('preload_assets')
     @if(($sliders ?? collect())->first()?->image_url)
-        <link rel="preload" as="image" href="{{ ($sliders ?? collect())->first()->image_url }}" fetchpriority="high">
+        <link rel="preload" as="image" href="{{ $resolveOptimizedAssetUrl(($sliders ?? collect())->first()->image, ($sliders ?? collect())->first()->image_url) }}" fetchpriority="high">
     @endif
 @endpush
 
@@ -83,10 +124,22 @@
         @forelse(($sliders ?? collect()) as $index => $slider)
             <div
                 class="hero-slide {{ $index === 0 ? 'active' : '' }} {{ $slider->show_overlay ? '' : 'no-overlay' }}"
-                style="background-image: url('{{ $slider->image_url }}');"
-                aria-label="{{ $slider->title ?? 'Ảnh trình chiếu' }}"
                 data-link="{{ $slider->link }}"
-            ></div>
+            >
+                <img
+                    src="{{ $resolveOptimizedAssetUrl($slider->image, $slider->image_url) }}"
+                    alt="{{ $slider->title ?? 'Ảnh trình chiếu' }}"
+                    width="{{ $slider->width ?: 1920 }}"
+                    height="{{ $slider->height ?: 900 }}"
+                    @if($index === 0)
+                        fetchpriority="high"
+                        loading="eager"
+                    @else
+                        loading="lazy"
+                    @endif
+                    decoding="async"
+                >
+            </div>
         @empty
             <div class="hero-slide active"></div>
         @endforelse
@@ -116,8 +169,8 @@
         @endforelse
     </div>
     @if(($sliders ?? collect())->count() > 1)
-        <button class="hero-arrow prev-hero" id="hero-prev"><i class="fas fa-chevron-left"></i></button>
-        <button class="hero-arrow next-hero" id="hero-next"><i class="fas fa-chevron-right"></i></button>
+        <button class="hero-arrow prev-hero" id="hero-prev" type="button" aria-label="Slide trước"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+        <button class="hero-arrow next-hero" id="hero-next" type="button" aria-label="Slide tiếp theo"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
     @endif
 </section>
 
@@ -127,10 +180,13 @@
         <div class="special-product-container">
             <div class="special-product-image">
                 @if($highlightProduct->display_image_url)
-                    <img src="{{ $highlightProduct->display_image_url }}" alt="{{ $highlightProduct->name }}" loading="lazy" decoding="async">
+                    <img src="{{ $resolveOptimizedAssetUrl($highlightProduct->image ?: $highlightProduct->thumbnail ?: null, $highlightProduct->display_image_url) }}" alt="{{ $highlightProduct->name }}" loading="lazy" decoding="async" width="720" height="540">
                 @endif
                 @if($highlightProduct->video_id)
-                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $highlightProduct->video_id }}" loading="lazy" allowfullscreen></iframe></div>
+                    <button class="video-container video-lite" type="button" data-youtube-id="{{ $highlightProduct->video_id }}" aria-label="Phát video {{ $highlightProduct->name }}">
+                        <img src="https://i.ytimg.com/vi/{{ $highlightProduct->video_id }}/hqdefault.jpg" alt="" loading="lazy" decoding="async">
+                        <span class="video-play" aria-hidden="true"><i class="fas fa-play"></i></span>
+                    </button>
                 @endif
             </div>
             <div class="special-product-content">
@@ -138,12 +194,8 @@
                 <h2 class="special-title">{{ $highlightProduct->name }}</h2>
                 <span class="special-code">Mã SP: {{ $highlightProduct->code ?: $highlightProduct->sku }}</span>
                 <div class="special-price"><i class="fas fa-tag"></i> Giá: {{ $highlightProduct->price ?: 'Liên hệ' }}</div>
-                @if($highlightDescriptionLines->isNotEmpty())
-                    <ul class="description-list">
-                        @foreach($highlightDescriptionLines as $line)
-                            <li><i class="fas fa-check-circle" aria-hidden="true"></i><span>{{ $line }}</span></li>
-                        @endforeach
-                    </ul>
+                @if($highlightDescriptionHtml !== '')
+                    <div class="page-rich-content product-rich-content special-description">{!! $highlightDescriptionHtml !!}</div>
                 @endif
                 <div class="special-specs-grid">
                     @foreach($highlightSpecs->take(8) as $spec)
@@ -189,20 +241,23 @@
     <div class="banner-switcher-wrapper">
         <div class="banner-watermark" id="banner-watermark">{{ $bannerProducts->first()['code'] }}</div>
         <div class="banner-main">
-            <button class="banner-arrow prev" id="banner-prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="banner-arrow prev" id="banner-prev" type="button" aria-label="Sản phẩm trước"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
             <div class="banner-image-box">
                 <a href="{{ $bannerProducts->first()['link'] }}" id="banner-img-link">
-                    <img src="{{ $bannerProducts->first()['image'] ?: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==' }}" id="banner-img" alt="Sản phẩm" loading="lazy" decoding="async">
+                    <img src="{{ $bannerProducts->first()['image'] ?: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==' }}" id="banner-img" alt="Sản phẩm" loading="lazy" decoding="async" width="640" height="480">
                 </a>
-                <div class="banner-product-code" id="banner-product-code">Mã SP: {{ $bannerProducts->first()['code'] }}</div>
             </div>
-            <button class="banner-arrow next" id="banner-next"><i class="fas fa-chevron-right"></i></button>
+            <button class="banner-arrow next" id="banner-next" type="button" aria-label="Sản phẩm tiếp theo"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
         </div>
-        <div class="banner-specs-row">
-            <div class="banner-spec-item"><span class="label">Khổ làm việc</span><span class="value" data-spec="size">{{ $bannerProducts->first()['specs']['size'] }}</span></div>
-            <div class="banner-spec-item"><span class="label">Tốc độ in</span><span class="value" data-spec="speed">{{ $bannerProducts->first()['specs']['speed'] }}</span></div>
-            <div class="banner-spec-item"><span class="label">Độ chính xác</span><span class="value" data-spec="precision">{{ $bannerProducts->first()['specs']['precision'] }}</span></div>
-            <div class="banner-spec-item"><span class="label">Giá tham khảo</span><span class="value" data-spec="price">{{ $bannerProducts->first()['specs']['price'] }}</span></div>
+        <div class="banner-specs-row" id="banner-specs-row">
+            @foreach($bannerProducts->first()['specs'] as $spec)
+                <div class="banner-spec-item">
+                    @if(filled($spec['label']))
+                        <span class="label">{{ $spec['label'] }}</span>
+                    @endif
+                    <span class="value">{{ $spec['value'] ?: '-' }}</span>
+                </div>
+            @endforeach
         </div>
         <div class="banner-actions">
             <a href="{{ route('contact') }}" class="btn-cta primary">ĐẶT HÀNG NGAY</a>
@@ -210,7 +265,7 @@
         </div>
         <div class="banner-dots">
             @foreach($bannerProducts as $index => $item)
-                <button class="nav-dot {{ $index === 0 ? 'active' : '' }}" data-index="{{ $index }}"></button>
+                <button class="nav-dot {{ $index === 0 ? 'active' : '' }}" type="button" data-index="{{ $index }}" aria-label="Xem sản phẩm {{ $index + 1 }}"></button>
             @endforeach
         </div>
     </div>
@@ -221,13 +276,13 @@
 <section id="new-products" class="container" style="padding: 5px 1.5rem;">
     <div class="section-header"><h2 class="section-title">Sản phẩm mới nhất</h2></div>
     <div class="slider-wrapper">
-        <button class="slider-btn prev-btn" data-target="product-grid-new"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-btn prev-btn" type="button" data-target="product-grid-new" aria-label="Sản phẩm mới trước"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
         <div class="product-grid" id="product-grid-new">
             @foreach(($newProducts ?? collect()) as $product)
                 <article class="product-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                     <div class="product-img">
                         @if($product->display_image_url)
-                            <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                            <img src="{{ $resolveOptimizedAssetUrl($product->image ?: $product->thumbnail ?: null, $product->display_image_url) }}" alt="{{ $product->name }}" loading="lazy" decoding="async" width="420" height="315">
                         @endif
                         <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                         @if(((int) $product->discount_percent) > 0)
@@ -270,7 +325,7 @@
                 </article>
             @endforeach
         </div>
-        <button class="slider-btn next-btn" data-target="product-grid-new"><i class="fas fa-chevron-right"></i></button>
+        <button class="slider-btn next-btn" type="button" data-target="product-grid-new" aria-label="Sản phẩm mới tiếp theo"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
     </div>
 </section>
 
@@ -305,7 +360,7 @@
                             <article class="home-product-row-card product-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                                 <div class="home-product-row-img">
                                     @if($product->display_image_url)
-                                        <img src="{{ $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                                        <img src="{{ $resolveOptimizedAssetUrl($product->image ?: $product->thumbnail ?: null, $product->display_image_url) }}" alt="{{ $product->name }}" loading="lazy" decoding="async" width="320" height="240">
                                     @endif
                                     <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
                                     @if(((int) $product->discount_percent) > 0)
@@ -375,18 +430,30 @@
             <div class="marquee-group">
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
-                        </a>
+                        @if($partner->url)
+                            <a href="{{ $partner->url }}" class="partner-logo" target="_blank" rel="noopener noreferrer">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </a>
+                        @else
+                            <span class="partner-logo" role="img" aria-label="{{ $partner->name }}">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </span>
+                        @endif
                     @endif
                 @endforeach
             </div>
             <div class="marquee-group">
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
-                        </a>
+                        @if($partner->url)
+                            <a href="{{ $partner->url }}" class="partner-logo" target="_blank" rel="noopener noreferrer">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </a>
+                        @else
+                            <span class="partner-logo" role="img" aria-label="{{ $partner->name }}">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </span>
+                        @endif
                     @endif
                 @endforeach
             </div>
@@ -395,18 +462,30 @@
             <div class="marquee-group">
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
-                        </a>
+                        @if($partner->url)
+                            <a href="{{ $partner->url }}" class="partner-logo" target="_blank" rel="noopener noreferrer">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </a>
+                        @else
+                            <span class="partner-logo" role="img" aria-label="{{ $partner->name }}">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </span>
+                        @endif
                     @endif
                 @endforeach
             </div>
             <div class="marquee-group">
                 @foreach(($partners ?? collect()) as $partner)
                     @if($partner->logo_url)
-                        <a href="{{ $partner->url ?: 'javascript:void(0)' }}" class="partner-logo" @if($partner->url) target="_blank" rel="noopener noreferrer" @endif>
-                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" loading="lazy" decoding="async">
-                        </a>
+                        @if($partner->url)
+                            <a href="{{ $partner->url }}" class="partner-logo" target="_blank" rel="noopener noreferrer">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </a>
+                        @else
+                            <span class="partner-logo" role="img" aria-label="{{ $partner->name }}">
+                                <img src="{{ $resolveOptimizedAssetUrl($partner->logo, $partner->logo_url) }}" alt="{{ $partner->name }}" loading="lazy" decoding="async" width="180" height="90">
+                            </span>
+                        @endif
                     @endif
                 @endforeach
             </div>
