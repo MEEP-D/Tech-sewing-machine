@@ -22,16 +22,9 @@ trait RendersRichContent
 
         if (is_array($decoded) && class_exists(RichContentRenderer::class)) {
             $content = RichContentRenderer::make($decoded)->toHtml();
-        } elseif (! $this->containsHtml($content)) {
-            $content = '<p>' . nl2br(e($trimmed), false) . '</p>';
         }
 
         return $this->resolveRichContentImages($content);
-    }
-
-    private function containsHtml(string $content): bool
-    {
-        return preg_match('/<\s*[a-z][^>]*>/i', $content) === 1;
     }
 
     private function resolveRichContentImages(string $content): string

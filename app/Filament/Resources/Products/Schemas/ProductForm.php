@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Placeholder;
@@ -167,6 +168,17 @@ class ProductForm
                         ->label('Thông số chung')
                         ->keyLabel('Thông số')
                         ->valueLabel('Giá trị')
+                        ->columnSpanFull(),
+                    Repeater::make('specs')
+                        ->label('Thông số sản phẩm đột phá')
+                        ->relationship()
+                        ->orderColumn('sort_order')
+                        ->schema([
+                            TextInput::make('key')->label('Thông số')->required(),
+                            TextInput::make('value')->label('Giá trị')->required(),
+                            TextInput::make('sort_order')->label('Thứ tự')->numeric()->minValue(0)->default(0),
+                        ])
+                        ->defaultItems(0)
                         ->columnSpanFull(),
                 ]),
 

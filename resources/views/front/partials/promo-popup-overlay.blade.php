@@ -36,17 +36,11 @@
         }
 
         if (str_starts_with($promoImageItem, 'assets/')) {
-            $optimizedPromoImage = preg_replace('/\.(jpe?g|png)$/i', '.webp', $promoImageItem);
-            $promoImageUrls[] = is_string($optimizedPromoImage) && is_file(public_path($optimizedPromoImage))
-                ? asset($optimizedPromoImage)
-                : asset($promoImageItem);
+            $promoImageUrls[] = asset($promoImageItem);
             continue;
         }
 
-        $optimizedPromoImage = preg_replace('/\.(jpe?g|png)$/i', '.webp', $promoImageItem);
-        $promoImageUrls[] = is_string($optimizedPromoImage) && is_file(storage_path('app/public/' . ltrim($optimizedPromoImage, '/')))
-            ? \Illuminate\Support\Facades\Storage::disk('public')->url($optimizedPromoImage)
-            : \Illuminate\Support\Facades\Storage::disk('public')->url($promoImageItem);
+        $promoImageUrls[] = \Illuminate\Support\Facades\Storage::url($promoImageItem);
     }
 
     $promoImageUrls = array_values(array_unique($promoImageUrls));
@@ -75,8 +69,6 @@
                                 class="promo-popup-slide{{ $index === 0 ? ' is-active' : '' }}"
                                 loading="lazy"
                                 decoding="async"
-                                width="640"
-                                height="400"
                                 alt="{{ $promoTitle !== '' ? $promoTitle : 'Khuyến mãi' }}"
                                 data-promo-slide
                             >

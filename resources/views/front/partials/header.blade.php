@@ -53,7 +53,7 @@
                     return route($routeName);
                 }
 
-                return route('home');
+                return 'javascript:void(0)';
             };
 
             if (is_string($siteLogo) && filled($siteLogo)) {
@@ -166,10 +166,10 @@
         </nav>
 
         <div class="contact-info">
-            <a class="contact-item" href="{{ $facebookUrl !== '' ? $facebookUrl : route('contact') }}" @if($facebookUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="Facebook">
+            <a class="contact-item" href="{{ $facebookUrl !== '' ? $facebookUrl : 'javascript:void(0)' }}" @if($facebookUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="Facebook">
                 <i class="fab fa-facebook-f" style="color: #1877f2; font-size: 1.2rem;"></i>
             </a>
-            <a class="contact-item" href="{{ $youtubeUrl !== '' ? $youtubeUrl : route('contact') }}" @if($youtubeUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="YouTube">
+            <a class="contact-item" href="{{ $youtubeUrl !== '' ? $youtubeUrl : 'javascript:void(0)' }}" @if($youtubeUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="YouTube">
                 <i class="fab fa-youtube" style="color: #ff0000; font-size: 1.2rem;"></i>
             </a>
             <a class="btn btn-primary header-hotline-btn" href="{{ !empty($siteProfile['hotline']) ? 'tel:' . preg_replace('/\D+/', '', $siteProfile['hotline']) : route('contact') }}">
@@ -181,9 +181,9 @@
             <i class="fas fa-bars"></i>
         </button>
 
-        <button class="mobile-toggle" id="mobile-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Mở menu">
-            <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
+        <div class="mobile-toggle" id="mobile-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
     </div>
 </header>
 <div class="menu-overlay" id="menu-overlay"></div>
@@ -196,3 +196,4 @@
     </div>
     <ul class="desktop-more-list" id="desktop-more-list"></ul>
 </aside>
+

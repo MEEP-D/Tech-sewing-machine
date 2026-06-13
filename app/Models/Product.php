@@ -168,11 +168,6 @@ class Product extends Model
         return $this->renderRichContent($this->description);
     }
 
-    public function getRenderedLongDescriptionAttribute(): string
-    {
-        return $this->renderRichContent($this->long_description);
-    }
-
     public function getRenderedOverviewContentAttribute(): string
     {
         return $this->renderRichContent($this->overview_content);
