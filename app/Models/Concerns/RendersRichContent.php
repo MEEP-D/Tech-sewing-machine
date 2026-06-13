@@ -24,6 +24,10 @@ trait RendersRichContent
             $content = RichContentRenderer::make($decoded)->toHtml();
         }
 
+        if (! $this->containsHtml($content)) {
+            $content = $this->formatPlainTextAsHtml($content);
+        }
+
         return $this->resolveRichContentImages($content);
     }
 
@@ -38,5 +42,26 @@ trait RendersRichContent
             fn (array $matches): string => $matches[1] . ($this->resolveMediaUrl($matches[2]) ?? $matches[2]) . $matches[3],
             $content
         );
+    }
+
+    private function containsHtml(string $content): bool
+    {
+        return strip_tags($content) !== $content;
+    }
+
+    private function formatPlainTextAsHtml(string $content): string
+    {
+        $content = trim(str_replace(["\r\n", "\r"], "\n", $content));
+
+        if ($content === '') {
+            return '';
+        }
+
+        $paragraphs = preg_split("/\n{2,}/", $content) ?: [];
+
+        return implode('', array_map(
+            fn (string $paragraph): string => '<p>' . nl2br(e(trim($paragraph)), false) . '</p>',
+            array_values(array_filter($paragraphs, fn (string $paragraph): bool => trim($paragraph) !== ''))
+        ));
     }
 }

@@ -107,7 +107,7 @@
                     <div class="product-support-sections">
                         <section class="product-support-section">
                             <h3>{{ $product->overview_heading ?: 'Tổng quan về sản phẩm' }}</h3>
-                            <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($product->long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
+                            <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($product->rendered_long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
                         </section>
                         <section class="product-support-section">
                             <h3>{{ $product->seo_heading ?: 'Tim hieu ve may lam seo' }}</h3>
@@ -136,7 +136,7 @@
 
             <div class="detail-tab-content active is-entering" id="tab-info" role="tabpanel" aria-labelledby="tab-btn-info">
                 <h3>Đặc điểm</h3>
-                <div class="page-rich-content product-rich-content">{!! $product->long_description ?: $product->rendered_description !!}</div>
+                <div class="page-rich-content product-rich-content">{!! $product->rendered_description ?: '<p>Nội dung đang cập nhật.</p>' !!}</div>
             </div>
 
             <div class="detail-tab-content" id="tab-specs" role="tabpanel" aria-labelledby="tab-btn-specs">
