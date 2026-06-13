@@ -45,28 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.querySelectorAll('.video-lite[data-youtube-id]').forEach(trigger => {
-        trigger.addEventListener('click', () => {
-            const videoId = trigger.getAttribute('data-youtube-id');
-            if (!videoId) return;
-
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0`;
-            iframe.title = trigger.getAttribute('aria-label') || 'Video';
-            iframe.loading = 'lazy';
-            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-            iframe.allowFullscreen = true;
-
-            const wrapper = document.createElement('div');
-            wrapper.className = trigger.className;
-            wrapper.classList.remove('video-lite');
-            wrapper.classList.add('is-playing');
-            wrapper.appendChild(iframe);
-
-            trigger.replaceWith(wrapper);
-        }, { once: true });
-    });
-
     // 3.1 Desktop overflow menu (right drawer)
     const navLinksRoot = document.querySelector('.nav-links');
     const desktopMoreToggle = document.getElementById('desktop-more-toggle');
@@ -363,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
             menuOverlayMobile.classList.toggle('active', open);
             document.body.classList.toggle('menu-open', open);
             mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            mobileToggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
             
             const icon = mobileToggle.querySelector('i');
             if (!icon) return;
@@ -442,7 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 menuOverlayMobile.classList.remove('active');
                 document.body.classList.remove('menu-open');
                 mobileToggle.setAttribute('aria-expanded', 'false');
-                mobileToggle.setAttribute('aria-label', 'Mở menu');
                 const icon = mobileToggle.querySelector('i');
                 if (icon) {
                     icon.classList.remove('fa-times');
@@ -472,7 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('menu-open');
                 if (mobileToggle) {
                     mobileToggle.setAttribute('aria-expanded', 'false');
-                    mobileToggle.setAttribute('aria-label', 'Mở menu');
                     const icon = mobileToggle.querySelector('i');
                     if (icon) {
                         icon.classList.remove('fa-times');
@@ -567,7 +542,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const bannerImgLink = document.getElementById('banner-img-link');
     const bannerLink = document.getElementById('banner-link');
     const bannerWatermark = document.getElementById('banner-watermark');
-    const bannerSpecsRow = document.getElementById('banner-specs-row');
+    const bannerProductCode = document.getElementById('banner-product-code');
+    const specValues = document.querySelectorAll('.banner-spec-item .value');
     const btnPrev = document.getElementById('banner-prev');
     const btnNext = document.getElementById('banner-next');
     const bannerRoot = document.getElementById('banner-switcher-root');
@@ -580,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const safeImage = data.image || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
         const safeLink = data.link || '#';
-        const safeSpecs = Array.isArray(data.specs) ? data.specs : [];
+        const safeSpecs = data.specs || {};
         currentBannerIndex = index;
 
         // Update dots
@@ -603,38 +579,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     bannerWatermark.textContent = data.code || data.name || '';
                     bannerWatermark.style.opacity = '1';
                 }
+                if (bannerProductCode) bannerProductCode.textContent = `Mã SP: ${data.code || data.name || '-'}`;
                 bannerImg.style.opacity = '1';
             }, 300);
         }
 
-        if (bannerSpecsRow) {
-            bannerSpecsRow.classList.add('changing');
-
-            setTimeout(() => {
-                bannerSpecsRow.replaceChildren();
-
-                safeSpecs.forEach(spec => {
-                    const item = document.createElement('div');
-                    item.className = 'banner-spec-item';
-
-                    if (spec.label) {
-                        const label = document.createElement('span');
-                        label.className = 'label';
-                        label.textContent = spec.label;
-                        item.appendChild(label);
-                    }
-
-                    const value = document.createElement('span');
-                    value.className = 'value';
-                    value.textContent = spec.value || '-';
-                    item.appendChild(value);
-
-                    bannerSpecsRow.appendChild(item);
-                });
-
-                bannerSpecsRow.classList.remove('changing');
-            }, 180);
-        }
+        // Update Specs: only animate if value actually changes
+        specValues.forEach(spec => {
+            const type = spec.getAttribute('data-spec');
+            const newValue = safeSpecs[type] || '-';
+            
+            if (spec.textContent !== newValue) {
+                spec.classList.add('changing');
+                setTimeout(() => {
+                    spec.textContent = newValue;
+                    spec.classList.remove('changing');
+                }, 300);
+            }
+        });
     };
 
     if (bannerDots.length > 0 && bannerData.length > 0) {

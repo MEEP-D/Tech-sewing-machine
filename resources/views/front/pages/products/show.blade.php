@@ -25,24 +25,6 @@
                     return $default;
                 };
 
-                $renderProductDescription = static function (?string $content): string {
-                    $content = trim((string) $content);
-
-                    if ($content === '') {
-                        return '';
-                    }
-
-                    $content = str_replace(["\\r\\n", "\\n", "\\r"], "\n", $content);
-
-                    return $content !== strip_tags($content)
-                        ? preg_replace('/(?<!>)\R(?!<)/u', '<br>', $content)
-                        : nl2br(e($content), false);
-                };
-
-                $renderedShortDescription = $renderProductDescription($product->short_description);
-                $renderedLongDescription = $renderProductDescription($product->long_description);
-                $renderedDescription = $renderProductDescription($product->rendered_description);
-
                 $galleryImages = collect();
 
                 if ($product->display_image_url) {
@@ -95,10 +77,7 @@
                 @endif
 
                 @if($product->video_id)
-                    <button class="video-container video-lite" type="button" data-youtube-id="{{ $product->video_id }}" aria-label="Phát video {{ $product->name }}">
-                        <img src="https://i.ytimg.com/vi/{{ $product->video_id }}/hqdefault.jpg" alt="" loading="lazy" decoding="async">
-                        <span class="video-play" aria-hidden="true"><i class="fas fa-play"></i></span>
-                    </button>
+                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $product->video_id }}" loading="lazy" allowfullscreen></iframe></div>
                 @endif
             </div>
             <div class="special-product-content">
@@ -112,9 +91,7 @@
                         <span style="display:inline-flex;align-items:center;background:var(--primary-blue);color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Giam gia {{ (int) $product->discount_percent }}%</span>
                     @endif
                 </div>
-                @if($renderedShortDescription !== '')
-                    <div class="page-rich-content product-rich-content special-description">{!! $renderedShortDescription !!}</div>
-                @endif
+                <p class="special-description">{{ $product->short_description }}</p>
 
                 <div class="product-support-block">
                     <p class="product-support-title">{{ $product->support_prompt ?: 'Bạn cần hỗ trợ thông tin gì về sản phẩm này?' }}</p>
@@ -130,7 +107,7 @@
                     <div class="product-support-sections">
                         <section class="product-support-section">
                             <h3>{{ $product->overview_heading ?: 'Tổng quan về sản phẩm' }}</h3>
-                            <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($renderedLongDescription ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
+                            <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($product->long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
                         </section>
                         <section class="product-support-section">
                             <h3>{{ $product->seo_heading ?: 'Tim hieu ve may lam seo' }}</h3>
@@ -159,7 +136,7 @@
 
             <div class="detail-tab-content active is-entering" id="tab-info" role="tabpanel" aria-labelledby="tab-btn-info">
                 <h3>Đặc điểm</h3>
-                <div class="page-rich-content product-rich-content">{!! $renderedLongDescription ?: $renderedDescription !!}</div>
+                <div class="page-rich-content product-rich-content">{!! $product->long_description ?: $product->rendered_description !!}</div>
             </div>
 
             <div class="detail-tab-content" id="tab-specs" role="tabpanel" aria-labelledby="tab-btn-specs">
