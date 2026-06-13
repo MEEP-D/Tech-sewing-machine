@@ -82,10 +82,8 @@
         @forelse($heroSlides as $index => $slider)
             <div
                 class="hero-slide {{ $index === 0 ? 'active' : '' }} {{ $slider->show_overlay ? '' : 'no-overlay' }}"
-                @if($index === 0 && $slider->image_url)
+                @if($slider->image_url)
                     style="background-image: url('{{ $slider->image_url }}');"
-                @elseif($slider->image_url)
-                    data-bg="{{ $slider->image_url }}"
                 @endif
                 aria-label="{{ $slider->title ?? 'Ảnh trình chiếu' }}"
                 data-link="{{ $slider->link }}"
