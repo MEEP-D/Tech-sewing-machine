@@ -3,13 +3,41 @@
 @section('content')
 @php($media = app(\App\Support\OptimizedMedia::class))
 @php($normalizeSpecKey = fn ($label) => \Illuminate\Support\Str::lower(\Illuminate\Support\Str::ascii(trim((string) $label))))
-@php($resolveBannerSpecs = function ($product) {
+@php($resolveJsonSpecs = function ($product) {
     if (! $product) {
         return collect();
     }
 
+    if (! is_array($product->specifications) || empty($product->specifications)) {
+        return collect();
+    }
+
+    return collect($product->specifications)
+        ->map(function ($value, $key) {
+            if (is_array($value)) {
+                return [
+                    'key' => trim((string) ($value['key'] ?? (is_string($key) ? $key : ''))),
+                    'value' => trim((string) ($value['value'] ?? '')),
+                ];
+            }
+
+            return [
+                'key' => is_string($key) ? trim($key) : '',
+                'value' => trim((string) $value),
+            ];
+        })
+        ->filter(fn ($spec) => filled($spec['key'] ?? null) && filled($spec['value'] ?? null))
+        ->values();
+})
+@php($resolveBannerSpecs = function ($product) use ($resolveJsonSpecs) {
+    if (! $product) {
+        return collect();
+    }
+
+    $bannerSpecs = collect();
+
     if ($product->relationLoaded('specs') && $product->specs->isNotEmpty()) {
-        return $product->specs
+        $bannerSpecs = $product->specs
             ->map(fn ($spec) => [
                 'key' => trim((string) $spec->key),
                 'value' => trim((string) $spec->value),
@@ -18,9 +46,9 @@
             ->values();
     }
 
-    return collect();
+    return $bannerSpecs->isNotEmpty() ? $bannerSpecs : $resolveJsonSpecs($product);
 })
-@php($resolveProductSpecs = function ($product) use ($normalizeSpecKey) {
+@php($resolveProductSpecs = function ($product) use ($normalizeSpecKey, $resolveJsonSpecs) {
     if (! $product) {
         return collect();
     }
@@ -37,25 +65,7 @@
             ->values();
     }
 
-    $jsonSpecs = collect();
-
-    if (is_array($product->specifications) && ! empty($product->specifications)) {
-        $jsonSpecs = collect($product->specifications)->map(function ($value, $key) {
-            if (is_array($value)) {
-                return [
-                    'key' => trim((string) ($value['key'] ?? (is_string($key) ? $key : ''))),
-                    'value' => trim((string) ($value['value'] ?? '')),
-                ];
-            }
-
-            return [
-                'key' => is_string($key) ? trim($key) : '',
-                'value' => trim((string) $value),
-            ];
-        })
-            ->filter(fn ($spec) => filled($spec['key'] ?? null) || filled($spec['value'] ?? null))
-            ->values();
-    }
+    $jsonSpecs = $resolveJsonSpecs($product);
 
     if ($tableSpecs->isEmpty()) {
         return $jsonSpecs;
