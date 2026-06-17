@@ -97,8 +97,8 @@ class HomePageTest extends TestCase
 
         ProductSpec::create([
             'product_id' => $product->id,
-            'key' => ' ',
-            'value' => ' ',
+            'key' => 'Toc do',
+            'value' => '',
             'sort_order' => 0,
         ]);
 

@@ -11,7 +11,7 @@
     $newsletterNote = trim((string) ($siteContent['newsletter_signup_note'] ?? '')) ?: 'Bằng cách đăng ký, Quý khách xác nhận đã đọc, hiểu và đồng ý với chính sách bảo mật thông tin.';
 @endphp
 
-<section class="newsletter-signup" @if(!empty($newsletterImage)) data-bg="{{ $newsletterImage }}" @endif>
+<section class="newsletter-signup" @if(!empty($newsletterImage)) data-bg="{{ $newsletterImage }}" style="background-image: url('{{ $newsletterImage }}');" @endif>
     <div class="container">
         <div class="newsletter-signup-inner">
             <h2 class="newsletter-signup-title">{{ $newsletterTitle }}</h2>

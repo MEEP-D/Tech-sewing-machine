@@ -2,15 +2,16 @@
 
 @section('content')
 @php($media = app(\App\Support\OptimizedMedia::class))
-@php($resolveProductSpecs = function ($product) {
+@php($normalizeSpecKey = fn ($label) => \Illuminate\Support\Str::lower(\Illuminate\Support\Str::ascii(trim((string) $label))))
+@php($resolveProductSpecs = function ($product) use ($normalizeSpecKey) {
     if (! $product) {
         return collect();
     }
 
-    $specs = collect();
+    $tableSpecs = collect();
 
     if ($product->relationLoaded('specs') && $product->specs->isNotEmpty()) {
-        $specs = $product->specs
+        $tableSpecs = $product->specs
             ->map(fn ($spec) => [
                 'key' => trim((string) $spec->key),
                 'value' => trim((string) $spec->value),
@@ -19,8 +20,10 @@
             ->values();
     }
 
-    if ($specs->isEmpty() && is_array($product->specifications) && ! empty($product->specifications)) {
-        $specs = collect($product->specifications)->map(function ($value, $key) {
+    $jsonSpecs = collect();
+
+    if (is_array($product->specifications) && ! empty($product->specifications)) {
+        $jsonSpecs = collect($product->specifications)->map(function ($value, $key) {
             if (is_array($value)) {
                 return [
                     'key' => trim((string) ($value['key'] ?? (is_string($key) ? $key : ''))),
@@ -32,10 +35,53 @@
                 'key' => is_string($key) ? trim($key) : '',
                 'value' => trim((string) $value),
             ];
-        });
+        })
+            ->filter(fn ($spec) => filled($spec['key'] ?? null) || filled($spec['value'] ?? null))
+            ->values();
     }
 
-    return $specs
+    if ($tableSpecs->isEmpty()) {
+        return $jsonSpecs;
+    }
+
+    if ($jsonSpecs->isEmpty()) {
+        return $tableSpecs;
+    }
+
+    $remainingJsonSpecs = $jsonSpecs->values();
+
+    $mergedSpecs = $tableSpecs->map(function ($spec, $index) use (&$remainingJsonSpecs, $normalizeSpecKey) {
+        $resolved = [
+            'key' => trim((string) ($spec['key'] ?? '')),
+            'value' => trim((string) ($spec['value'] ?? '')),
+        ];
+
+        $matchedIndex = $remainingJsonSpecs->search(function ($jsonSpec) use ($resolved, $normalizeSpecKey) {
+            $tableKey = $normalizeSpecKey($resolved['key'] ?? '');
+            $jsonKey = $normalizeSpecKey(data_get($jsonSpec, 'key', ''));
+
+            return $tableKey !== '' && $jsonKey !== '' && $tableKey === $jsonKey;
+        });
+
+        if ($matchedIndex === false) {
+            $matchedIndex = $index < $remainingJsonSpecs->count() ? $index : false;
+        }
+
+        $fallback = $matchedIndex !== false ? $remainingJsonSpecs->get($matchedIndex) : null;
+
+        if ($matchedIndex !== false) {
+            $remainingJsonSpecs->forget($matchedIndex);
+            $remainingJsonSpecs = $remainingJsonSpecs->values();
+        }
+
+        return [
+            'key' => $resolved['key'] !== '' ? $resolved['key'] : trim((string) data_get($fallback, 'key', '')),
+            'value' => $resolved['value'] !== '' ? $resolved['value'] : trim((string) data_get($fallback, 'value', '')),
+        ];
+    });
+
+    return $mergedSpecs
+        ->concat($remainingJsonSpecs)
         ->filter(fn ($spec) => filled($spec['key'] ?? null) || filled($spec['value'] ?? null))
         ->values();
 })
@@ -371,7 +417,7 @@
     </section>
 @endforeach
 
-<section class="service-banner-section" @if($serviceImageUrl) data-bg="{{ $serviceImageUrl }}" @endif>
+<section class="service-banner-section" @if($serviceImageUrl) data-bg="{{ $serviceImageUrl }}" style="background-image: url('{{ $serviceImageUrl }}');" @endif>
     <div class="container">
         <div class="service-banner-content">
             <div class="service-text-side">
