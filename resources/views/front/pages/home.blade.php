@@ -10,10 +10,13 @@
     $specs = collect();
 
     if ($product->relationLoaded('specs') && $product->specs->isNotEmpty()) {
-        $specs = $product->specs->map(fn ($spec) => [
-            'key' => trim((string) $spec->key),
-            'value' => trim((string) $spec->value),
-        ]);
+        $specs = $product->specs
+            ->map(fn ($spec) => [
+                'key' => trim((string) $spec->key),
+                'value' => trim((string) $spec->value),
+            ])
+            ->filter(fn ($spec) => filled($spec['key'] ?? null) || filled($spec['value'] ?? null))
+            ->values();
     }
 
     if ($specs->isEmpty() && is_array($product->specifications) && ! empty($product->specifications)) {
@@ -266,7 +269,7 @@
                     <div class="product-info">
                         <div class="product-cat">{{ $product->category?->name }}</div>
                         <h3 class="product-name"><a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a></h3>
-                        @php($cardFeatures = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) ($product->short_description ?: $product->long_description))))->map(fn($line) => trim($line))->filter()->take(2))
+                        @php($cardFeatures = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) ($product->short_description ?: $product->long_description))))->map(fn($line) => trim($line))->filter())
                         @if($cardFeatures->isNotEmpty())
                             <ul class="product-features product-features-lined">
                                 @foreach($cardFeatures as $feature)
@@ -274,7 +277,7 @@
                                 @endforeach
                             </ul>
                         @endif
-                        @php($cardSpecs = $resolveProductSpecs($product)->take(2))
+                        @php($cardSpecs = $resolveProductSpecs($product))
                         @if($cardSpecs->isNotEmpty())
                             <div class="product-specs-mini product-specs-middle">
                                 @foreach($cardSpecs as $spec)

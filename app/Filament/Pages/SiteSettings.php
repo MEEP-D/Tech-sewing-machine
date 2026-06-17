@@ -126,6 +126,10 @@ class SiteSettings extends Page
             'page_about_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_about_hero_image', null)),
             'page_contact_hero_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('page_contact_hero_image', null)),
             'newsletter_signup_image_upload' => $this->normalizeUploadFieldState(Setting::getValue('newsletter_signup_image', null)),
+            'newsletter_signup_title' => Setting::getValue('newsletter_signup_title', self::u('\\u0110\\u0103ng k\\u00fd nh\\u1eadn th\\u00f4ng tin')),
+            'newsletter_signup_description' => Setting::getValue('newsletter_signup_description', self::u('\\u0110\\u0103ng k\\u00fd nh\\u1eadn th\\u00f4ng tin ch\\u01b0\\u01a1ng tr\\u00ecnh khuy\\u1ebfn m\\u00e3i, d\\u1ecbch v\\u1ee5 v\\u00e0 c\\u1eadp nh\\u1eadt m\\u1edbi nh\\u1ea5t t\\u1eeb TechSewing.')),
+            'newsletter_signup_button_text' => Setting::getValue('newsletter_signup_button_text', self::u('\\u0110\\u0103ng k\\u00fd')),
+            'newsletter_signup_note' => Setting::getValue('newsletter_signup_note', self::u('B\\u1eb1ng c\\u00e1ch \\u0111\\u0103ng k\\u00fd, Qu\\u00fd kh\\u00e1ch x\\u00e1c nh\\u1eadn \\u0111\\u00e3 \\u0111\\u1ecdc, hi\\u1ec3u v\\u00e0 \\u0111\\u1ed3ng \\u00fd v\\u1edbi ch\\u00ednh s\\u00e1ch b\\u1ea3o m\\u1eadt th\\u00f4ng tin.')),
             'promo_popup_enabled' => (string) Setting::getValue('promo_popup_enabled', '0'),
             'promo_popup_title' => Setting::getValue('promo_popup_title', 'Ưu đãi dành cho khách hàng mới'),
             'promo_popup_description' => Setting::getValue('promo_popup_description', 'Nhận tư vấn nhanh và báo giá theo nhu cầu xưởng may của bạn.'),
@@ -257,6 +261,18 @@ class SiteSettings extends Page
                             ->columnSpanFull(),
                     ]),
                     Section::make(self::u('Newsletter Signup'))->schema([
+                        TextInput::make('newsletter_signup_title')
+                            ->label(self::u('Ti\\u00eau \\u0111\\u1ec1 newsletter')),
+                        TextInput::make('newsletter_signup_button_text')
+                            ->label(self::u('Text n\\u00fat newsletter')),
+                        Textarea::make('newsletter_signup_description')
+                            ->label(self::u('M\\u00f4 t\\u1ea3 newsletter'))
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Textarea::make('newsletter_signup_note')
+                            ->label(self::u('Ghi ch\\u00fa newsletter'))
+                            ->rows(3)
+                            ->columnSpanFull(),
                         FileUpload::make('newsletter_signup_image_upload')
                             ->label(self::u('\\u1ea2nh n\\u1ec1n section newsletter'))
                             ->image()
@@ -529,6 +545,7 @@ class SiteSettings extends Page
             'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width',
             'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_default_og_image', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
             'home_partners_title', 'home_service_title', 'home_service_description', 'home_service_primary_cta', 'home_service_secondary_cta',
+            'newsletter_signup_title', 'newsletter_signup_description', 'newsletter_signup_button_text', 'newsletter_signup_note',
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',
             'home_highlight_contact_secondary_name', 'home_highlight_contact_secondary_phone',
             'contact_hotline', 'contact_email', 'contact_address',

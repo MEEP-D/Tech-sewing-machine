@@ -86,6 +86,10 @@ class AppServiceProvider extends ServiceProvider
                             'page_contact_desc' => $siteSettings['page_contact_desc'] ?? ($siteSettings['contact_page_subtitle'] ?? ''),
                             'page_contact_hero_image' => $siteSettings['page_contact_hero_image'] ?? null,
                             'newsletter_signup_image' => $siteSettings['newsletter_signup_image'] ?? null,
+                            'newsletter_signup_title' => $siteSettings['newsletter_signup_title'] ?? '',
+                            'newsletter_signup_description' => $siteSettings['newsletter_signup_description'] ?? '',
+                            'newsletter_signup_button_text' => $siteSettings['newsletter_signup_button_text'] ?? '',
+                            'newsletter_signup_note' => $siteSettings['newsletter_signup_note'] ?? '',
                             'home_faqs' => Setting::getValue('home_faqs', []),
                         ];
                     }
