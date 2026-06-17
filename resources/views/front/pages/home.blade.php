@@ -3,6 +3,23 @@
 @section('content')
 @php($media = app(\App\Support\OptimizedMedia::class))
 @php($normalizeSpecKey = fn ($label) => \Illuminate\Support\Str::lower(\Illuminate\Support\Str::ascii(trim((string) $label))))
+@php($resolveBannerSpecs = function ($product) {
+    if (! $product) {
+        return collect();
+    }
+
+    if ($product->relationLoaded('specs') && $product->specs->isNotEmpty()) {
+        return $product->specs
+            ->map(fn ($spec) => [
+                'key' => trim((string) $spec->key),
+                'value' => trim((string) $spec->value),
+            ])
+            ->filter(fn ($spec) => filled($spec['key'] ?? null) && filled($spec['value'] ?? null))
+            ->values();
+    }
+
+    return collect();
+})
 @php($resolveProductSpecs = function ($product) use ($normalizeSpecKey) {
     if (! $product) {
         return collect();
@@ -119,8 +136,8 @@
         'image_url' => $media->url($slider->image, ['width' => 1600, 'quality' => 74]) ?? $slider->image_url,
     ];
 }))
-@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveProductSpecs, $media, $isPriceSpec) {
-    $productSpecs = $resolveProductSpecs($item);
+@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveBannerSpecs, $media, $isPriceSpec) {
+    $productSpecs = $resolveBannerSpecs($item);
 
     return [
         'name' => $item->name,
