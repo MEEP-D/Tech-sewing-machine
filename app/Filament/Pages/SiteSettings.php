@@ -359,6 +359,7 @@ class SiteSettings extends Page
                             ->disk('public')
                             ->directory('site')
                             ->imageEditor()
+                            ->helperText('Nen dung anh ngang ty le 4:3, vi du 1200x900 hoac 1600x1200 de hien thi day du va can doi.')
                             ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                         FileUpload::make('promo_popup_images_upload')
@@ -369,7 +370,7 @@ class SiteSettings extends Page
                             ->appendFiles()
                             ->disk('public')
                             ->directory('site')
-                            ->helperText('Nếu có nhiều ảnh, popup sẽ tự chạy slideshow 3 giây mỗi ảnh.')
+                            ->helperText('Neu co nhieu anh, popup se tu chay slideshow 3 giay moi anh. Nen dung anh ngang ty le 4:3, vi du 1200x900 hoac 1600x1200.')
                             ->afterStateHydrated(function ($component, $state): void {
                                 $component->state($this->normalizeUploadListFieldState($state));
                             }),

@@ -39,6 +39,21 @@
 @php($resolveAssetUrl = fn ($path, $fallback = null) => $media->url($path) ?? $fallback)
 @php($highlightProduct = $highlightProduct ?? null)
 @php($highlightSpecs = $resolveProductSpecs($highlightProduct))
+@php($isPriceSpec = function ($label) {
+    $normalized = \Illuminate\Support\Str::lower(\Illuminate\Support\Str::ascii(trim((string) $label)));
+
+    if ($normalized === '') {
+        return false;
+    }
+
+    foreach (['gia', 'gia ban', 'gia niem yet', 'gia tham khao'] as $keyword) {
+        if ($normalized === $keyword || str_contains($normalized, $keyword)) {
+            return true;
+        }
+    }
+
+    return false;
+})
 @php($highlightDescription = $highlightProduct ? ($highlightProduct->long_description ?: $highlightProduct->short_description) : '')
 @php($highlightDescriptionLines = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) $highlightDescription)))->map(fn($line) => trim($line))->filter())
 @php($homeFaqs = collect($siteContent['home_faqs'] ?? [])->take(6))
@@ -55,7 +70,7 @@
         'image_url' => $media->url($slider->image, ['width' => 1600, 'quality' => 74]) ?? $slider->image_url,
     ];
 }))
-@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveProductSpecs, $media) {
+@php($bannerProducts = ($bannerSwitcherProducts ?? collect())->values()->map(function ($item) use ($resolveProductSpecs, $media, $isPriceSpec) {
     $productSpecs = $resolveProductSpecs($item);
 
     return [
@@ -63,12 +78,15 @@
         'code' => $item->code ?: $item->sku ?: $item->name,
         'image' => $media->url($item->display_image, ['width' => 860, 'quality' => 76]) ?? $item->display_image_url,
         'link' => route('products.show', $item->slug),
-        'specs' => [
-            'size' => data_get($productSpecs->get(0), 'value', '-'),
-            'speed' => data_get($productSpecs->get(1), 'value', '-'),
-            'precision' => data_get($productSpecs->get(2), 'value', '-'),
-            'price' => $item->price ?: 'Liên hệ',
-        ],
+        'specs' => $productSpecs
+            ->map(fn ($spec) => [
+                'label' => trim((string) data_get($spec, 'key', '')),
+                'value' => trim((string) data_get($spec, 'value', '-')),
+            ])
+            ->reject(fn ($spec) => $isPriceSpec($spec['label'] ?? ''))
+            ->values()
+            ->all(),
+        'price' => $item->formatted_discounted_price ?: $item->formatted_price ?: $item->price ?: 'Liên hệ',
     ];
 }))
 @push('preload_assets')
@@ -186,6 +204,7 @@
 @endif
 
 @if($bannerProducts->isNotEmpty())
+@php($initialBannerProduct = $bannerProducts->first())
 <div class="banner-switcher-section" id="banner-switcher-root" data-link="{{ $bannerProducts->first()['link'] }}">
     <div class="banner-switcher-wrapper">
         <div class="banner-watermark" id="banner-watermark">{{ $bannerProducts->first()['code'] }}</div>
@@ -199,11 +218,17 @@
             </div>
             <button class="banner-arrow next" id="banner-next"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <div class="banner-specs-row">
-            <div class="banner-spec-item"><span class="label">Khổ làm việc</span><span class="value" data-spec="size">{{ $bannerProducts->first()['specs']['size'] }}</span></div>
-            <div class="banner-spec-item"><span class="label">Tốc độ in</span><span class="value" data-spec="speed">{{ $bannerProducts->first()['specs']['speed'] }}</span></div>
-            <div class="banner-spec-item"><span class="label">Độ chính xác</span><span class="value" data-spec="precision">{{ $bannerProducts->first()['specs']['precision'] }}</span></div>
-            <div class="banner-spec-item"><span class="label">Giá tham khảo</span><span class="value" data-spec="price">{{ $bannerProducts->first()['specs']['price'] }}</span></div>
+        <div class="banner-specs-row" id="banner-specs-row" style="--banner-spec-columns: {{ max(count($initialBannerProduct['specs']) + 1, 1) }};">
+            @foreach($initialBannerProduct['specs'] as $spec)
+                <div class="banner-spec-item">
+                    <span class="label">{{ $spec['label'] }}</span>
+                    <span class="value">{{ $spec['value'] }}</span>
+                </div>
+            @endforeach
+            <div class="banner-spec-item banner-spec-item-price">
+                <span class="label">Giá tham khảo</span>
+                <span class="value">{{ $initialBannerProduct['price'] }}</span>
+            </div>
         </div>
         <div class="banner-actions">
             <a href="{{ route('contact') }}" class="btn-cta primary">ĐẶT HÀNG NGAY</a>

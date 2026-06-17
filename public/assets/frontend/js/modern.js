@@ -617,12 +617,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const bannerLink = document.getElementById('banner-link');
     const bannerWatermark = document.getElementById('banner-watermark');
     const bannerProductCode = document.getElementById('banner-product-code');
-    const specValues = document.querySelectorAll('.banner-spec-item .value');
+    const bannerSpecsRow = document.getElementById('banner-specs-row');
     const btnPrev = document.getElementById('banner-prev');
     const btnNext = document.getElementById('banner-next');
     const bannerRoot = document.getElementById('banner-switcher-root');
 
     let currentBannerIndex = 0;
+    let bannerSpecRenderTimer = 0;
+
+    const createBannerSpecItem = (label, value, extraClass = '') => {
+        const item = document.createElement('div');
+        item.className = `banner-spec-item${extraClass ? ` ${extraClass}` : ''}`;
+
+        const labelNode = document.createElement('span');
+        labelNode.className = 'label';
+        labelNode.textContent = label || '-';
+
+        const valueNode = document.createElement('span');
+        valueNode.className = 'value';
+        valueNode.textContent = value || '-';
+
+        item.appendChild(labelNode);
+        item.appendChild(valueNode);
+
+        return item;
+    };
+
+    const renderBannerSpecs = (specs, price) => {
+        if (!bannerSpecsRow) return;
+
+        const normalizedSpecs = Array.isArray(specs)
+            ? specs.filter(spec => (spec && (spec.label || spec.value)))
+            : [];
+
+        bannerSpecsRow.classList.add('is-updating');
+
+        clearTimeout(bannerSpecRenderTimer);
+        bannerSpecRenderTimer = setTimeout(() => {
+            bannerSpecsRow.replaceChildren();
+            bannerSpecsRow.style.setProperty('--banner-spec-columns', Math.max(normalizedSpecs.length + 1, 1));
+
+            normalizedSpecs.forEach(spec => {
+                bannerSpecsRow.appendChild(createBannerSpecItem(spec.label, spec.value));
+            });
+
+            bannerSpecsRow.appendChild(createBannerSpecItem('Giá tham khảo', price || '-', 'banner-spec-item-price'));
+            bannerSpecsRow.classList.remove('is-updating');
+        }, 300);
+    };
 
     const updateBanner = (index) => {
         const data = bannerData[index];
@@ -630,7 +672,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const safeImage = data.image || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
         const safeLink = data.link || '#';
-        const safeSpecs = data.specs || {};
+        const safeSpecs = Array.isArray(data.specs) ? data.specs : [];
+        const safePrice = data.price || '-';
         currentBannerIndex = index;
 
         // Update dots
@@ -658,19 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         }
 
-        // Update Specs: only animate if value actually changes
-        specValues.forEach(spec => {
-            const type = spec.getAttribute('data-spec');
-            const newValue = safeSpecs[type] || '-';
-            
-            if (spec.textContent !== newValue) {
-                spec.classList.add('changing');
-                setTimeout(() => {
-                    spec.textContent = newValue;
-                    spec.classList.remove('changing');
-                }, 300);
-            }
-        });
+        renderBannerSpecs(safeSpecs, safePrice);
     };
 
     if (bannerDots.length > 0 && bannerData.length > 0) {

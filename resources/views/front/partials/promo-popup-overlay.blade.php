@@ -7,25 +7,30 @@
     $promoButtonUrl = trim((string) ($siteSettings['promo_popup_button_url'] ?? ''));
     $promoContactText = trim((string) ($siteSettings['promo_popup_contact_text'] ?? 'Liên hệ ngay'));
     $promoContactUrl = trim((string) ($siteSettings['promo_popup_contact_url'] ?? ''));
+
     if ($promoContactUrl === '') {
         $hotline = preg_replace('/\D+/', '', (string) ($siteSettings['contact_hotline'] ?? ''));
         $promoContactUrl = $hotline !== '' ? ('tel:' . $hotline) : '/lien-he';
     }
+
     $promoCountdownEndAt = trim((string) ($siteSettings['promo_popup_countdown_end_at'] ?? ''));
     $promoCountdownNote = trim((string) ($siteSettings['promo_popup_countdown_note'] ?? ''));
     $promoDelaySeconds = max(0, (int) ($siteSettings['promo_popup_delay_seconds'] ?? 2));
     $promoFrequencyHours = max(1, (int) ($siteSettings['promo_popup_frequency_hours'] ?? 24));
     $promoImages = $siteSettings['promo_popup_images'] ?? [];
+
     if (! is_array($promoImages)) {
         $promoImages = [];
     }
 
     $promoImage = $siteSettings['promo_popup_image'] ?? null;
+
     if (is_string($promoImage) && filled($promoImage)) {
         array_unshift($promoImages, $promoImage);
     }
 
     $promoImageUrls = [];
+
     foreach ($promoImages as $promoImageItem) {
         if (! is_string($promoImageItem) || ! filled($promoImageItem)) {
             continue;
@@ -40,6 +45,7 @@
 
     $promoImageUrls = array_values(array_unique($promoImageUrls));
     $promoCountdownTs = null;
+
     if ($promoCountdownEndAt !== '') {
         try {
             $promoCountdownTs = \Illuminate\Support\Carbon::parse($promoCountdownEndAt)->getTimestampMs();
@@ -55,6 +61,7 @@
             <button type="button" class="promo-popup-close" data-promo-close aria-label="Đóng">
                 <i class="fas fa-times"></i>
             </button>
+
             @if(count($promoImageUrls) > 0)
                 <div class="promo-popup-media">
                     <div class="promo-popup-slides" data-promo-slides>
@@ -72,29 +79,39 @@
                     </div>
                 </div>
             @endif
+
             <div class="promo-popup-content">
                 @if($promoTitle !== '')
                     <h3>{{ $promoTitle }}</h3>
                 @endif
+
                 @if($promoDescription !== '')
                     <p>{{ $promoDescription }}</p>
                 @endif
+
                 <div class="promo-popup-countdown" data-countdown-wrap @if($promoCountdownTs === null) style="display:none" @endif>
                     <div class="promo-popup-count-item">
                         <strong data-countdown-days>00</strong>
-                        <span>ngay</span>
+                        <span>ngày</span>
                     </div>
                     <div class="promo-popup-count-item">
                         <strong data-countdown-hours>00</strong>
-                        <span>gio</span>
+                        <span>giờ</span>
+                    </div>
+                    <div class="promo-popup-count-item">
+                        <strong data-countdown-minutes>00</strong>
+                        <span>phút</span>
                     </div>
                 </div>
+
                 @if($promoButtonText !== '' && $promoButtonUrl !== '')
                     <a href="{{ $promoButtonUrl }}" class="promo-popup-btn" target="_blank" rel="noopener noreferrer">{{ $promoButtonText }}</a>
                 @endif
+
                 @if($promoContactText !== '' && $promoContactUrl !== '')
                     <a href="{{ $promoContactUrl }}" class="promo-popup-btn promo-popup-btn-secondary" target="_blank" rel="noopener noreferrer">{{ $promoContactText }}</a>
                 @endif
+
                 @if($promoCountdownNote !== '')
                     <p class="promo-popup-note">{{ $promoCountdownNote }}</p>
                 @endif
@@ -127,8 +144,10 @@
 
             function loadSlide(slide) {
                 if (!slide) return;
+
                 var nextSrc = slide.getAttribute('data-src');
                 if (!nextSrc || slide.getAttribute('src') === nextSrc) return;
+
                 slide.src = nextSrc;
             }
 
@@ -149,8 +168,7 @@
             }
 
             function startSlides() {
-                if (slides.length <= 1) return;
-                if (slideTimer) return;
+                if (slides.length <= 1 || slideTimer) return;
 
                 slideTimer = setInterval(function () {
                     showSlide(slideIndex + 1);
@@ -159,6 +177,7 @@
 
             function stopSlides() {
                 if (!slideTimer) return;
+
                 clearInterval(slideTimer);
                 slideTimer = null;
             }
@@ -167,10 +186,12 @@
                 overlay.classList.remove('is-open');
                 overlay.setAttribute('aria-hidden', 'true');
                 stopSlides();
+
                 if (countdownTimer) {
                     clearInterval(countdownTimer);
                     countdownTimer = null;
                 }
+
                 if (!forcePreview) {
                     localStorage.setItem(storageKey, String(Date.now() + frequencyMs));
                 }
@@ -180,16 +201,26 @@
                 var wrap = overlay.querySelector('[data-countdown-wrap]');
                 var daysEl = overlay.querySelector('[data-countdown-days]');
                 var hoursEl = overlay.querySelector('[data-countdown-hours]');
-                if (!wrap || !daysEl || !hoursEl || !countdownEndAt) return;
+                var minutesEl = overlay.querySelector('[data-countdown-minutes]');
+
+                if (!wrap || !daysEl || !hoursEl || !minutesEl || !countdownEndAt) return;
 
                 function renderCountdown() {
                     var remainMs = countdownEndAt - Date.now();
-                    if (remainMs < 0) remainMs = 0;
-                    var totalHours = Math.floor(remainMs / (1000 * 60 * 60));
+
+                    if (remainMs < 0) {
+                        remainMs = 0;
+                    }
+
+                    var totalMinutes = Math.floor(remainMs / (1000 * 60));
+                    var totalHours = Math.floor(totalMinutes / 60);
                     var days = Math.floor(totalHours / 24);
                     var hours = totalHours % 24;
+                    var minutes = totalMinutes % 60;
+
                     daysEl.textContent = String(days).padStart(2, '0');
                     hoursEl.textContent = String(hours).padStart(2, '0');
+                    minutesEl.textContent = String(minutes).padStart(2, '0');
                 }
 
                 renderCountdown();
@@ -198,11 +229,13 @@
 
             setTimeout(function () {
                 showSlide(0);
+
                 slides.slice(1).forEach(function (slide, index) {
                     setTimeout(function () {
                         loadSlide(slide);
                     }, 180 * (index + 1));
                 });
+
                 overlay.classList.add('is-open');
                 overlay.setAttribute('aria-hidden', 'false');
                 startSlides();

@@ -4053,7 +4053,7 @@ body.no-scroll {
 }
 
 .news-detail-image {
-    margin: 1rem 0;
+    margin: 0 0 1rem;
     border-radius: 12px;
     overflow: hidden;
 }
@@ -4809,7 +4809,7 @@ body.no-scroll {
     width: 100%;
     max-width: 1200px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(var(--banner-spec-columns, 4), minmax(0, 1fr));
     gap: 4rem;
     padding: 1.5rem 0 0.5rem;
     border-top: 1px solid #f1f5f9;
@@ -4822,6 +4822,13 @@ body.no-scroll {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    min-width: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.banner-specs-row.is-updating .banner-spec-item {
+    opacity: 0;
+    transform: translateY(5px);
 }
 
 .banner-spec-item .label {
@@ -4836,6 +4843,7 @@ body.no-scroll {
     font-weight: 700;
     color: #111827;
     transition: opacity 0.2s ease, transform 0.2s ease;
+    word-break: break-word;
 }
 
 .banner-spec-item .value.changing {
@@ -5121,7 +5129,7 @@ body.no-scroll {
 
 .promo-popup-card {
     position: relative;
-    width: min(640px, 100%);
+    width: min(720px, 100%);
     background: #fff;
     border-radius: 0;
     border: 1px solid var(--border-gray);
@@ -5132,13 +5140,19 @@ body.no-scroll {
 
 .promo-popup-media {
     position: relative;
-    aspect-ratio: 16 / 10;
-    background: #0f172a;
+    aspect-ratio: 4 / 3;
+    min-height: 280px;
+    background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 56%),
+        linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }
 
 .promo-popup-slides {
     position: absolute;
     inset: 0;
+    display: grid;
+    place-items: center;
+    padding: clamp(16px, 2.8vw, 26px);
 }
 
 .promo-popup-slide {
@@ -5146,7 +5160,10 @@ body.no-scroll {
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
+    padding: inherit;
+    filter: drop-shadow(0 16px 26px rgba(15, 23, 42, 0.18));
     opacity: 0;
     transition: opacity 0.35s ease;
 }
@@ -5262,6 +5279,43 @@ body.no-scroll {
     color: #334155;
     cursor: pointer;
     z-index: 2;
+}
+
+@media (max-width: 767px) {
+    .promo-popup-overlay {
+        padding: 10px;
+    }
+
+    .promo-popup-card {
+        width: 100%;
+    }
+
+    .promo-popup-media {
+        aspect-ratio: 1 / 1;
+        min-height: 220px;
+    }
+
+    .promo-popup-content {
+        padding: 18px 14px 20px;
+    }
+
+    .promo-popup-countdown {
+        gap: 8px;
+    }
+
+    .promo-popup-count-item {
+        width: calc((100% - 16px) / 3);
+        min-width: 0;
+        padding: 10px 4px;
+    }
+
+    .promo-popup-count-item strong {
+        font-size: 1.55rem;
+    }
+
+    .promo-popup-count-item span {
+        font-size: 0.92rem;
+    }
 }
 
 @keyframes promoPopupIn {
@@ -5728,6 +5782,7 @@ body.no-scroll {
     }
 
     .banner-specs-row {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 0.75rem;
         padding-top: 1rem;
         margin-bottom: 1rem;

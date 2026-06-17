@@ -31,12 +31,17 @@
 </section>
 @endif
 
-<section class="page-layout-full-width">
-    <div class="page-content-shell">
-        <div class="section-header"><h1 class="section-title">{{ $page->title }}</h1></div>
-        <div class="{{ $contentClass }}">{!! $html !!}</div>
+<section class="page-default-section">
+    <div class="container page-layout-default">
+        <main class="page-default-main">
+            <div class="section-header"><h1 class="section-title">{{ $page->title }}</h1></div>
+            <div class="{{ $contentClass }}">{!! $html !!}</div>
+        </main>
+
+        @include('front.pages.news._sidebar')
     </div>
 </section>
 
+@include('front.pages.page.partials.hot-latest-posts')
 @include('front.partials.newsletter-signup')
 @endsection

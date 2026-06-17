@@ -20,6 +20,12 @@
 <section class="news-page news-detail-page">
     <div class="container news-layout">
         <article class="news-detail-main">
+            @if($postCoverImage)
+                <div class="news-detail-image">
+                    <img src="{{ $postCoverImage }}" alt="{{ $post->title }}" decoding="async" fetchpriority="high">
+                </div>
+            @endif
+
             <header class="news-detail-header">
                 <div class="news-card-meta">
                     <span>{{ $post->category?->name }}</span>
@@ -31,12 +37,6 @@
                     <p class="news-detail-excerpt">{{ $post->excerpt }}</p>
                 @endif
             </header>
-
-            @if($postCoverImage)
-                <div class="news-detail-image">
-                    <img src="{{ $postCoverImage }}" alt="{{ $post->title }}" decoding="async" fetchpriority="high">
-                </div>
-            @endif
 
             <div class="news-detail-content page-rich-content">{!! $post->rendered_content !!}</div>
 

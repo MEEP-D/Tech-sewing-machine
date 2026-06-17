@@ -326,13 +326,13 @@
                 @csrf
                 <div class="contact-form-grid">
                     <div class="contact-field">
-                        <label for="contact_name" class="contact-label">Ho va ten *</label>
+                        <label for="contact_name" class="contact-label">Họ và tên</label>
                         <input id="contact_name" type="text" name="name" class="contact-input @error('name') is-error @enderror" value="{{ old('name') }}" required>
                         @error('name')<p class="contact-error">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="contact-field">
-                        <label for="contact_phone" class="contact-label">So dien thoai *</label>
+                        <label for="contact_phone" class="contact-label">Số điện thoại</label>
                         <input id="contact_phone" type="text" name="phone" class="contact-input @error('phone') is-error @enderror" value="{{ old('phone') }}" required>
                         @error('phone')<p class="contact-error">{{ $message }}</p>@enderror
                     </div>
@@ -344,19 +344,19 @@
                     </div>
 
                     <div class="contact-field">
-                        <label for="contact_company" class="contact-label">Cong ty</label>
+                        <label for="contact_company" class="contact-label">Công ty</label>
                         <input id="contact_company" type="text" name="company" class="contact-input @error('company') is-error @enderror" value="{{ old('company') }}">
                         @error('company')<p class="contact-error">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="contact-field full">
-                        <label for="contact_interest" class="contact-label">Nhu cau quan tam</label>
+                        <label for="contact_interest" class="contact-label">Nhu cầu quan tâm</label>
                         <input id="contact_interest" type="text" name="interest" class="contact-input @error('interest') is-error @enderror" value="{{ old('interest') }}" placeholder="Ví dụ: Máy lập đầu tự động, máy in nhãn vải...">
                         @error('interest')<p class="contact-error">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="contact-field full">
-                        <label for="contact_message" class="contact-label">Nội dung *</label>
+                        <label for="contact_message" class="contact-label">Nội dung</label>
                         <textarea id="contact_message" name="message" rows="6" class="contact-input @error('message') is-error @enderror" required>{{ old('message') }}</textarea>
                         @error('message')<p class="contact-error">{{ $message }}</p>@enderror
                     </div>
