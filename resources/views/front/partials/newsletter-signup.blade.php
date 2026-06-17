@@ -1,8 +1,10 @@
 @php
     $media = app(\App\Support\OptimizedMedia::class);
     $newsletterImage = $siteContent['newsletter_signup_image'] ?? null;
+    $newsletterFallbackImage = $media->url('assets/frontend/images/anh3.jpg', ['width' => 1280, 'quality' => 74])
+        ?? '/assets/frontend/images/anh3.webp';
     $newsletterImage = $media->url($newsletterImage, ['width' => 1280, 'quality' => 74])
-        ?? $media->url('assets/frontend/images/service-machine.png', ['width' => 1280, 'quality' => 74]);
+        ?? $newsletterFallbackImage;
     $newsletterTitle = trim((string) ($siteContent['newsletter_signup_title'] ?? '')) ?: 'Đăng ký nhận thông tin';
     $newsletterDescription = trim((string) ($siteContent['newsletter_signup_description'] ?? '')) ?: 'Đăng ký nhận thông tin chương trình khuyến mãi, dịch vụ và cập nhật mới nhất từ TechSewing.';
     $newsletterButtonText = trim((string) ($siteContent['newsletter_signup_button_text'] ?? '')) ?: 'Đăng ký';

@@ -60,7 +60,7 @@
 @php($highlightDescription = $highlightProduct ? ($highlightProduct->long_description ?: $highlightProduct->short_description) : '')
 @php($highlightDescriptionLines = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) $highlightDescription)))->map(fn($line) => trim($line))->filter())
 @php($homeFaqs = collect($siteContent['home_faqs'] ?? [])->take(6))
-@php($serviceImageUrl = $media->url($siteContent['home_service_image'] ?? null, ['width' => 1600, 'quality' => 74]) ?? $resolveAssetUrl($siteContent['home_service_image'] ?? null, asset('assets/frontend/images/anh3.jpg')))
+@php($serviceImageUrl = $media->url($siteContent['home_service_image'] ?? null, ['width' => 1600, 'quality' => 74]) ?? $resolveAssetUrl($siteContent['home_service_image'] ?? null, '/assets/frontend/images/anh3.jpg'))
 @php($heroSlides = ($sliders ?? collect())->values()->map(function ($slider) use ($media) {
     return (object) [
         'title' => $slider->title,

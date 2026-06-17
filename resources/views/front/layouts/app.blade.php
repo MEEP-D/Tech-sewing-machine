@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php
-        $fontCssPath = public_path('fonts/filament/filament/inter/index.css');
-        $fontCss = is_file($fontCssPath) ? file_get_contents($fontCssPath) : null;
         $faviconPath = $siteSettings['site_favicon'] ?? null;
-        $faviconUrl = asset('favicon.ico');
+        $faviconUrl = '/favicon.ico';
+        $interFontCssUrl = '/fonts/filament/filament/inter/index.css';
+        $interVietnameseFontUrl = '/fonts/filament/filament/inter/inter-vietnamese-wght-normal-CE5GGD3W.woff2';
         $modernCssPath = public_path('assets/frontend/css/modern.css');
-        $modernCssUrl = asset('assets/frontend/css/modern.css') . '?v=' . (is_file($modernCssPath) ? filemtime($modernCssPath) : time());
+        $modernCssUrl = '/assets/frontend/css/modern.css?v=' . (is_file($modernCssPath) ? filemtime($modernCssPath) : time());
 
         if (is_string($faviconPath) && filled($faviconPath)) {
             if (str_starts_with($faviconPath, 'http://') || str_starts_with($faviconPath, 'https://')) {
@@ -24,13 +24,9 @@
     @include('seo.meta', ['seo' => $seo ?? []])
     <link rel="icon" href="{{ $faviconUrl }}" type="image/png">
     <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/png">
-    <link rel="preload" href="{{ asset('fonts/filament/filament/inter/inter-vietnamese-wght-normal-CE5GGD3W.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ $interVietnameseFontUrl }}" as="font" type="font/woff2" crossorigin>
     @stack('preload_assets')
-    @if(is_string($fontCss) && $fontCss !== '')
-        <style>{!! $fontCss !!}</style>
-    @else
-        <link rel="stylesheet" href="{{ asset('fonts/filament/filament/inter/index.css') }}">
-    @endif
+    <link rel="stylesheet" href="{{ $interFontCssUrl }}">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
@@ -45,6 +41,6 @@
     @include('front.partials.promo-popup-overlay')
     @include('front.partials.floating-contact')
     @include('front.partials.cookie-consent')
-    <script src="{{ asset('assets/frontend/js/modern.js') }}?v={{ filemtime(public_path('assets/frontend/js/modern.js')) }}" defer></script>
+    <script src="/assets/frontend/js/modern.js?v={{ filemtime(public_path('assets/frontend/js/modern.js')) }}" defer></script>
 </body>
 </html>

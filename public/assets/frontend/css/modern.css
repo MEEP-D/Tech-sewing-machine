@@ -2498,7 +2498,7 @@ body.no-scroll {
 .products-hero {
     background:
         linear-gradient(100deg, rgba(15, 23, 42, 0.74), rgba(29, 78, 216, 0.58)),
-        url('/assets/frontend/images/service-machine.png') center/cover no-repeat;
+        url('/assets/frontend/images/anh3.webp') center/cover no-repeat;
 }
 
 .products-hero-inner h1 {
@@ -2813,17 +2813,35 @@ body.no-scroll {
     background-repeat: no-repeat;
     background-size: cover;
     color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.newsletter-signup::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, rgba(5, 23, 66, 0.84), rgba(11, 42, 104, 0.58));
+    pointer-events: none;
 }
 
 .newsletter-signup .container {
     max-width: 1520px;
     padding: 3rem 1rem;
+    position: relative;
+    z-index: 1;
 }
 
 .newsletter-signup-inner {
-    max-width: 860px;
+    max-width: 920px;
     margin: 0 auto;
     text-align: center;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(8, 24, 58, 0.4);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 24px 50px rgba(5, 23, 66, 0.2);
 }
 
 .newsletter-signup-title {
@@ -4806,23 +4824,28 @@ body.no-scroll {
 }
 
 .banner-specs-row {
+    --banner-spec-columns: 4;
     width: 100%;
     max-width: 1200px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+    grid-template-columns: repeat(var(--banner-spec-columns), minmax(0, 1fr));
     gap: 1.5rem 2rem;
     padding: 1.5rem 0 0.5rem;
     border-top: 1px solid #f1f5f9;
     margin-bottom: 0.5rem;
     z-index: 1;
+    align-items: stretch;
 }
 
 .banner-spec-item {
     text-align: center;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 0.5rem;
     min-width: 0;
+    min-height: 100%;
+    padding: 0 0.35rem;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -4954,14 +4977,23 @@ body.no-scroll {
 }
 
 .service-banner-content {
-    min-height: 540px;
+    width: 100%;
+    min-height: clamp(420px, 42vw, 540px);
     display: flex;
     align-items: center;
+    justify-content: flex-start;
+    padding: clamp(1rem, 2vw, 1.5rem) 0;
 }
 
 .service-text-side {
-    max-width: min(440px, 100%);
-    padding-left: clamp(1rem, 3vw, 2rem);
+    max-width: min(540px, 100%);
+    padding: clamp(1.1rem, 2.8vw, 2rem);
+    margin-left: clamp(0rem, 2vw, 1rem);
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(7, 25, 67, 0.68), rgba(7, 25, 67, 0.38));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 50px rgba(5, 23, 66, 0.16);
+    backdrop-filter: blur(6px);
 }
 
 .service-title {
@@ -5034,7 +5066,7 @@ body.no-scroll {
     .service-text-side {
         max-width: 100%;
         margin: 0 auto;
-        padding-left: 0;
+        padding-left: clamp(1rem, 3vw, 1.6rem);
     }
 
     .service-actions {
@@ -6027,7 +6059,8 @@ body.no-scroll {
 
     .service-text-side {
         max-width: 100%;
-        padding-left: 0;
+        padding: 1rem;
+        margin-left: 0;
     }
 
     .service-actions {

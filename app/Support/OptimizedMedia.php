@@ -46,7 +46,7 @@ class OptimizedMedia
 
         $existingModernUrl = $this->existingModernFormatUrl($asset);
 
-        return $existingModernUrl ?? $asset['url'];
+        return $this->toBrowserUrl($existingModernUrl ?? $asset['url']);
     }
 
     protected function isRemote(string $path): bool
@@ -180,6 +180,42 @@ class OptimizedMedia
             }
         }
 
-        return is_file($targetAbsolutePath) ? $targetUrl : null;
+        return is_file($targetAbsolutePath) ? $this->toBrowserUrl($targetUrl) : null;
+    }
+
+    protected function toBrowserUrl(string $url): string
+    {
+        if ($url === '' || str_starts_with($url, '//') || str_starts_with($url, 'data:')) {
+            return $url;
+        }
+
+        $request = request();
+        $requestHost = $request->getHost();
+
+        if ($requestHost === '') {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+
+        if (! is_array($parts) || ! isset($parts['host'], $parts['path'])) {
+            return $url;
+        }
+
+        if (! hash_equals(strtolower((string) $parts['host']), strtolower($requestHost))) {
+            return $url;
+        }
+
+        $browserUrl = $parts['path'];
+
+        if (isset($parts['query']) && $parts['query'] !== '') {
+            $browserUrl .= '?' . $parts['query'];
+        }
+
+        if (isset($parts['fragment']) && $parts['fragment'] !== '') {
+            $browserUrl .= '#' . $parts['fragment'];
+        }
+
+        return $browserUrl;
     }
 }
