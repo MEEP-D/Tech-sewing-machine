@@ -226,8 +226,6 @@ class AdminUiDataPersistenceTest extends TestCase
             ->test(SiteSettings::class)
             ->set('data.site_title', 'Tech Sewing UI Test')
             ->set('data.site_description', 'Site description test')
-            ->set('data.seo_default_title', 'SEO Default UI Test')
-            ->set('data.seo_default_description', 'SEO description test')
             ->call('save');
 
         Livewire::actingAs($admin)
@@ -247,8 +245,7 @@ class AdminUiDataPersistenceTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(SiteSettings::class)
-            ->assertSet('data.site_title', 'Tech Sewing UI Test')
-            ->assertSet('data.seo_default_title', 'SEO Title Final');
+            ->assertSet('data.site_title', 'Tech Sewing UI Test');
 
         Livewire::actingAs($admin)
             ->test(SeoSettings::class)

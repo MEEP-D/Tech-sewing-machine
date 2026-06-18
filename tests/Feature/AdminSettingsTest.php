@@ -31,7 +31,7 @@ class AdminSettingsTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_site_settings_save_persists_branding_and_seo_values(): void
+    public function test_site_settings_save_persists_branding_values(): void
     {
         $user = User::factory()->create(['is_admin' => true]);
 
@@ -41,9 +41,7 @@ class AdminSettingsTest extends TestCase
             ->set('data.site_description', 'Máy may công nghiệp')
             ->set('data.site_logo_type', 'image')
             ->set('data.site_logo_height', 48)
-            ->set('data.site_logo_width', 180)
-            ->set('data.seo_default_title', 'SEO Default Title')
-            ->set('data.seo_default_description', 'SEO Default Description');
+            ->set('data.site_logo_width', 180);
 
         $component->call('save');
 
@@ -52,8 +50,6 @@ class AdminSettingsTest extends TestCase
         $this->assertSame('image', Setting::getValue('site_logo_type'));
         $this->assertSame(48, Setting::getValue('site_logo_height'));
         $this->assertSame(180, Setting::getValue('site_logo_width'));
-        $this->assertSame('SEO Default Title', Setting::getValue('seo_default_title'));
-        $this->assertSame('SEO Default Description', Setting::getValue('seo_default_description'));
     }
 
     public function test_site_settings_load_saved_values_on_mount(): void
@@ -67,7 +63,6 @@ class AdminSettingsTest extends TestCase
         Livewire::actingAs($user)
             ->test(SiteSettings::class)
             ->assertSet('data.site_title', 'Saved Title')
-            ->assertSet('data.site_logo_type', 'text')
-            ->assertSet('data.seo_default_title', 'SEO Saved');
+            ->assertSet('data.site_logo_type', 'text');
     }
 }

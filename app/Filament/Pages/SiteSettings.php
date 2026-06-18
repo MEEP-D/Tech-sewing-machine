@@ -70,14 +70,6 @@ class SiteSettings extends Page
             'site_logo_type' => Setting::getValue('site_logo_type', 'image'),
             'site_favicon_upload' => $this->normalizeUploadFieldState($siteFavicon),
             'site_favicon' => $this->normalizeUploadInput($siteFavicon),
-            'seo_default_title' => Setting::getValue('seo_default_title', config('app.name')),
-            'seo_default_description' => Setting::getValue('seo_default_description', ''),
-            'seo_default_canonical' => Setting::getValue('seo_default_canonical', config('app.url')),
-            'seo_default_og_image' => Setting::getValue('seo_default_og_image', ''),
-            'seo_organization_name' => Setting::getValue('seo_organization_name', config('app.name')),
-            'seo_organization_url' => Setting::getValue('seo_organization_url', config('app.url')),
-            'seo_robots_default' => Setting::getValue('seo_robots_default', 'index,follow'),
-            'seo_description' => Setting::getValue('seo_description', ''),
             'home_hero_image_upload' => $this->normalizeUploadFieldState($homeHeroImage),
             'home_hero_image' => $this->normalizeUploadInput($homeHeroImage),
             'home_partners_title' => Setting::getValue('home_partners_title', self::u('\\u0110\\u1ed1i t\\u00e1c c\\u00f4ng ngh\\u1ec7 h\\u00e0ng \\u0111\\u1ea7u')),
@@ -179,18 +171,6 @@ class SiteSettings extends Page
                                 ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                         ]),
-                    ]),
-                    Section::make(self::u('SEO m\\u1eb7c \\u0111\\u1ecbnh'))->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('seo_default_title')->label(self::u('SEO title m\\u1eb7c \\u0111\\u1ecbnh')),
-                            TextInput::make('seo_default_canonical')->label(self::u('Canonical m\\u1eb7c \\u0111\\u1ecbnh')),
-                            TextInput::make('seo_default_og_image')->label(self::u('\\u1ea2nh OG m\\u1eb7c \\u0111\\u1ecbnh'))->maxLength(500),
-                            TextInput::make('seo_organization_name')->label(self::u('T\\u00ean t\\u1ed5 ch\\u1ee9c')),
-                            TextInput::make('seo_organization_url')->label(self::u('URL t\\u1ed5 ch\\u1ee9c')),
-                            TextInput::make('seo_robots_default')->label(self::u('Robots m\\u1eb7c \\u0111\\u1ecbnh')),
-                        ]),
-                        Textarea::make('seo_default_description')->label(self::u('SEO description m\\u1eb7c \\u0111\\u1ecbnh')),
-                        Textarea::make('seo_description')->label(self::u('SEO description b\\u1ed5 sung')),
                     ]),
                     Section::make(self::u('Li\\u00ean h\\u1ec7 & M\\u1ea1ng x\\u00e3 h\\u1ed9i header'))->schema([
                         Grid::make(2)->schema([
@@ -543,7 +523,6 @@ class SiteSettings extends Page
     {
         $keys = [
             'site_title', 'site_description', 'site_logo_type', 'site_logo_height', 'site_logo_width',
-            'seo_default_title', 'seo_default_description', 'seo_default_canonical', 'seo_default_og_image', 'seo_organization_name', 'seo_organization_url', 'seo_robots_default', 'seo_description',
             'home_partners_title', 'home_service_title', 'home_service_description', 'home_service_primary_cta', 'home_service_secondary_cta',
             'newsletter_signup_title', 'newsletter_signup_description', 'newsletter_signup_button_text', 'newsletter_signup_note',
             'home_highlight_contact_primary_name', 'home_highlight_contact_primary_phone',

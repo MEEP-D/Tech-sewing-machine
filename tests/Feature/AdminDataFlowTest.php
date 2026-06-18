@@ -31,8 +31,7 @@ class AdminDataFlowTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(SiteSettings::class)
-            ->assertSet('data.site_title', 'Saved Site')
-            ->assertSet('data.seo_default_title', 'Saved SEO');
+            ->assertSet('data.site_title', 'Saved Site');
 
         Livewire::actingAs($admin)
             ->test(SeoSettings::class)
@@ -50,8 +49,6 @@ class AdminDataFlowTest extends TestCase
             ->set('data.site_logo_type', 'image')
             ->set('data.site_logo_height', 56)
             ->set('data.site_logo_width', 220)
-            ->set('data.seo_default_title', 'Default SEO Title')
-            ->set('data.seo_default_description', 'Default SEO Description')
             ->call('save');
 
         Livewire::actingAs($admin)

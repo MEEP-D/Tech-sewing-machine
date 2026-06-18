@@ -34,12 +34,12 @@ class AdminSiteSettingsUploadTest extends TestCase
         $this->assertSame('site/hero.png', Setting::getValue('home_hero_image'));
     }
 
-    public function test_seo_settings_can_save_tab_logo_and_frontend_renders_favicon(): void
+    public function test_site_settings_can_save_tab_logo_and_frontend_renders_favicon(): void
     {
         $user = User::factory()->create(['is_admin' => true]);
 
         Livewire::actingAs($user)
-            ->test(SeoSettings::class)
+            ->test(SiteSettings::class)
             ->set('data.site_favicon', 'site/tab-logo.png')
             ->call('save');
 
