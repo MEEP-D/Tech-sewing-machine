@@ -118,4 +118,20 @@ class HomePageTest extends TestCase
         $response->assertSee('Tinh nang ba');
     }
 
+    public function test_home_page_uses_configured_seo_title_and_favicon(): void
+    {
+        Setting::updateOrCreate(['key' => 'site_title'], ['value' => 'May May Thong Minh', 'group' => 'branding']);
+        Setting::updateOrCreate(['key' => 'seo_default_title'], ['value' => 'Trang chu SEO moi', 'group' => 'seo']);
+        Setting::updateOrCreate(['key' => 'seo_default_description'], ['value' => 'Mo ta SEO moi', 'group' => 'seo']);
+        Setting::updateOrCreate(['key' => 'site_favicon'], ['value' => 'site/favicon.png', 'group' => 'branding']);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('<title>Trang chu SEO moi</title>', false);
+        $response->assertSee('<meta name="description" content="Mo ta SEO moi">', false);
+        $response->assertSee('rel="icon" href="/storage/site/favicon.png" type="image/png"', false);
+        $response->assertSee('rel="apple-touch-icon" href="/storage/site/favicon.png"', false);
+    }
+
 }

@@ -6,6 +6,7 @@
     @php
         $faviconPath = $siteSettings['site_favicon'] ?? null;
         $faviconUrl = '/favicon.ico';
+        $faviconType = 'image/x-icon';
         $interFontCssUrl = '/fonts/filament/filament/inter/index.css';
         $interVietnameseFontUrl = '/fonts/filament/filament/inter/inter-vietnamese-wght-normal-CE5GGD3W.woff2';
         $modernCssPath = public_path('assets/frontend/css/modern.css');
@@ -20,10 +21,20 @@
                 $faviconUrl = \Illuminate\Support\Facades\Storage::url($faviconPath);
             }
         }
+
+        $faviconExtension = strtolower((string) pathinfo((string) parse_url($faviconUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
+        $faviconType = match ($faviconExtension) {
+            'svg' => 'image/svg+xml',
+            'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'webp' => 'image/webp',
+            default => 'image/x-icon',
+        };
     @endphp
     @include('seo.meta', ['seo' => $seo ?? []])
-    <link rel="icon" href="{{ $faviconUrl }}" type="image/png">
-    <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/png">
+    <link rel="icon" href="{{ $faviconUrl }}" type="{{ $faviconType }}">
+    <link rel="shortcut icon" href="{{ $faviconUrl }}" type="{{ $faviconType }}">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
     <link rel="preload" href="{{ $interVietnameseFontUrl }}" as="font" type="font/woff2" crossorigin>
     @stack('preload_assets')
     <link rel="stylesheet" href="{{ $interFontCssUrl }}">
