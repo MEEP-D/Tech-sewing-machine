@@ -12,7 +12,7 @@
     </a>
 
     <a class="fab_btn is-float is-visible fab-btn-facebook" href="{{ $fabFacebookUrl !== '' ? $fabFacebookUrl : 'javascript:void(0)' }}" @if($fabFacebookUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="Facebook">
-        <i class="fab fa-facebook-f" aria-hidden="true"></i>
+        <i class="fab fa-tiktok" aria-hidden="true"></i>
     </a>
 
     <a class="fab_btn is-float is-visible fab-btn-phone" href="{{ $fabHotlineHref }}" aria-label="Gọi điện">
