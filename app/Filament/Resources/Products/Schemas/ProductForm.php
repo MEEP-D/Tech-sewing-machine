@@ -24,10 +24,10 @@ class ProductForm
     {
         return $schema->components([
             Tabs::make('tabs')->tabs([
-                Tabs\Tab::make('Thong tin san pham')->schema([
+                Tabs\Tab::make('Thông tin sản phẩm')->schema([
                     Grid::make(2)->schema([
                         TextInput::make('name')
-                            ->label('Ten san pham')
+                            ->label('Tên sản phẩm')
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
@@ -40,29 +40,29 @@ class ProductForm
                     ]),
                     Grid::make(4)->schema([
                         TextInput::make('code')
-                            ->label('Ma san pham')
+                            ->label('Mã sản phẩm')
                             ->maxLength(100)
                             ->unique(ignoreRecord: true),
                         TextInput::make('sku')
                             ->label('SKU')
                             ->maxLength(100)
                             ->unique(ignoreRecord: true),
-                        TextInput::make('video_id')->label('Youtube Video ID')->maxLength(100),
+                        TextInput::make('video_id')->label('YouTube Video ID')->maxLength(100),
                         TextInput::make('price')
-                            ->label('Gia')
-                            ->placeholder('Lien he hoac 120.000.000')
+                            ->label('Giá')
+                            ->placeholder('Liên hệ hoặc 120.000.000')
                             ->maxLength(50),
                     ]),
                     Grid::make(2)->schema([
                         TextInput::make('discount_percent')
-                            ->label('Giam gia (%)')
+                            ->label('Giảm giá (%)')
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(100)
                             ->default(0)
                             ->suffix('%'),
                         TextInput::make('installment_percent')
-                            ->label('Tra gop (%)')
+                            ->label('Trả góp (%)')
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(100)
@@ -70,88 +70,88 @@ class ProductForm
                             ->suffix('%'),
                     ]),
                     Grid::make(3)->schema([
-                        TextInput::make('brand')->label('Thuong hieu')->maxLength(100),
-                        TextInput::make('origin')->label('Xuat xu')->maxLength(100),
+                        TextInput::make('brand')->label('Thương hiệu')->maxLength(100),
+                        TextInput::make('origin')->label('Xuất xứ')->maxLength(100),
                         Select::make('status')
-                            ->label('Trang thai')
+                            ->label('Trạng thái')
                             ->options([
-                                'draft' => 'Nhap',
-                                'published' => 'Cong khai',
-                                'archived' => 'Luu tru',
+                                'draft' => 'Nháp',
+                                'published' => 'Công khai',
+                                'archived' => 'Lưu trữ',
                             ])
                             ->default('draft')
                             ->required(),
                     ]),
                     Select::make('category_id')
-                        ->label('Danh muc')
+                        ->label('Danh mục')
                         ->relationship('category', 'name', fn ($query) => $query->where('type', 'product'))
                         ->searchable()
                         ->preload()
                         ->required(),
-                    Textarea::make('short_description')->label('Mo ta ngan')->rows(3)->maxLength(500)->columnSpanFull(),
-                    Textarea::make('long_description')->label('Mo ta dai')->rows(4)->maxLength(2000)->columnSpanFull(),
-                    RichEditor::make('description')->label('Mo ta chi tiet')->columnSpanFull(),
-                    Section::make('Noi dung bo sung trang chi tiet')->schema([
+                    Textarea::make('short_description')->label('Mô tả ngắn')->rows(3)->maxLength(500)->columnSpanFull(),
+                    Textarea::make('long_description')->label('Mô tả dài')->rows(4)->maxLength(2000)->columnSpanFull(),
+                    RichEditor::make('description')->label('Mô tả chi tiết')->columnSpanFull(),
+                    Section::make('Nội dung bổ sung trang chi tiết')->schema([
                         Textarea::make('support_prompt')
-                            ->label('Dong ho tro')
+                            ->label('Dòng hỗ trợ')
                             ->rows(3)
-                            ->placeholder('Ban can ho tro thong tin gi ve san pham nay?'),
+                            ->placeholder('Bạn cần hỗ trợ thông tin gì về sản phẩm này?'),
                         Grid::make(2)->schema([
                             TextInput::make('cta_primary_label')
-                                ->label('Nut 1 - Tieu de')
+                                ->label('Nút 1 - Tiêu đề')
                                 ->maxLength(120)
-                                ->placeholder('Ban can ho tro thong tin gi ve san pham nay?'),
+                                ->placeholder('Bạn cần hỗ trợ thông tin gì về sản phẩm này?'),
                             TextInput::make('cta_primary_url')
-                                ->label('Nut 1 - Link')
+                                ->label('Nút 1 - Link')
                                 ->maxLength(500)
                                 ->rules(['nullable', 'regex:/^(\\/.*|https?:\\/\\/.+)$/i'])
                                 ->validationMessages([
-                                    'regex' => 'Link phai la URL day du (https://...) hoac duong dan noi bo bat dau bang "/".',
+                                    'regex' => 'Link phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
                                 ])
-                                ->placeholder('/lien-he'),
+                                ->placeholder('/liên-hệ'),
                         ]),
                         Grid::make(2)->schema([
                             TextInput::make('cta_secondary_label')
-                                ->label('Nut 2 - Tieu de')
+                                ->label('Nút 2 - Tiêu đề')
                                 ->maxLength(120)
-                                ->placeholder('Kham pha cac mau theu mien phi tai day'),
+                                ->placeholder('Khám phá các mẫu thêu miễn phí tại đây'),
                             TextInput::make('cta_secondary_url')
-                                ->label('Nut 2 - Link')
+                                ->label('Nút 2 - Link')
                                 ->maxLength(500)
                                 ->rules(['nullable', 'regex:/^(\\/.*|https?:\\/\\/.+)$/i'])
                                 ->validationMessages([
-                                    'regex' => 'Link phai la URL day du (https://...) hoac duong dan noi bo bat dau bang "/".',
+                                    'regex' => 'Link phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
                                 ])
-                                ->placeholder('/trang/mau-theu'),
+                                ->placeholder('/trang/mẫu-thêu'),
                         ]),
                         Grid::make(2)->schema([
                             TextInput::make('overview_heading')
-                                ->label('Dau muc 1')
+                                ->label('Đầu mục 1')
                                 ->maxLength(160)
-                                ->placeholder('Tong quan ve san pham'),
+                                ->placeholder('Tổng quan về sản phẩm'),
                             TextInput::make('seo_heading')
-                                ->label('Dau muc 2')
+                                ->label('Đầu mục 2')
                                 ->maxLength(160)
-                                ->placeholder('Tim hieu ve may lam seo'),
+                                ->placeholder('Tìm hiểu về máy làm seo'),
                         ]),
                         RichEditor::make('overview_content')
-                            ->label('Noi dung dau muc 1')
+                            ->label('Nội dung đầu mục 1')
                             ->columnSpanFull(),
                         RichEditor::make('seo_content')
-                            ->label('Noi dung dau muc 2')
+                            ->label('Nội dung đầu mục 2')
                             ->columnSpanFull(),
                     ])->columnSpanFull(),
                 ]),
 
-                Tabs\Tab::make('Hinh anh')->schema([
+                Tabs\Tab::make('Hình ảnh')->schema([
                     Placeholder::make('current_image_preview')
-                        ->label('Anh hien tai')
+                        ->label('Ảnh hiện tại')
                         ->content(fn ($record) => $record?->display_image_url
                             ? new HtmlString('<img src="' . e($record->display_image_url) . '" alt="Product image" style="max-width:220px;border-radius:10px;border:1px solid #e2e8f0;padding:6px;background:#fff;" />')
-                            : 'Chua co anh'
+                            : 'Chưa có ảnh'
                         ),
                     FileUpload::make('thumbnail')
-                        ->label('Anh dai dien')
+                        ->label('Ảnh đại diện')
                         ->image()
                         ->imageEditor()
                         ->disk('public')
@@ -160,7 +160,7 @@ class ProductForm
                         ->maxSize(2048)
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     FileUpload::make('image')
-                        ->label('Anh chinh')
+                        ->label('Ảnh chính')
                         ->image()
                         ->imageEditor()
                         ->disk('public')
@@ -181,26 +181,26 @@ class ProductForm
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state) : []),
                 ]),
 
-                Tabs\Tab::make('Thong so ky thuat')->schema([
+                Tabs\Tab::make('Thông số kỹ thuật')->schema([
                     KeyValue::make('specifications')
-                        ->label('Thong so chung')
-                        ->keyLabel('Thong so')
-                        ->valueLabel('Gia tri')
+                        ->label('Thông số chung')
+                        ->keyLabel('Thông số')
+                        ->valueLabel('Giá trị')
                         ->columnSpanFull(),
                     Repeater::make('specs')
-                        ->label('Thong so san pham dot pha')
+                        ->label('Thông số sản phẩm đột phá')
                         ->relationship()
                         ->orderColumn('sort_order')
                         ->schema([
-                            TextInput::make('key')->label('Thong so')->required(),
-                            TextInput::make('value')->label('Gia tri')->required(),
-                            TextInput::make('sort_order')->label('Thu tu')->numeric()->minValue(0)->default(0),
+                            TextInput::make('key')->label('Thông số')->required(),
+                            TextInput::make('value')->label('Giá trị')->required(),
+                            TextInput::make('sort_order')->label('Thứ tự')->numeric()->minValue(0)->default(0),
                         ])
                         ->defaultItems(0)
                         ->columnSpanFull(),
                     FileUpload::make('specification_images')
-                        ->label('Anh ben duoi thong so ky thuat')
-                        ->helperText('Cac anh nay se hien thi ngay ben duoi bang thong so ky thuat o trang chi tiet san pham.')
+                        ->label('Ảnh bên dưới thông số kỹ thuật')
+                        ->helperText('Các ảnh này sẽ hiển thị ngay bên dưới bảng thông số kỹ thuật ở trang chi tiết sản phẩm.')
                         ->image()
                         ->imageEditor()
                         ->multiple()
@@ -213,15 +213,15 @@ class ProductForm
                         ->columnSpanFull(),
                 ]),
 
-                Tabs\Tab::make('Cai dat')->schema([
+                Tabs\Tab::make('Cài đặt')->schema([
                     Grid::make(5)->schema([
-                        Toggle::make('is_featured')->label('Noi bat'),
-                        Toggle::make('is_new')->label('Moi'),
+                        Toggle::make('is_featured')->label('Nổi bật'),
+                        Toggle::make('is_new')->label('Mới'),
                         Toggle::make('is_hot')->label('Hot'),
-                        Toggle::make('is_exclusive')->label('San pham dot pha'),
-                        Toggle::make('show_in_banner_switcher')->label('Hien thi banner switcher'),
+                        Toggle::make('is_exclusive')->label('Sản phẩm đột phá'),
+                        Toggle::make('show_in_banner_switcher')->label('Hiển thị banner switcher'),
                     ]),
-                    TextInput::make('sort_order')->label('Thu tu')->numeric()->default(0)->minValue(0),
+                    TextInput::make('sort_order')->label('Thứ tự')->numeric()->default(0)->minValue(0),
                 ]),
 
                 Tabs\Tab::make('SEO')->schema([
