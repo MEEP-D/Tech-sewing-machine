@@ -58,7 +58,8 @@
     @if($toolbarCategoryItems->isNotEmpty())
         <div class="products-tag-toolbar">
             <a href="{{ url()->current() }}?{{ http_build_query(request()->except('tag', 'page')) }}" class="product-tag-chip {{ empty($selectedFilters['tag']) ? 'is-active' : '' }}">
-                Tất cả <span>{{ $allProductsCount }}</span>
+                <span class="product-tag-label">Tất cả</span>
+                <span class="product-tag-count">{{ $allProductsCount }}</span>
             </a>
             @foreach($visibleToolbarItems as $item)
                 @php
@@ -68,13 +69,15 @@
                 @endphp
                 @continue($slug === '' || $productCount <= 0)
                 <a href="{{ url()->current() }}?{{ http_build_query($query) }}" class="product-tag-chip {{ ($selectedFilters['tag'] ?? '') === $slug ? 'is-active' : '' }}">
-                    {{ data_get($item, 'name', $slug) }} <span>{{ $productCount }}</span>
+                    <span class="product-tag-label">{{ data_get($item, 'name', $slug) }}</span>
+                    <span class="product-tag-count">{{ $productCount }}</span>
                 </a>
             @endforeach
             @if($overflowToolbarItems->isNotEmpty())
                 <details class="product-tag-more">
                     <summary class="product-tag-chip product-tag-chip-more">
-                        Thêm <span>{{ $overflowToolbarItems->count() }}</span>
+                        <span class="product-tag-label">Thêm</span>
+                        <span class="product-tag-count">{{ $overflowToolbarItems->count() }}</span>
                     </summary>
                     <div class="product-tag-more-menu">
                         @foreach($overflowToolbarItems as $item)
@@ -85,7 +88,8 @@
                             @endphp
                             @continue($slug === '' || $productCount <= 0)
                             <a href="{{ url()->current() }}?{{ http_build_query($query) }}" class="product-tag-chip {{ ($selectedFilters['tag'] ?? '') === $slug ? 'is-active' : '' }}">
-                                {{ data_get($item, 'name', $slug) }} <span>{{ $productCount }}</span>
+                                <span class="product-tag-label">{{ data_get($item, 'name', $slug) }}</span>
+                                <span class="product-tag-count">{{ $productCount }}</span>
                             </a>
                         @endforeach
                     </div>

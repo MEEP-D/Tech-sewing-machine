@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,13 +33,13 @@ class ProductCrudTest extends TestCase
     public function test_product_detail_page_displays_correctly()
     {
         $category = Category::create([
-            'name' => 'Máy công nghiệp',
+            'name' => 'May cong nghiep',
             'slug' => 'may-cong-nghiep',
-            'type' => 'product'
+            'type' => 'product',
         ]);
 
-        $product = Product::create([
-            'name' => 'Máy may Juki 2026',
+        Product::create([
+            'name' => 'May may Juki 2026',
             'slug' => 'may-may-juki-2026',
             'price' => '25.000.000',
             'category_id' => $category->id,
@@ -48,14 +48,16 @@ class ProductCrudTest extends TestCase
             'is_new' => true,
             'sort_order' => 0,
             'view_count' => 10,
-            'specifications' => [['key' => 'Tốc độ', 'value' => '5000rpm']]
+            'specifications' => [['key' => 'Toc do', 'value' => '5000rpm']],
+            'specification_images' => ['products/specification-images/spec-01.jpg'],
         ]);
 
         $response = $this->get('/san-pham/may-may-juki-2026');
 
         $response->assertStatus(200);
-        $response->assertSee('Máy may Juki 2026');
+        $response->assertSee('May may Juki 2026');
         $response->assertSee('25.000.000');
         $response->assertSee('5000rpm');
+        $response->assertSee('product-spec-gallery');
     }
 }

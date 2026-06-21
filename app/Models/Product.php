@@ -22,7 +22,7 @@ class Product extends Model
     protected $fillable = [
         'name', 'slug', 'code', 'sku', 'short_description', 'long_description', 'description',
         'price', 'brand', 'origin', 'specifications', 'image', 'thumbnail',
-        'gallery', 'video_id', 'category_id', 'status', 'is_featured', 'is_new', 'is_hot',
+        'gallery', 'specification_images', 'video_id', 'category_id', 'status', 'is_featured', 'is_new', 'is_hot',
         'is_exclusive', 'show_in_banner_switcher', 'sort_order', 'view_count', 'discount_percent', 'installment_percent', 'support_prompt',
         'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
         'overview_heading', 'overview_content', 'seo_heading', 'seo_content',
@@ -31,6 +31,7 @@ class Product extends Model
     protected $casts = [
         'specifications' => 'array',
         'gallery'        => 'array',
+        'specification_images' => 'array',
         'is_featured'    => 'boolean',
         'is_new'         => 'boolean',
         'is_hot'         => 'boolean',

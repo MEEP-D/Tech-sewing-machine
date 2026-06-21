@@ -14,7 +14,7 @@ class AdminProductResourceTest extends TestCase
     public function test_product_fields_persist_correctly(): void
     {
         $category = Category::create([
-            'name' => 'Máy công nghiệp',
+            'name' => 'May cong nghiep',
             'slug' => 'may-cong-nghiep',
             'type' => 'product',
             'is_active' => true,
@@ -22,17 +22,18 @@ class AdminProductResourceTest extends TestCase
         ]);
 
         $product = Product::create([
-            'name' => 'Máy may test',
+            'name' => 'May may test',
             'slug' => 'may-may-test',
             'sku' => 'SKU-001',
-            'short_description' => 'Mô tả ngắn',
-            'description' => '<p>Nội dung</p>',
+            'short_description' => 'Mo ta ngan',
+            'description' => '<p>Noi dung</p>',
             'price' => '10000000',
             'brand' => 'TechSewing',
             'origin' => 'VN',
-            'specifications' => [['key' => 'Tốc độ', 'value' => '5000rpm']],
+            'specifications' => [['key' => 'Toc do', 'value' => '5000rpm']],
             'thumbnail' => 'products/thumb.jpg',
             'gallery' => ['products/1.jpg'],
+            'specification_images' => ['products/specification-images/spec-01.jpg'],
             'category_id' => $category->id,
             'status' => 'published',
             'is_featured' => true,
@@ -44,5 +45,6 @@ class AdminProductResourceTest extends TestCase
         $this->assertSame('may-may-test', $product->slug);
         $this->assertTrue($product->is_featured);
         $this->assertSame(['products/1.jpg'], $product->gallery);
+        $this->assertSame(['products/specification-images/spec-01.jpg'], $product->specification_images);
     }
 }

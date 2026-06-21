@@ -26,7 +26,20 @@
                     return $default;
                 };
 
+                $resolveProductImageUrl = static function (string $path) use ($media): ?string {
+                    $optimizedUrl = $media->url($path, ['width' => 1280, 'quality' => 78]);
+
+                    if ($optimizedUrl) {
+                        return $optimizedUrl;
+                    }
+
+                    return str_starts_with($path, '/')
+                        ? asset(ltrim($path, '/'))
+                        : \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+                };
+
                 $galleryImages = collect();
+                $specificationImages = collect();
 
                 if ($product->display_image_url) {
                     $galleryImages->push($media->url($product->display_image, ['width' => 1280, 'quality' => 78]) ?? $product->display_image_url);
@@ -37,15 +50,19 @@
                         continue;
                     }
 
-                    $galleryImages->push(
-                        $media->url($galleryPath, ['width' => 1280, 'quality' => 78])
-                        ?? (str_starts_with($galleryPath, '/')
-                            ? asset(ltrim($galleryPath, '/'))
-                            : \Illuminate\Support\Facades\Storage::disk('public')->url($galleryPath))
-                    );
+                    $galleryImages->push($resolveProductImageUrl($galleryPath));
+                }
+
+                foreach ((array) ($product->specification_images ?? []) as $specificationImagePath) {
+                    if (!is_string($specificationImagePath) || $specificationImagePath === '') {
+                        continue;
+                    }
+
+                    $specificationImages->push($resolveProductImageUrl($specificationImagePath));
                 }
 
                 $galleryImages = $galleryImages->filter()->unique()->values();
+                $specificationImages = $specificationImages->filter()->unique()->values();
                 $mainImage = $galleryImages->first();
             @endphp
             @push('preload_assets')
@@ -140,6 +157,9 @@
             </div>
 
             <div class="detail-tab-content" id="tab-specs" role="tabpanel" aria-labelledby="tab-btn-specs">
+                @php
+                    $hasSpecs = $productSpecs->isNotEmpty() || !empty($product->specifications);
+                @endphp
                 @if($productSpecs->isNotEmpty())
                     <div class="special-specs-grid" style="margin-top: 1rem;">
                         @foreach($productSpecs as $spec)
@@ -152,13 +172,25 @@
                             <div class="spec-item"><span class="spec-label">{{ $toText($key, '-') }}</span><span class="spec-value">{{ $toText($value, '-') }}</span></div>
                         @endforeach
                     </div>
-                @else
+                @endif
+
+                @if($specificationImages->isNotEmpty())
+                    <div class="product-spec-gallery">
+                        @foreach($specificationImages as $index => $imageUrl)
+                            <figure class="product-spec-gallery-item">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} - thong so ky thuat {{ $index + 1 }}" loading="lazy" decoding="async">
+                            </figure>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if(!$hasSpecs && $specificationImages->isEmpty())
                     <p>Thông số đang cập nhật.</p>
                 @endif
             </div>
 
             <div class="detail-tab-content" id="tab-warranty" role="tabpanel" aria-labelledby="tab-btn-warranty">
-                <p>Sản phẩm được bảo hành theo chính sách của nhà cung cấp. Vui lòng liên hệ để nhận thông tin bảo hành chi tiết và hướng dẫn kỹ thuật.</p>
+                <p>Tất cả các sản phẩm máy móc của thương hiệu smart sẽ được bảo hành 12 tháng kể từ ngày lắp đặt và không bảo hành với những linh kiện cơ khí dễ mài mòn tự nhiên do sản xuất, thiên tai và tác nhân bên ngoài.</p>
             </div>
 
             <div class="detail-tab-content" id="tab-review" role="tabpanel" aria-labelledby="tab-btn-review">

@@ -24,14 +24,12 @@ class AdminSiteSettingsUploadTest extends TestCase
             ->set('data.site_logo_dark', 'site/logo-dark.png')
             ->set('data.site_logo_mobile', 'site/logo-mobile.png')
             ->set('data.site_favicon', 'site/favicon.png')
-            ->set('data.home_hero_image', 'site/hero.png')
             ->call('save');
 
         $this->assertSame('site/logo.png', Setting::getValue('site_logo'));
         $this->assertSame('site/logo-dark.png', Setting::getValue('site_logo_dark'));
         $this->assertSame('site/logo-mobile.png', Setting::getValue('site_logo_mobile'));
         $this->assertSame('site/favicon.png', Setting::getValue('site_favicon'));
-        $this->assertSame('site/hero.png', Setting::getValue('home_hero_image'));
     }
 
     public function test_site_settings_can_save_tab_logo_and_frontend_renders_favicon(): void

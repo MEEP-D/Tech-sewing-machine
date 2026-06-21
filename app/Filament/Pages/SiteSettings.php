@@ -53,7 +53,6 @@ class SiteSettings extends Page
         $siteLogoDark = Setting::getValue('site_logo_dark', null);
         $siteLogoMobile = Setting::getValue('site_logo_mobile', null);
         $siteFavicon = Setting::getValue('site_favicon', null);
-        $homeHeroImage = Setting::getValue('home_hero_image', null);
         $homeServiceImage = Setting::getValue('home_service_image', null);
 
         $this->data = [
@@ -70,8 +69,6 @@ class SiteSettings extends Page
             'site_logo_type' => Setting::getValue('site_logo_type', 'image'),
             'site_favicon_upload' => $this->normalizeUploadFieldState($siteFavicon),
             'site_favicon' => $this->normalizeUploadInput($siteFavicon),
-            'home_hero_image_upload' => $this->normalizeUploadFieldState($homeHeroImage),
-            'home_hero_image' => $this->normalizeUploadInput($homeHeroImage),
             'home_partners_title' => Setting::getValue('home_partners_title', self::u('\\u0110\\u1ed1i t\\u00e1c c\\u00f4ng ngh\\u1ec7 h\\u00e0ng \\u0111\\u1ea7u')),
             'home_service_title' => Setting::getValue('home_service_title', ''),
             'home_service_description' => Setting::getValue('home_service_description', ''),
@@ -177,23 +174,13 @@ class SiteSettings extends Page
                             TextInput::make('contact_hotline')->label('Hotline header'),
                             TextInput::make('contact_email')->label(self::u('Email li\\u00ean h\\u1ec7')),
                             Textarea::make('contact_address')->label(self::u('\\u0110\\u1ecba ch\\u1ec9')),
-                            TextInput::make('header_facebook_url')->label('Link Facebook')->url(),
+                            TextInput::make('header_facebook_url')->label('Link TikTok')->url(),
                             TextInput::make('header_zalo_url')->label('Link Zalo')->url(),
                             TextInput::make('header_youtube_url')->label('Link YouTube')->url(),
                         ]),
                     ]),
                 ]),
                 Tabs\Tab::make(self::u('Trang ch\\u1ee7'))->schema([
-                    Section::make(self::u('\\u1ea2nh hero trang ch\\u1ee7'))->schema([
-                        FileUpload::make('home_hero_image_upload')
-                            ->label(self::u('\\u1ea2nh n\\u1ec1n hero'))
-                            ->image()
-                            ->disk('public')
-                            ->directory('site')
-                            ->imageEditor()
-                            ->afterStateHydrated(fn ($component, $state) => $component->state(filled($state) ? [$state] : []))
-                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
-                    ]),
                     Section::make(self::u('Li\\u00ean h\\u1ec7 s\\u1ea3n ph\\u1ea9m \\u0111\\u1ed9t ph\\u00e1'))->schema([
                         Grid::make(2)->schema([
                             TextInput::make('home_highlight_contact_primary_name')->label(self::u('T\\u00ean li\\u00ean h\\u1ec7 1')),
@@ -495,7 +482,6 @@ class SiteSettings extends Page
             'site_logo_dark_upload',
             'site_logo_mobile_upload',
             'site_favicon_upload',
-            'home_hero_image_upload',
             'home_service_image_upload',
             'page_news_hero_image_upload',
             'page_products_hero_image_upload',

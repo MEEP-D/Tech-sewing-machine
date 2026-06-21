@@ -205,7 +205,6 @@ class AdminUiAutomationTest extends DuskTestCase
                 'data.site_logo_dark_upload',
                 'data.site_logo_mobile_upload',
                 'data.site_favicon_upload',
-                'data.home_hero_image_upload',
             ],
             '/admin/seo-settings' => [
                 'data.seo_default_title',
