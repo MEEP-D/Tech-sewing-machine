@@ -5212,7 +5212,8 @@ body.no-scroll {
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: clamp(12px, 2vw, 24px);
+    overflow-y: auto;
 }
 
 .promo-popup-overlay.is-open {
@@ -5221,19 +5222,24 @@ body.no-scroll {
 
 .promo-popup-card {
     position: relative;
-    width: min(720px, 100%);
+    width: min(560px, calc(100vw - 48px));
+    max-height: calc(100vh - 48px);
     background: #fff;
     border-radius: 0;
     border: 1px solid var(--border-gray);
     box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     animation: promoPopupIn 0.24s ease-out;
+    margin: auto;
 }
 
 .promo-popup-media {
     position: relative;
     aspect-ratio: 4 / 3;
-    min-height: 280px;
+    min-height: clamp(220px, 34vh, 320px);
+    flex-shrink: 0;
     background:
         radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 56%),
         linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
@@ -5266,12 +5272,13 @@ body.no-scroll {
 .promo-popup-content {
     padding: 22px 20px 24px;
     text-align: center;
+    overflow-y: auto;
 }
 
 .promo-popup-content h3 {
     color: #1f2937;
-    font-size: clamp(1.75rem, 3.2vw, 2.8rem);
-    line-height: 1.35;
+    font-size: clamp(1.5rem, 2.2vw, 2.2rem);
+    line-height: 1.25;
     margin-bottom: 10px;
     text-transform: uppercase;
     font-weight: 800;
@@ -5280,7 +5287,7 @@ body.no-scroll {
 .promo-popup-content p {
     color: #6b7280;
     margin-bottom: 16px;
-    font-size: 1.05rem;
+    font-size: 1rem;
 }
 
 .promo-popup-btn {
@@ -5321,14 +5328,14 @@ body.no-scroll {
 }
 
 .promo-popup-count-item {
-    width: 96px;
+    width: 84px;
     background: #f3f4f6;
     padding: 10px 6px;
 }
 
 .promo-popup-count-item strong {
     display: block;
-    font-size: 2rem;
+    font-size: 1.7rem;
     line-height: 1;
     font-weight: 800;
     color: #374151;
@@ -5337,7 +5344,7 @@ body.no-scroll {
 .promo-popup-count-item span {
     display: block;
     margin-top: 6px;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     color: #4b5563;
 }
 
@@ -5372,40 +5379,69 @@ body.no-scroll {
     z-index: 2;
 }
 
+@media (max-width: 1199px) {
+    .promo-popup-card {
+        width: min(520px, calc(100vw - 40px));
+        max-height: calc(100vh - 40px);
+    }
+
+    .promo-popup-media {
+        min-height: clamp(210px, 32vh, 280px);
+    }
+}
+
 @media (max-width: 767px) {
     .promo-popup-overlay {
         padding: 10px;
+        align-items: flex-start;
     }
 
     .promo-popup-card {
-        width: 100%;
+        width: min(100%, 420px);
+        max-height: calc(100vh - 20px);
     }
 
     .promo-popup-media {
         aspect-ratio: 1 / 1;
-        min-height: 220px;
+        min-height: clamp(170px, 28vh, 220px);
     }
 
     .promo-popup-content {
-        padding: 18px 14px 20px;
+        padding: 16px 14px 18px;
+    }
+
+    .promo-popup-content h3 {
+        font-size: clamp(1.2rem, 6vw, 1.55rem);
+    }
+
+    .promo-popup-content p {
+        font-size: 0.94rem;
+        margin-bottom: 14px;
     }
 
     .promo-popup-countdown {
         gap: 8px;
+        margin: 12px 0 14px;
     }
 
     .promo-popup-count-item {
         width: calc((100% - 16px) / 3);
         min-width: 0;
-        padding: 10px 4px;
+        padding: 9px 4px;
     }
 
     .promo-popup-count-item strong {
-        font-size: 1.55rem;
+        font-size: 1.35rem;
     }
 
     .promo-popup-count-item span {
-        font-size: 0.92rem;
+        font-size: 0.8rem;
+    }
+
+    .promo-popup-btn {
+        width: 100%;
+        padding: 11px 14px;
+        font-size: 0.9rem;
     }
 }
 
