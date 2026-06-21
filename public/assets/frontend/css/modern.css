@@ -5254,7 +5254,6 @@ body.no-scroll {
     height: 100%;
     object-fit: contain;
     object-position: center;
-    padding: inherit;
     filter: drop-shadow(0 16px 26px rgba(15, 23, 42, 0.18));
     opacity: 0;
     transition: opacity 0.35s ease;
@@ -5458,7 +5457,7 @@ body.no-scroll {
 }
 
 .fab-btn-facebook {
-    background: #1877f2;
+    background: #000;
 }
 
 .fab-btn-phone {

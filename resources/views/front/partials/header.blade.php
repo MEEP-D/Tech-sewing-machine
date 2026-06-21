@@ -159,7 +159,7 @@
 
         <div class="contact-info">
             <a class="contact-item" href="{{ $facebookUrl !== '' ? $facebookUrl : 'javascript:void(0)' }}" @if($facebookUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="Facebook">
-                <i class="fab fa-facebook-f" style="color: #1877f2; font-size: 1.2rem;"></i>
+                <i class="fab fa-tiktok" style="color: #000000; font-size: 1.2rem;"></i>
             </a>
             <a class="contact-item" href="{{ $youtubeUrl !== '' ? $youtubeUrl : 'javascript:void(0)' }}" @if($youtubeUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="YouTube">
                 <i class="fab fa-youtube" style="color: #ff0000; font-size: 1.2rem;"></i>
