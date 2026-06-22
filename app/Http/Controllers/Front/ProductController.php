@@ -212,6 +212,7 @@ class ProductController extends Controller
 
         return $filterData + [
             'selectedFilters' => [
+                'q' => trim((string) $request->input('q', '')),
                 'types' => array_values(array_filter((array) $request->input('types', []))),
                 'functions' => array_values(array_filter((array) $request->input('functions', []))),
                 'usages' => array_values(array_filter((array) $request->input('usages', []))),
@@ -225,6 +226,19 @@ class ProductController extends Controller
 
     private function applyFilters($query, Request $request, array $excludedFilters = [], bool $applySorting = true)
     {
+        $keyword = in_array('q', $excludedFilters, true)
+            ? ''
+            : trim((string) $request->input('q', ''));
+
+        if ($keyword !== '') {
+            $query->where(function ($inner) use ($keyword) {
+                $inner->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('code', 'like', "%{$keyword}%")
+                    ->orWhere('sku', 'like', "%{$keyword}%")
+                    ->orWhere('short_description', 'like', "%{$keyword}%");
+            });
+        }
+
         if (!in_array('brand', $excludedFilters, true) && ($brand = $request->get('brand'))) {
             $query->where('brand', $brand);
         }
@@ -336,15 +350,9 @@ class ProductController extends Controller
     public function search(Request $request, SeoService $seoService)
     {
         $perPage = $this->resolvePerPage($request);
-        $keyword = $request->get('q');
+        $keyword = trim((string) $request->get('q', ''));
 
-        $query = Product::published()
-            ->with(['category', 'tags'])
-            ->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                    ->orWhere('sku', 'like', "%{$keyword}%")
-                    ->orWhere('short_description', 'like', "%{$keyword}%");
-            });
+        $query = Product::published()->with(['category', 'tags']);
 
         $query = $this->applyFilters($query, $request);
 

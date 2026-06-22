@@ -3,8 +3,8 @@
     <p class="sidebar-intro">Sử dụng bộ lọc bên dưới để chọn đúng máy/tính năng bạn mong muốn.</p>
 
     <form method="GET" action="{{ url()->current() }}" class="catalog-filter-form">
-        @if(!empty($keyword ?? null))
-            <input type="hidden" name="q" value="{{ $keyword }}">
+        @if(!empty($selectedFilters['q'] ?? null))
+            <input type="hidden" name="q" value="{{ $selectedFilters['q'] }}">
         @endif
 
         <div class="filter-block">

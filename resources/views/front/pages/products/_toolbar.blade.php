@@ -1,6 +1,34 @@
 <div class="products-toolbar">
     <div class="products-toolbar-main">
         <div class="toolbar-left">
+            <form method="GET" action="{{ url()->current() }}" class="products-search-form">
+                @foreach(request()->except('q', 'page') as $key => $value)
+                    @if(is_array($value))
+                        @foreach($value as $item)
+                            <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
+                        @endforeach
+                    @else
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endif
+                @endforeach
+                <label class="sr-only" for="{{ $searchId ?? 'products-toolbar-search' }}">Tìm kiếm sản phẩm</label>
+                <div class="products-search-field">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input
+                        id="{{ $searchId ?? 'products-toolbar-search' }}"
+                        type="search"
+                        name="q"
+                        value="{{ $selectedFilters['q'] ?? '' }}"
+                        placeholder="Tìm theo tên, mã SP, SKU..."
+                    >
+                    @if(!empty($selectedFilters['q']))
+                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except('q', 'page')) }}" class="products-search-clear" aria-label="Xóa từ khóa tìm kiếm">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                </div>
+                <button type="submit" class="products-search-submit">Tìm kiếm</button>
+            </form>
             <form method="GET" action="{{ url()->current() }}" class="per-page-form">
                 @foreach(request()->except('per_page', 'page') as $key => $value)
                     @if(is_array($value))
