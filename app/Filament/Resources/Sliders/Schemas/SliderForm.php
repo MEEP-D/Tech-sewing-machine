@@ -28,7 +28,7 @@ class SliderForm
                             ->downloadable()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->maxSize(4096)
-                            ->helperText('Khuyến nghị: upload ảnh theo kích thước 1672x941px (tỷ lệ widescreen) để hiển thị đủ ảnh và đồng bộ.'),
+                            ->helperText('Khuyến nghị: upload ảnh theo kích thước 1905x860px để khóa đúng tỷ lệ slider hiện tại và hiển thị đồng bộ.'),
 
                         TextInput::make('sort_order')
                             ->label('Thứ tự')
@@ -80,7 +80,7 @@ class SliderForm
 
                     Placeholder::make('slider_upload_hint')
                         ->label('Lưu ý upload ảnh')
-                        ->content('Khuyến nghị dùng ảnh 1672x941px để hiển thị full khung widescreen và không bị cắt. Nếu upload báo lỗi, hãy kiểm tra giới hạn PHP (upload_max_filesize / post_max_size).'),
+                        ->content('Khuyến nghị dùng ảnh 1905x860px để hiển thị đúng khung slider hiện tại và hạn chế bị cắt. Nếu upload báo lỗi, hãy kiểm tra giới hạn PHP (upload_max_filesize / post_max_size).'),
                 ]),
         ]);
     }

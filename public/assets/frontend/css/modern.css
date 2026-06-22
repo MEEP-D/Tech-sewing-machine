@@ -477,7 +477,7 @@ body.menu-open {
 
 .hero {
     position: relative;
-    height: clamp(840px, 72vh, 860px);
+    height: clamp(360px, calc(100vw * 860 / 1905), 860px);
     background-color: #1e3a8a;
     display: flex;
     align-items: center;
@@ -550,6 +550,12 @@ body.menu-open {
 
 .hero-slide.no-overlay::after {
     display: none;
+}
+
+.hero-slide.no-overlay {
+    background-size: contain;
+    background-position: center center;
+    background-color: #ffffff;
 }
 
 .hero > .container {
