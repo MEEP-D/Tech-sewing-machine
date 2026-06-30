@@ -37,6 +37,9 @@ class CategoriesTable
                 IconColumn::make('is_active')
                     ->label('Hiển thị')
                     ->boolean(),
+                IconColumn::make('highlight_mega_label')
+                    ->label('Nổi bật mega menu')
+                    ->boolean(),
                 TextColumn::make('sort_order')
                     ->label('Thứ tự')
                     ->numeric()
@@ -72,5 +75,3 @@ class CategoriesTable
             ]);
     }
 }
-
-

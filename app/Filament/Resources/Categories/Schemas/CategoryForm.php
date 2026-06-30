@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\Categories\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Tabs;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -29,9 +29,7 @@ class CategoryForm
                                         ->required()
                                         ->maxLength(255)
                                         ->live(onBlur: true)
-                                        ->afterStateUpdated(fn ($state, callable $set) =>
-                                            $set('slug', Str::slug($state))
-                                        ),
+                                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
                                     TextInput::make('slug')
                                         ->label('Slug (URL)')
                                         ->required()
@@ -43,7 +41,7 @@ class CategoryForm
                                         ->label('Loại danh mục')
                                         ->options([
                                             'product' => 'Sản phẩm',
-                                            'news'    => 'Tin tức',
+                                            'news' => 'Tin tức',
                                         ])
                                         ->default('product')
                                         ->required(),
@@ -60,7 +58,9 @@ class CategoryForm
                                     ->columnSpanFull(),
                                 FileUpload::make('image')
                                     ->label('Hình ảnh đại diện')
-                                    ->image()->imageEditor()->directory('categories')
+                                    ->image()
+                                    ->imageEditor()
+                                    ->directory('categories')
                                     ->disk('public')
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                     ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
@@ -75,6 +75,10 @@ class CategoryForm
                                         ->minValue(0)
                                         ->default(0),
                                 ]),
+                                Toggle::make('highlight_mega_label')
+                                    ->label('Làm nổi bật ở mega menu')
+                                    ->helperText('Bật để danh mục cha hiển thị kiểu nút xanh chữ trắng trong mega menu Sản phẩm.')
+                                    ->default(false),
                             ]),
 
                         Tabs\Tab::make('SEO')
@@ -100,7 +104,9 @@ class CategoryForm
                                                 ->maxLength(95),
                                             FileUpload::make('og_image')
                                                 ->label('OG Image')
-                                                ->image()->imageEditor()->directory('seo/og-images')
+                                                ->image()
+                                                ->imageEditor()
+                                                ->directory('seo/og-images')
                                                 ->disk('public')
                                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                                 ->maxSize(1024),

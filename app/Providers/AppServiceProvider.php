@@ -100,6 +100,7 @@ class AppServiceProvider extends ServiceProvider
                                 return [
                                     'name' => $category->name,
                                     'slug' => $category->slug,
+                                    'highlight_mega_label' => $category->highlight_mega_label,
                                     'children' => $category->childrenRecursive->map($mapCategory)->values()->all(),
                                 ];
                             };

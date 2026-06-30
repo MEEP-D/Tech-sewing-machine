@@ -13,18 +13,20 @@ class AdminCategoryResourceTest extends TestCase
     public function test_category_fields_persist_correctly(): void
     {
         $category = Category::create([
-            'name' => 'Máy công nghiệp',
+            'name' => 'May cong nghiep',
             'slug' => 'may-cong-nghiep',
-            'description' => 'Danh mục máy',
+            'description' => 'Danh muc may',
             'type' => 'product',
             'parent_id' => null,
             'image' => 'categories/may.jpg',
             'is_active' => true,
             'sort_order' => 1,
+            'highlight_mega_label' => true,
         ]);
 
         $this->assertSame('may-cong-nghiep', $category->slug);
         $this->assertSame('product', $category->type);
         $this->assertTrue($category->is_active);
+        $this->assertTrue($category->highlight_mega_label);
     }
 }

@@ -96,8 +96,9 @@
                                                 $topName = $toText(data_get($top, 'name'), 'Danh mục');
                                                 $topSlug = $toText(data_get($top, 'slug'), '');
                                                 $topChildren = collect(data_get($top, 'children', []));
+                                                $topHighlight = (bool) data_get($top, 'highlight_mega_label', false);
                                             @endphp
-                                            <div class="mega-col">
+                                            <div class="mega-col{{ $topHighlight ? ' mega-col-highlight' : '' }}">
                                                 <h5><a href="{{ route('products.category', $topSlug) }}">{{ $topName }}</a></h5>
                                                 <ul class="mega-links">
                                                     @include('front.partials.category-tree', ['categories' => $topChildren, 'level' => 1])
@@ -164,8 +165,9 @@
                                     $topName = $toText(data_get($top, 'name'), 'Danh mục');
                                     $topSlug = $toText(data_get($top, 'slug'), '');
                                     $topChildren = collect(data_get($top, 'children', []));
+                                    $topHighlight = (bool) data_get($top, 'highlight_mega_label', false);
                                 @endphp
-                                <div class="mega-col">
+                                <div class="mega-col{{ $topHighlight ? ' mega-col-highlight' : '' }}">
                                     <h5><a href="{{ route('products.category', $topSlug) }}">{{ $topName }}</a></h5>
                                     <ul class="mega-links">
                                         @include('front.partials.category-tree', ['categories' => $topChildren, 'level' => 1])

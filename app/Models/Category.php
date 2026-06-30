@@ -35,11 +35,12 @@ class Category extends Model
 
     protected $fillable = [
         'name', 'slug', 'description', 'type',
-        'parent_id', 'image', 'is_active', 'sort_order',
+        'parent_id', 'image', 'is_active', 'sort_order', 'highlight_mega_label',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'highlight_mega_label' => 'boolean',
     ];
 
     public function parent(): BelongsTo
