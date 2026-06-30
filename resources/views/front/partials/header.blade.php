@@ -89,7 +89,7 @@
                         <li class="nav-item {{ $hasDropdown ? 'has-children' : '' }}">
                             <a href="{{ $menuUrl }}" class="nav-link" target="{{ $menuTarget }}">{{ $menuLabel }}@if($hasDropdown) <i class="fas fa-chevron-down"></i>@endif</a>
                             @if($hasDropdown)
-                                <div class="mega-menu">
+                                <div class="mega-menu{{ $useCategoryMegaMenu ? ' mega-menu-five-cols' : '' }}">
                                     @if($useCategoryMegaMenu)
                                         @foreach($productMegaCategories as $top)
                                             @php
@@ -158,7 +158,7 @@
                     @endforeach
                     <li class="nav-item has-children">
                         <a href="{{ route('products.index') }}" class="nav-link">{{ $headerProductsLink }} <i class="fas fa-chevron-down"></i></a>
-                        <div class="mega-menu">
+                        <div class="mega-menu mega-menu-five-cols">
                             @foreach($productMegaCategories as $top)
                                 @php
                                     $topName = $toText(data_get($top, 'name'), 'Danh mục');

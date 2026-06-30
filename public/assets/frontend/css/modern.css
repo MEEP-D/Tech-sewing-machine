@@ -362,6 +362,10 @@ body.menu-open {
     white-space: normal;
 }
 
+.mega-menu-five-cols {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .mega-col,
 .mega-links li {
     min-width: 0;
