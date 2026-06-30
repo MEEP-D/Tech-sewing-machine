@@ -38,11 +38,15 @@
             $headerContactLink = $toText($siteContent['header_contact_link'] ?? null, 'Liên hệ');
             $menuService = app(\App\Services\MenuService::class);
             $headerMenuSource = (array) data_get($siteMenus ?? [], 'header', []);
+
             if (empty($headerMenuSource) && is_array($siteMenus ?? null)) {
                 $firstLocation = collect($siteMenus)->first();
                 $headerMenuSource = is_array($firstLocation) ? $firstLocation : [];
             }
+
             $headerMenus = $menuService->tree($headerMenuSource);
+            $productMegaCategories = collect($menuCategories ?? collect())->take(5);
+
             $resolveMenuUrl = static function (array $item): string {
                 $url = data_get($item, 'url');
                 if (is_string($url) && trim($url) !== '') {
@@ -76,48 +80,67 @@
                         @php
                             $menuLabel = $toText(data_get($menu, 'label'), 'Menu');
                             $menuUrl = $resolveMenuUrl($menu);
+                            $menuRouteName = $toText(data_get($menu, 'route_name'), '');
                             $menuTarget = $toText(data_get($menu, 'target'), '_self');
                             $menuChildren = collect(data_get($menu, 'children', []));
+                            $useCategoryMegaMenu = $menuRouteName === 'products.index' && $productMegaCategories->isNotEmpty();
+                            $hasDropdown = $useCategoryMegaMenu || $menuChildren->isNotEmpty();
                         @endphp
-                        <li class="nav-item {{ $menuChildren->isNotEmpty() ? 'has-children' : '' }}">
-                            <a href="{{ $menuUrl }}" class="nav-link" target="{{ $menuTarget }}">{{ $menuLabel }}@if($menuChildren->isNotEmpty()) <i class="fas fa-chevron-down"></i>@endif</a>
-                            @if($menuChildren->isNotEmpty())
+                        <li class="nav-item {{ $hasDropdown ? 'has-children' : '' }}">
+                            <a href="{{ $menuUrl }}" class="nav-link" target="{{ $menuTarget }}">{{ $menuLabel }}@if($hasDropdown) <i class="fas fa-chevron-down"></i>@endif</a>
+                            @if($hasDropdown)
                                 <div class="mega-menu">
-                                    @foreach($menuChildren as $child)
-                                        @php
-                                            $childLabel = $toText(data_get($child, 'label'), 'Danh mục');
-                                            $childUrl = $resolveMenuUrl($child);
-                                            $grandChildren = collect(data_get($child, 'children', []));
-                                        @endphp
-                                        <div class="mega-col">
-                                            <h5><a href="{{ $childUrl }}">{{ $childLabel }}</a></h5>
-                                            @if($grandChildren->isNotEmpty())
+                                    @if($useCategoryMegaMenu)
+                                        @foreach($productMegaCategories as $top)
+                                            @php
+                                                $topName = $toText(data_get($top, 'name'), 'Danh mục');
+                                                $topSlug = $toText(data_get($top, 'slug'), '');
+                                                $topChildren = collect(data_get($top, 'children', []));
+                                            @endphp
+                                            <div class="mega-col">
+                                                <h5><a href="{{ route('products.category', $topSlug) }}">{{ $topName }}</a></h5>
                                                 <ul class="mega-links">
-                                                    @foreach($grandChildren as $grandChild)
-                                                        @php
-                                                            $grandLabel = $toText(data_get($grandChild, 'label'), 'Chi tiết');
-                                                            $grandUrl = $resolveMenuUrl($grandChild);
-                                                            $greatGrandChildren = collect(data_get($grandChild, 'children', []));
-                                                        @endphp
-                                                        <li class="{{ $greatGrandChildren->isNotEmpty() ? 'has-children' : '' }}">
-                                                            <a href="{{ $grandUrl }}">{{ $grandLabel }}</a>
-                                                            @if($greatGrandChildren->isNotEmpty())
-                                                                <ul class="sub-links">
-                                                                    @foreach($greatGrandChildren as $greatGrandChild)
-                                                                        @php
-                                                                            $greatGrandLabel = $toText(data_get($greatGrandChild, 'label'), 'Chi tiết');
-                                                                            $greatGrandUrl = $resolveMenuUrl($greatGrandChild);
-                                                                        @endphp
-                                                                        <li><a href="{{ $greatGrandUrl }}">{{ $greatGrandLabel }}</a></li>
-                                                                    @endforeach
-                                                                </ul>
-                                                            @endif
-                                                        </li>
-                                                    @endforeach
+                                                    @include('front.partials.category-tree', ['categories' => $topChildren, 'level' => 1])
                                                 </ul>
-                                            @endif
-                                        </div>
-                                    @endforeach
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        @foreach($menuChildren as $child)
+                                            @php
+                                                $childLabel = $toText(data_get($child, 'label'), 'Danh mục');
+                                                $childUrl = $resolveMenuUrl($child);
+                                                $grandChildren = collect(data_get($child, 'children', []));
+                                            @endphp
+                                            <div class="mega-col">
+                                                <h5><a href="{{ $childUrl }}">{{ $childLabel }}</a></h5>
+                                                @if($grandChildren->isNotEmpty())
+                                                    <ul class="mega-links">
+                                                        @foreach($grandChildren as $grandChild)
+                                                            @php
+                                                                $grandLabel = $toText(data_get($grandChild, 'label'), 'Chi tiết');
+                                                                $grandUrl = $resolveMenuUrl($grandChild);
+                                                                $greatGrandChildren = collect(data_get($grandChild, 'children', []));
+                                                            @endphp
+                                                            <li class="{{ $greatGrandChildren->isNotEmpty() ? 'has-children' : '' }}">
+                                                                <a href="{{ $grandUrl }}">{{ $grandLabel }}</a>
+                                                                @if($greatGrandChildren->isNotEmpty())
+                                                                    <ul class="sub-links">
+                                                                        @foreach($greatGrandChildren as $greatGrandChild)
+                                                                            @php
+                                                                                $greatGrandLabel = $toText(data_get($greatGrandChild, 'label'), 'Chi tiết');
+                                                                                $greatGrandUrl = $resolveMenuUrl($greatGrandChild);
+                                                                            @endphp
+                                                                            <li><a href="{{ $greatGrandUrl }}">{{ $greatGrandLabel }}</a></li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                @endif
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             @endif
                         </li>
@@ -136,7 +159,7 @@
                     <li class="nav-item has-children">
                         <a href="{{ route('products.index') }}" class="nav-link">{{ $headerProductsLink }} <i class="fas fa-chevron-down"></i></a>
                         <div class="mega-menu">
-                            @foreach(($menuCategories ?? collect())->take(4) as $top)
+                            @foreach($productMegaCategories as $top)
                                 @php
                                     $topName = $toText(data_get($top, 'name'), 'Danh mục');
                                     $topSlug = $toText(data_get($top, 'slug'), '');
