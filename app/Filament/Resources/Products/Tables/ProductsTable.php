@@ -33,6 +33,14 @@ class ProductsTable
                 TextColumn::make('sku')->label('SKU')->searchable(),
                 TextColumn::make('category.name')->label('Danh mục')->searchable(),
                 TextColumn::make('price')->label('Giá'),
+                TextColumn::make('availability_badge_label')
+                    ->label('Thẻ')
+                    ->badge()
+                    ->color(fn (Product $record): string => match ($record->availability_badge) {
+                        Product::AVAILABILITY_BADGE_READY => 'success',
+                        Product::AVAILABILITY_BADGE_PREORDER => 'warning',
+                        default => 'gray',
+                    }),
                 IconColumn::make('is_new')->label('Mới')->boolean(),
                 IconColumn::make('is_hot')->label('Hot')->boolean(),
                 IconColumn::make('is_exclusive')->label('Đột phá')->boolean(),
@@ -72,4 +80,3 @@ class ProductsTable
             ]);
     }
 }
-

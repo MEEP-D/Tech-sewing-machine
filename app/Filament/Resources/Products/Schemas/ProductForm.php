@@ -53,7 +53,7 @@ class ProductForm
                             ->placeholder('Liên hệ hoặc 120.000.000')
                             ->maxLength(50),
                     ]),
-                    Grid::make(2)->schema([
+                    Grid::make(3)->schema([
                         TextInput::make('discount_percent')
                             ->label('Giảm giá (%)')
                             ->numeric()
@@ -68,6 +68,12 @@ class ProductForm
                             ->maxValue(100)
                             ->default(0)
                             ->suffix('%'),
+                        Select::make('availability_badge')
+                            ->label('Thẻ nổi bật')
+                            ->options(\App\Models\Product::availabilityBadgeOptions())
+                            ->placeholder('Không gắn thẻ')
+                            ->native(false)
+                            ->helperText('Hiển thị thêm nhãn Giao ngay hoặc Đặt trước dưới giá ở trang chi tiết sản phẩm.'),
                     ]),
                     Grid::make(3)->schema([
                         TextInput::make('brand')->label('Thương hiệu')->maxLength(100),

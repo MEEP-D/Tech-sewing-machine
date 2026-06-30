@@ -18,12 +18,19 @@ class Product extends Model
     use HasFactory, ResolvesMediaUrl, RendersRichContent, SoftDeletes;
 
     private const PRODUCT_FILTER_CACHE_KEY = 'product_filter_data_v1';
+    public const AVAILABILITY_BADGE_READY = 'giao_ngay';
+    public const AVAILABILITY_BADGE_PREORDER = 'dat_truoc';
+    public const AVAILABILITY_BADGE_LABELS = [
+        self::AVAILABILITY_BADGE_READY => 'Giao ngay',
+        self::AVAILABILITY_BADGE_PREORDER => 'Đặt trước',
+    ];
 
     protected $fillable = [
         'name', 'slug', 'code', 'sku', 'short_description', 'long_description', 'description',
         'price', 'brand', 'origin', 'specifications', 'image', 'thumbnail',
         'gallery', 'specification_images', 'video_id', 'category_id', 'status', 'is_featured', 'is_new', 'is_hot',
-        'is_exclusive', 'show_in_banner_switcher', 'sort_order', 'view_count', 'discount_percent', 'installment_percent', 'support_prompt',
+        'is_exclusive', 'show_in_banner_switcher', 'sort_order', 'view_count', 'discount_percent', 'installment_percent',
+        'availability_badge', 'support_prompt',
         'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
         'overview_heading', 'overview_content', 'seo_heading', 'seo_content',
     ];
@@ -99,6 +106,11 @@ class Product extends Model
         return $query->where('is_new', true);
     }
 
+    public static function availabilityBadgeOptions(): array
+    {
+        return self::AVAILABILITY_BADGE_LABELS;
+    }
+
     // ─── Helpers ─────────────────────────────────────────────────
 
     public function getUrlAttribute(): string
@@ -162,6 +174,11 @@ class Product extends Model
         return $this->discounted_price_value !== null
             ? number_format($this->discounted_price_value, 0, ',', '.') . ' đ'
             : null;
+    }
+
+    public function getAvailabilityBadgeLabelAttribute(): ?string
+    {
+        return self::AVAILABILITY_BADGE_LABELS[$this->availability_badge] ?? null;
     }
 
     public function getRenderedDescriptionAttribute(): string

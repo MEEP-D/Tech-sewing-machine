@@ -1710,10 +1710,48 @@ body.menu-open {
     font-size: 1.22rem;
     color: #dc2626;
     font-weight: 650;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.85rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.product-highlight-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin: 0 0 1.2rem;
+}
+
+.product-highlight-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0.38rem 0.82rem;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.14);
+}
+
+.product-highlight-badge.is-installment {
+    background: #d92d20;
+}
+
+.product-highlight-badge.is-discount {
+    background: var(--primary-blue);
+}
+
+.product-highlight-badge.is-availability-ready {
+    background: #15803d;
+}
+
+.product-highlight-badge.is-availability-preorder {
+    background: #ea580c;
 }
 
 .special-features {

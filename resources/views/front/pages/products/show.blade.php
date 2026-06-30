@@ -98,16 +98,39 @@
                 @endif
             </div>
             <div class="special-product-content">
+                @php
+                    $detailBadges = collect([
+                        [
+                            'label' => 'Trả góp ' . max(0, (int) $product->installment_percent) . '%',
+                            'class' => 'is-installment',
+                        ],
+                        ((int) $product->discount_percent) > 0
+                            ? [
+                                'label' => 'Giảm giá ' . (int) $product->discount_percent . '%',
+                                'class' => 'is-discount',
+                            ]
+                            : null,
+                        $product->availability_badge_label
+                            ? [
+                                'label' => $product->availability_badge_label,
+                                'class' => $product->availability_badge === \App\Models\Product::AVAILABILITY_BADGE_READY
+                                    ? 'is-availability-ready'
+                                    : 'is-availability-preorder',
+                            ]
+                            : null,
+                    ])->filter()->values();
+                @endphp
                 <span class="special-tag">Chi tiết sản phẩm</span>
                 <h1 class="special-title">{{ $product->name }}</h1>
-                <span class="special-code">Ma: {{ $product->code ?: $product->sku }}</span>
+                <span class="special-code">Mã: {{ $product->code ?: $product->sku }}</span>
                 <div class="special-price"><i class="fas fa-tag"></i> Giá: {{ $product->price ?: 'Liên hệ' }}</div>
-                <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.7rem 0 0;">
-                    <span style="display:inline-flex;align-items:center;background:#d92d20;color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
-                    @if(((int) $product->discount_percent) > 0)
-                        <span style="display:inline-flex;align-items:center;background:var(--primary-blue);color:#fff;font-weight:700;border-radius:999px;padding:.32rem .72rem;font-size:.82rem;">Giam gia {{ (int) $product->discount_percent }}%</span>
-                    @endif
-                </div>
+                @if($detailBadges->isNotEmpty())
+                    <div class="product-highlight-badges">
+                        @foreach($detailBadges as $badge)
+                            <span class="product-highlight-badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
+                        @endforeach
+                    </div>
+                @endif
                 <p class="special-description">{{ $product->short_description }}</p>
 
                 <div class="product-support-block">
