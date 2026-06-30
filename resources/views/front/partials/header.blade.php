@@ -39,11 +39,6 @@
             $menuService = app(\App\Services\MenuService::class);
             $headerMenuSource = (array) data_get($siteMenus ?? [], 'header', []);
 
-            if (empty($headerMenuSource) && is_array($siteMenus ?? null)) {
-                $firstLocation = collect($siteMenus)->first();
-                $headerMenuSource = is_array($firstLocation) ? $firstLocation : [];
-            }
-
             $headerMenus = $menuService->tree($headerMenuSource);
             $productMegaCategories = collect($menuCategories ?? collect())->take(5);
 
