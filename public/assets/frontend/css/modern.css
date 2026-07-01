@@ -2834,8 +2834,8 @@ body.no-scroll {
 .product-tag-more-menu {
     position: absolute;
     top: calc(100% + 0.55rem);
-    right: 0;
-    left: auto;
+    right: auto;
+    /* left: auto; */
     z-index: 20;
     min-width: min(360px, 86vw);
     max-width: min(520px, 92vw);
