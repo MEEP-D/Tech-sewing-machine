@@ -185,7 +185,6 @@
                 <button class="detail-tab-btn" type="button" id="tab-btn-specs" role="tab" aria-selected="false" aria-controls="tab-specs" data-target="tab-specs">Thông số kỹ thuật</button>
                 <button class="detail-tab-btn" type="button" id="tab-btn-warranty" role="tab" aria-selected="false" aria-controls="tab-warranty" data-target="tab-warranty">Chính sách bảo hành</button>
                 <button class="detail-tab-btn" type="button" id="tab-btn-guide" role="tab" aria-selected="false" aria-controls="tab-guide" data-target="tab-guide">Hướng dẫn sử dụng</button>
-                <button class="detail-tab-btn" type="button" id="tab-btn-comment" role="tab" aria-selected="false" aria-controls="tab-comment" data-target="tab-comment">Bình luận</button>
             </div>
 
             <div class="detail-outline-box">
@@ -286,10 +285,6 @@
                 @unless($hasUsageGuide)
                     <p>Hướng dẫn sử dụng đang được cập nhật.</p>
                 @endunless
-            </div>
-
-            <div class="detail-tab-content" id="tab-comment" role="tabpanel" aria-labelledby="tab-btn-comment">
-                <p>Bình luận đang được cập nhật.</p>
             </div>
         </div>
 
