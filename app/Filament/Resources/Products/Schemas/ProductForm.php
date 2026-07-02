@@ -61,13 +61,10 @@ class ProductForm
                             ->maxValue(100)
                             ->default(0)
                             ->suffix('%'),
-                        TextInput::make('installment_percent')
-                            ->label('Trả góp (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->default(0)
-                            ->suffix('%'),
+                        Toggle::make('installment_percent')
+                            ->label('Khuyến mãi')
+                            ->helperText('Bật để hiển thị badge Khuyến mãi trên sản phẩm.')
+                            ->default(false),
                         Select::make('availability_badge')
                             ->label('Thẻ nổi bật')
                             ->options(\App\Models\Product::availabilityBadgeOptions())

@@ -92,8 +92,14 @@
                                                 $topSlug = $toText(data_get($top, 'slug'), '');
                                                 $topChildren = collect(data_get($top, 'children', []));
                                                 $topHighlight = (bool) data_get($top, 'highlight_mega_label', false);
+                                                $topBlink = (bool) data_get($top, 'highlight_mega_blink', false);
+                                                $topClasses = trim(implode(' ', array_filter([
+                                                    'mega-col',
+                                                    ($topHighlight || $topBlink) ? 'mega-col-highlight' : null,
+                                                    $topBlink ? 'mega-col-highlight-blink' : null,
+                                                ])));
                                             @endphp
-                                            <div class="mega-col{{ $topHighlight ? ' mega-col-highlight' : '' }}">
+                                            <div class="{{ $topClasses }}">
                                                 <h5><a href="{{ route('products.category', $topSlug) }}">{{ $topName }}</a></h5>
                                                 <ul class="mega-links">
                                                     @include('front.partials.category-tree', ['categories' => $topChildren, 'level' => 1])
@@ -161,8 +167,14 @@
                                     $topSlug = $toText(data_get($top, 'slug'), '');
                                     $topChildren = collect(data_get($top, 'children', []));
                                     $topHighlight = (bool) data_get($top, 'highlight_mega_label', false);
+                                    $topBlink = (bool) data_get($top, 'highlight_mega_blink', false);
+                                    $topClasses = trim(implode(' ', array_filter([
+                                        'mega-col',
+                                        ($topHighlight || $topBlink) ? 'mega-col-highlight' : null,
+                                        $topBlink ? 'mega-col-highlight-blink' : null,
+                                    ])));
                                 @endphp
-                                <div class="mega-col{{ $topHighlight ? ' mega-col-highlight' : '' }}">
+                                <div class="{{ $topClasses }}">
                                     <h5><a href="{{ route('products.category', $topSlug) }}">{{ $topName }}</a></h5>
                                     <ul class="mega-links">
                                         @include('front.partials.category-tree', ['categories' => $topChildren, 'level' => 1])

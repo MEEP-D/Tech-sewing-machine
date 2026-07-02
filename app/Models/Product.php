@@ -45,13 +45,14 @@ class Product extends Model
         'is_exclusive'   => 'boolean',
         'show_in_banner_switcher' => 'boolean',
         'discount_percent' => 'integer',
-        'installment_percent' => 'integer',
+        'installment_percent' => 'boolean',
     ];
 
     protected static function booted(): void
     {
         static::saved(function (Product $product): void {
             Cache::forget(self::PRODUCT_FILTER_CACHE_KEY);
+            Cache::forget('front_menu_categories_v1');
 
             if (! $product->is_exclusive) {
                 return;
@@ -63,8 +64,19 @@ class Product extends Model
                 ->update(['is_exclusive' => false]);
         });
 
-        static::deleted(fn (): bool => Cache::forget(self::PRODUCT_FILTER_CACHE_KEY));
-        static::restored(fn (): bool => Cache::forget(self::PRODUCT_FILTER_CACHE_KEY));
+        static::deleted(function (): bool {
+            Cache::forget(self::PRODUCT_FILTER_CACHE_KEY);
+            Cache::forget('front_menu_categories_v1');
+
+            return true;
+        });
+
+        static::restored(function (): bool {
+            Cache::forget(self::PRODUCT_FILTER_CACHE_KEY);
+            Cache::forget('front_menu_categories_v1');
+
+            return true;
+        });
     }
 
     // ─── Relationships ────────────────────────────────────────────

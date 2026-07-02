@@ -79,6 +79,10 @@ class CategoryForm
                                     ->label('Làm nổi bật ở mega menu')
                                     ->helperText('Bật để danh mục cha hiển thị kiểu nút xanh chữ trắng trong mega menu Sản phẩm.')
                                     ->default(false),
+                                Toggle::make('highlight_mega_blink')
+                                    ->label('Nhấp nháy nổi bật ở mega menu')
+                                    ->helperText('Dùng cùng màu với nút làm nổi bật ở mega menu nhưng thêm hiệu ứng nhấp nháy.')
+                                    ->default(false),
                             ]),
 
                         Tabs\Tab::make('SEO')

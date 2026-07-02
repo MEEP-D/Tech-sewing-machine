@@ -402,6 +402,8 @@ body.menu-open {
 }
 
 .mega-menu-five-cols .mega-col-highlight h5 a {
+    position: relative;
+    overflow: hidden;
     background-color: var(--primary-blue);
     color: #fff;
     border-radius: 999px;
@@ -412,10 +414,102 @@ body.menu-open {
     transition: var(--transition-fast);
 }
 
+.mega-menu-five-cols .mega-col-highlight-blink h5 a {
+    background: linear-gradient(
+        135deg,
+        var(--primary-blue) 0%,
+        #35b8ff 22%,
+        var(--accent-blue) 42%,
+        #7c3aed 62%,
+        #ff8a00 82%,
+        var(--primary-blue) 100%
+    );
+    background-size: 280% 280%;
+    text-shadow: 0 1px 6px rgba(12, 29, 84, 0.4);
+    animation: megaMenuHighlightBlink 0.9s ease-in-out infinite, megaMenuHighlightGradient 2.8s linear infinite;
+}
+
+.mega-menu-five-cols .mega-col-highlight-blink h5 a::before {
+    content: '';
+    position: absolute;
+    inset: -30% auto -30% -25%;
+    width: 34%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0));
+    transform: rotate(18deg);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: megaMenuHighlightShine 1.35s ease-in-out infinite;
+}
+
 .mega-menu-five-cols .mega-col-highlight h5 a:hover {
     color: #fff;
     background-color: var(--accent-blue);
     transform: translateY(-2px);
+}
+
+@keyframes megaMenuHighlightBlink {
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        box-shadow:
+            0 10px 22px rgba(37, 77, 167, 0.18),
+            0 0 0 0 rgba(53, 184, 255, 0.14);
+        filter: saturate(1) hue-rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-1px) scale(1.1);
+        box-shadow:
+            0 16px 34px rgba(37, 77, 167, 0.36),
+            0 0 0 6px rgba(124, 58, 237, 0.14),
+            0 0 18px rgba(255, 138, 0, 0.22);
+        filter: saturate(1.28) hue-rotate(10deg);
+    }
+}
+
+@keyframes megaMenuHighlightGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes megaMenuHighlightShine {
+    0% {
+        left: -35%;
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 0.25;
+    }
+
+    55% {
+        left: 118%;
+        opacity: 0.95;
+    }
+
+    100% {
+        left: 140%;
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mega-menu-five-cols .mega-col-highlight-blink h5 a {
+        animation: none;
+    }
+
+    .mega-menu-five-cols .mega-col-highlight-blink h5 a::before {
+        animation: none;
+    }
 }
 
 .mega-links li {
@@ -435,6 +529,27 @@ body.menu-open {
     line-height: 1.55;
 }
 
+.mega-link-installment {
+    color: #d92d20 !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.01em;
+    text-shadow: 0 0 0 rgba(255, 106, 0, 0);
+    transform-origin: left center;
+    animation: megaLinkInstallmentBlink 0.82s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.mega-col-highlight h5 .mega-link-installment,
+.mega-col-highlight-blink h5 .mega-link-installment {
+    color: #fff !important;
+    animation: megaLinkInstallmentBlinkOnHighlight 0.95s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.mega-links a.mega-link-installment:hover,
+.mega-links .sub-links a.mega-link-installment:hover {
+    color: #ff6a00 !important;
+    padding-left: 1rem;
+}
+
 .mega-links > li > a::before,
 .sub-links > li > a::before {
     content: none;
@@ -444,6 +559,44 @@ body.menu-open {
 .mega-links a:hover {
     color: var(--primary-blue);
     padding-left: 5px;
+}
+
+@keyframes megaLinkInstallmentBlink {
+    0%,
+    100% {
+        color: #d92d20;
+        text-shadow: 0 0 0 rgba(255, 106, 0, 0);
+        transform: scale(1);
+        filter: saturate(1) brightness(1);
+    }
+
+    50% {
+        color: #ff6a00;
+        text-shadow: 0 0 10px rgba(255, 106, 0, 0.42), 0 0 20px rgba(255, 212, 0, 0.28);
+        transform: scale(1.06);
+        filter: saturate(1.28) brightness(1.08);
+    }
+}
+
+@keyframes megaLinkInstallmentBlinkOnHighlight {
+    0%,
+    100% {
+        color: #fff;
+        text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+        filter: brightness(1) saturate(1);
+    }
+
+    50% {
+        color: #fff7cc;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 18px rgba(255, 212, 0, 0.28);
+        filter: brightness(1.08) saturate(1.18);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mega-link-installment {
+        animation: none;
+    }
 }
 
 .mega-links .sub-links {
@@ -1727,6 +1880,9 @@ body.menu-open {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     min-height: 34px;
     padding: 0.38rem 0.82rem;
     border-radius: 999px;
@@ -1739,7 +1895,26 @@ body.menu-open {
 }
 
 .product-highlight-badge.is-installment {
-    background: #d92d20;
+    background: linear-gradient(120deg, #ff1744 0%, #ff6a00 45%, #ffd400 100%);
+    background-size: 220% 220%;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    text-shadow: 0 1px 4px rgba(122, 18, 0, 0.45);
+    box-shadow:
+        0 10px 24px rgba(255, 82, 25, 0.38),
+        0 0 18px rgba(255, 212, 0, 0.24);
+    animation: promotionBadgeBlink 0.95s cubic-bezier(0.4, 0, 0.2, 1) infinite, promotionBadgeGlow 2.4s linear infinite;
+}
+
+.product-highlight-badge.is-installment::before {
+    content: '';
+    position: absolute;
+    inset: -20% auto -20% -35%;
+    width: 42%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0));
+    transform: rotate(18deg);
+    animation: promotionBadgeShine 1.4s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: screen;
 }
 
 .product-highlight-badge.is-discount {
@@ -1752,6 +1927,83 @@ body.menu-open {
 
 .product-highlight-badge.is-availability-preorder {
     background: #ea580c;
+}
+
+@keyframes promotionBadgeBlink {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: saturate(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.09);
+        filter: saturate(1.28);
+    }
+}
+
+@keyframes promotionBadgeGlow {
+    0% {
+        background-position: 0% 50%;
+        box-shadow:
+            0 10px 24px rgba(255, 82, 25, 0.32),
+            0 0 14px rgba(255, 212, 0, 0.18);
+    }
+
+    50% {
+        background-position: 100% 50%;
+        box-shadow:
+            0 16px 34px rgba(255, 23, 68, 0.48),
+            0 0 26px rgba(255, 212, 0, 0.34);
+    }
+
+    100% {
+        background-position: 0% 50%;
+        box-shadow:
+            0 10px 24px rgba(255, 82, 25, 0.32),
+            0 0 14px rgba(255, 212, 0, 0.18);
+    }
+}
+
+@keyframes promotionBadgeShine {
+    0% {
+        left: -40%;
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.3;
+    }
+
+    50% {
+        left: 120%;
+        opacity: 0.9;
+    }
+
+    100% {
+        left: 140%;
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .product-highlight-badge.is-installment {
+        animation: none;
+    }
+
+    .product-highlight-badge.is-installment::before {
+        animation: none;
+    }
+
+    .badge-installment {
+        animation: none;
+    }
+
+    .badge-installment::before {
+        animation: none;
+    }
 }
 
 .special-features {
@@ -3613,14 +3865,34 @@ body.no-scroll {
     position: absolute;
     top: 0.75rem;
     left: 0.75rem;
+    overflow: hidden;
+    isolation: isolate;
     padding: 0.4rem 0.9rem;
     border-radius: 6px;
     font-size: 0.76rem;
     font-weight: 700;
     color: #fff;
-    background: #d92d20;
+    background: linear-gradient(120deg, #ff1744 0%, #ff6a00 45%, #ffd400 100%);
+    background-size: 220% 220%;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    text-shadow: 0 1px 4px rgba(122, 18, 0, 0.45);
     z-index: 4;
-    box-shadow: 0 8px 16px rgba(217, 45, 32, 0.28);
+    box-shadow:
+        0 10px 24px rgba(255, 82, 25, 0.38),
+        0 0 18px rgba(255, 212, 0, 0.24);
+    animation: promotionBadgeBlink 0.95s cubic-bezier(0.4, 0, 0.2, 1) infinite, promotionBadgeGlow 2.4s linear infinite;
+}
+
+.badge-installment::before {
+    content: '';
+    position: absolute;
+    inset: -20% auto -20% -35%;
+    width: 42%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0));
+    transform: rotate(18deg);
+    animation: promotionBadgeShine 1.4s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: screen;
 }
 
 .badge-installment ~ .badge-new,

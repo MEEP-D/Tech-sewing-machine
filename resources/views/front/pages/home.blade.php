@@ -331,7 +331,9 @@
                         @if($product->display_image_url)
                             <img src="{{ $media->url($product->display_image, ['width' => 640, 'quality' => 76]) ?? $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                         @endif
-                        <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
+                        @if($product->installment_percent)
+                            <span class="badge-installment">Khuyến mãi</span>
+                        @endif
                         @if(((int) $product->discount_percent) > 0)
                             <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
                         @endif
@@ -409,7 +411,9 @@
                                     @if($product->display_image_url)
                                         <img src="{{ $media->url($product->display_image, ['width' => 560, 'quality' => 76]) ?? $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                                     @endif
-                                    <span class="badge-installment">Trả góp {{ max(0, (int) $product->installment_percent) }}%</span>
+                                    @if($product->installment_percent)
+                                        <span class="badge-installment">Khuyến mãi</span>
+                                    @endif
                                     @if(((int) $product->discount_percent) > 0)
                                         <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
                                     @endif

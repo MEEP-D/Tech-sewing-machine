@@ -40,6 +40,9 @@ class CategoriesTable
                 IconColumn::make('highlight_mega_label')
                     ->label('Nổi bật mega menu')
                     ->boolean(),
+                IconColumn::make('highlight_mega_blink')
+                    ->label('Nhấp nháy mega menu')
+                    ->boolean(),
                 TextColumn::make('sort_order')
                     ->label('Thứ tự')
                     ->numeric()

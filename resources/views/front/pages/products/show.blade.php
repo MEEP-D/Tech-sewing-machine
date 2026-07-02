@@ -100,10 +100,12 @@
             <div class="special-product-content">
                 @php
                     $detailBadges = collect([
-                        [
-                            'label' => 'Trả góp ' . max(0, (int) $product->installment_percent) . '%',
-                            'class' => 'is-installment',
-                        ],
+                        $product->installment_percent
+                            ? [
+                                'label' => 'Khuyến mãi',
+                                'class' => 'is-installment',
+                            ]
+                            : null,
                         ((int) $product->discount_percent) > 0
                             ? [
                                 'label' => 'Giảm giá ' . (int) $product->discount_percent . '%',
@@ -242,7 +244,9 @@
                     @if($relatedProduct->display_image_url)
                         <img src="{{ $media->url($relatedProduct->display_image, ['width' => 640, 'quality' => 76]) ?? $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}" loading="lazy" decoding="async">
                     @endif
-                    <span class="badge-installment">Trả góp {{ max(0, (int) $relatedProduct->installment_percent) }}%</span>
+                    @if($relatedProduct->installment_percent)
+                        <span class="badge-installment">Khuyến mãi</span>
+                    @endif
                     @if(((int) $relatedProduct->discount_percent) > 0)
                         <span class="badge-discount-ribbon">-{{ (int) $relatedProduct->discount_percent }}%</span>
                     @endif

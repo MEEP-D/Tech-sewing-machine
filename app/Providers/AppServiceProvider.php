@@ -96,12 +96,26 @@ class AppServiceProvider extends ServiceProvider
 
                     if (Schema::hasTable('categories')) {
                         $payload['menuCategories'] = collect(Cache::rememberForever('front_menu_categories_v1', function (): array {
-                            $mapCategory = function (Category $category) use (&$mapCategory): array {
+                            $installmentCategoryLookup = \App\Models\Product::query()
+                                ->published()
+                                ->where('installment_percent', true)
+                                ->pluck('category_id')
+                                ->filter()
+                                ->mapWithKeys(fn ($id) => [(int) $id => true])
+                                ->all();
+
+                            $mapCategory = function (Category $category) use (&$mapCategory, $installmentCategoryLookup): array {
+                                $children = $category->childrenRecursive->map($mapCategory)->values();
+                                $hasInstallmentProducts = isset($installmentCategoryLookup[(int) $category->getKey()])
+                                    || $children->contains(fn (array $child): bool => (bool) ($child['has_installment_products'] ?? false));
+
                                 return [
                                     'name' => $category->name,
                                     'slug' => $category->slug,
                                     'highlight_mega_label' => $category->highlight_mega_label,
-                                    'children' => $category->childrenRecursive->map($mapCategory)->values()->all(),
+                                    'highlight_mega_blink' => $category->highlight_mega_blink,
+                                    'has_installment_products' => $hasInstallmentProducts,
+                                    'children' => $children->all(),
                                 ];
                             };
 
