@@ -89,4 +89,62 @@ class ProductCrudTest extends TestCase
         $response->assertSee('/storage/products/guides/huong-dan.pdf', false);
         $response->assertDontSee('Đánh giá đang được cập nhật.');
     }
+    public function test_product_detail_page_renders_active_promotion_popup_content(): void
+    {
+        $category = Category::create([
+            'name' => 'May lay dau',
+            'slug' => 'may-lay-dau',
+            'type' => 'product',
+        ]);
+
+        Product::create([
+            'name' => 'May lay dau tu dong',
+            'slug' => 'may-lay-dau-tu-dong',
+            'price' => '18.500.000',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'installment_percent' => true,
+            'promotion_title' => 'Qua tang kem',
+            'promotion_description' => 'Mua may lay dau tu dong - tang 1 iPhone',
+            'promotion_gift_name' => 'iPhone 16',
+            'promotion_gift_image' => 'products/promotions/iphone.jpg',
+            'promotion_starts_at' => now()->subDay(),
+            'promotion_ends_at' => now()->addDays(3),
+        ]);
+
+        $response = $this->get('/san-pham/may-lay-dau-tu-dong');
+
+        $response->assertOk();
+        $response->assertSee('Khuy');
+        $response->assertSee('Qua tang kem');
+        $response->assertSee('Mua may lay dau tu dong - tang 1 iPhone');
+        $response->assertSee('/storage/products/promotions/iphone.jpg', false);
+        $response->assertSee('data-promo-popup', false);
+    }
+
+    public function test_expired_promotion_badge_is_hidden(): void
+    {
+        $category = Category::create([
+            'name' => 'May may',
+            'slug' => 'may-may',
+            'type' => 'product',
+        ]);
+
+        Product::create([
+            'name' => 'May may het khuyen mai',
+            'slug' => 'may-may-het-khuyen-mai',
+            'price' => '18.500.000',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'installment_percent' => true,
+            'promotion_title' => 'Qua tang kem',
+            'promotion_description' => 'Da het han',
+            'promotion_ends_at' => now()->subMinute(),
+        ]);
+
+        $response = $this->get('/san-pham/may-may-het-khuyen-mai');
+
+        $response->assertOk();
+        $response->assertDontSee('data-promo-popup', false);
+    }
 }

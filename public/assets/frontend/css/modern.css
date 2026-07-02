@@ -1874,6 +1874,8 @@ body.menu-open {
     flex-wrap: wrap;
     gap: 0.55rem;
     margin: 0 0 1.2rem;
+    position: relative;
+    z-index: 3;
 }
 
 .product-highlight-badge {
@@ -1892,6 +1894,8 @@ body.menu-open {
     line-height: 1;
     letter-spacing: 0.01em;
     box-shadow: 0 10px 20px rgba(15, 23, 42, 0.14);
+    gap: 0.42rem;
+    border: 0;
 }
 
 .product-highlight-badge.is-installment {
@@ -1915,6 +1919,140 @@ body.menu-open {
     animation: promotionBadgeShine 1.4s ease-in-out infinite;
     pointer-events: none;
     mix-blend-mode: screen;
+}
+
+.product-promo-widget {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
+}
+
+.product-promo-trigger {
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+}
+
+.product-promo-popup {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    width: min(360px, calc(100vw - 32px));
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+    z-index: 12;
+}
+
+.product-promo-widget.is-open .product-promo-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.product-promo-popup__inner {
+    background: #fff;
+    border: 1px solid #f9c5d7;
+    border-radius: 20px;
+    box-shadow: 0 20px 48px rgba(190, 24, 93, 0.16), 0 10px 24px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+}
+
+.product-promo-popup__header {
+    padding: 1rem 1rem 0.5rem;
+}
+
+.product-promo-popup__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #e11d48;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.product-promo-popup__title-wrap h3 {
+    margin: 0.45rem 0 0;
+    color: #0f172a;
+    font-size: 1rem;
+    line-height: 1.35;
+}
+
+.product-promo-popup__gift-name {
+    color: #db2777;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+}
+
+.product-promo-popup__body {
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr);
+    gap: 0.95rem;
+    padding: 0 1rem 1rem;
+    align-items: start;
+}
+
+.product-promo-popup__body.no-image {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.product-promo-popup__media {
+    margin: 0;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fff1f5 0%, #ffffff 100%);
+    border: 1px solid #ffe4ec;
+    aspect-ratio: 1 / 1;
+    padding: 0.55rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-promo-popup__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.product-promo-popup__content {
+    min-width: 0;
+}
+
+.product-promo-popup__description {
+    margin: 0;
+    color: #334155;
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+.product-promo-popup__countdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0.75rem 0 0;
+    padding: 0.65rem 0.8rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #fff1f7 0%, #fff7fb 100%);
+    border: 1px solid #fbcfe8;
+}
+
+.product-promo-popup__countdown-label {
+    color: #be185d;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.product-promo-popup__countdown-value {
+    color: #9d174d;
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.2;
 }
 
 .product-highlight-badge.is-discount {
@@ -2004,6 +2142,53 @@ body.menu-open {
     .badge-installment::before {
         animation: none;
     }
+
+    .product-promo-popup {
+        transition: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .product-promo-popup {
+        top: -0.5rem;
+        left: calc(100% + 14px);
+    }
+}
+
+@media (max-width: 1024px) {
+    .product-promo-popup {
+        top: calc(100% + 10px);
+        left: 0;
+        width: min(340px, calc(100vw - 32px));
+    }
+}
+
+@media (max-width: 767px) {
+    .product-highlight-badges {
+        margin-bottom: 1rem;
+    }
+
+    .product-promo-popup {
+        width: min(320px, calc(100vw - 24px));
+    }
+
+    .product-promo-popup__header {
+        padding: 0.9rem 0.9rem 0.45rem;
+    }
+
+    .product-promo-popup__body {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 0 0.9rem 0.9rem;
+    }
+
+    .product-promo-popup__media {
+        max-width: 180px;
+        margin: 0 auto;
+    }
+}
+
+.badge-installment i {
+    margin-right: 0.35rem;
 }
 
 .special-features {

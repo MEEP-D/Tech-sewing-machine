@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Models\Product;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
@@ -70,6 +71,7 @@ class ProductForm
                         Toggle::make('installment_percent')
                             ->label('Khuyến mãi')
                             ->helperText('Bật để hiển thị badge Khuyến mãi trên sản phẩm.')
+                            ->live()
                             ->default(false),
                         Select::make('availability_badge')
                             ->label('Thẻ nổi bật')
@@ -100,6 +102,45 @@ class ProductForm
                     Textarea::make('short_description')->label('Mô tả ngắn')->rows(3)->maxLength(500)->columnSpanFull(),
                     Textarea::make('long_description')->label('Mô tả dài')->rows(4)->maxLength(2000)->columnSpanFull(),
                     RichEditor::make('description')->label('Mô tả chi tiết')->columnSpanFull(),
+                    Section::make('Khuyến mãi theo sản phẩm')
+                        ->description('Nhập nội dung quà tặng hoặc ưu đãi sẽ hiển thị khi khách bấm hoặc di chuột vào badge Khuyến mãi.')
+                        ->visible(fn (callable $get): bool => (bool) $get('installment_percent'))
+                        ->schema([
+                            TextInput::make('promotion_title')
+                                ->label('Tiêu đề khuyến mãi')
+                                ->maxLength(255)
+                                ->placeholder('Quà tặng kèm'),
+                            TextInput::make('promotion_gift_name')
+                                ->label('Tên quà tặng')
+                                ->maxLength(255)
+                                ->placeholder('1 iPhone'),
+                            Textarea::make('promotion_description')
+                                ->label('Nội dung khuyến mãi')
+                                ->rows(3)
+                                ->placeholder('Mua máy lấy dấu tự động - tặng 1 iPhone'),
+                            FileUpload::make('promotion_gift_image')
+                                ->label('Ảnh quà tặng')
+                                ->image()
+                                ->imageEditor()
+                                ->disk('public')
+                                ->directory('products/promotions')
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                ->maxSize(3072)
+                                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                            Grid::make(2)->schema([
+                                DateTimePicker::make('promotion_starts_at')
+                                    ->label('Bắt đầu khuyến mãi')
+                                    ->seconds(false)
+                                    ->native(false),
+                                DateTimePicker::make('promotion_ends_at')
+                                    ->label('Kết thúc khuyến mãi')
+                                    ->seconds(false)
+                                    ->native(false)
+                                    ->helperText('Để trống nếu không giới hạn thời gian kết thúc.'),
+                            ]),
+                        ])
+                        ->columns(2)
+                        ->columnSpanFull(),
                     Section::make('Nội dung bổ sung trang chi tiết')->schema([
                         Textarea::make('support_prompt')
                             ->label('Dòng hỗ trợ')
@@ -117,7 +158,7 @@ class ProductForm
                                 ->validationMessages([
                                     'regex' => 'Link phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
                                 ])
-                                ->placeholder('/liên-hệ'),
+                                ->placeholder('/lien-he'),
                         ]),
                         Grid::make(2)->schema([
                             TextInput::make('cta_secondary_label')

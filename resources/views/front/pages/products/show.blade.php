@@ -41,6 +41,8 @@
 
                 $galleryImages = collect();
                 $specificationImages = collect();
+                $promotionGiftImageUrl = null;
+                $promotionEndsAtTimestamp = $product->promotion_ends_at?->getTimestampMs();
                 $usageGuideAttachmentUrl = $product->usage_guide_attachment_url;
                 $usageGuideAttachmentExtension = $product->usage_guide_attachment_extension;
                 $usageGuideAttachmentName = $product->usage_guide_attachment_filename ?: 'tai-lieu-huong-dan';
@@ -48,6 +50,11 @@
                 $hasUsageGuide = filled($product->rendered_usage_guide_content)
                     || filled($product->usage_guide_video_id)
                     || filled($usageGuideAttachmentUrl);
+
+                if ($product->promotion_gift_image) {
+                    $promotionGiftImageUrl = $media->url($product->promotion_gift_image, ['width' => 420, 'quality' => 80])
+                        ?? $resolveProductImageUrl($product->promotion_gift_image);
+                }
 
                 if ($product->display_image_url) {
                     $galleryImages->push($media->url($product->display_image, ['width' => 1280, 'quality' => 78]) ?? $product->display_image_url);
@@ -112,7 +119,7 @@
             <div class="special-product-content">
                 @php
                     $detailBadges = collect([
-                        $product->installment_percent
+                        $product->has_active_promotion
                             ? [
                                 'label' => 'Khuyến mãi',
                                 'class' => 'is-installment',
@@ -133,6 +140,7 @@
                             ]
                             : null,
                     ])->filter()->values();
+                    $hasActivePromotion = $product->has_active_promotion;
                 @endphp
 
                 <span class="special-tag">Chi tiết sản phẩm</span>
@@ -143,7 +151,66 @@
                 @if($detailBadges->isNotEmpty())
                     <div class="product-highlight-badges">
                         @foreach($detailBadges as $badge)
-                            <span class="product-highlight-badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
+                            @if($badge['class'] === 'is-installment' && $hasActivePromotion)
+                                <div class="product-promo-widget" data-promo-widget>
+                                    <button
+                                        type="button"
+                                        class="product-highlight-badge {{ $badge['class'] }} product-promo-trigger"
+                                        data-promo-trigger
+                                        aria-expanded="false"
+                                        aria-controls="product-promo-popup"
+                                    >
+                                        <i class="fas fa-gift" aria-hidden="true"></i>
+                                        <span>{{ $badge['label'] }}</span>
+                                    </button>
+
+                                    <div
+                                        id="product-promo-popup"
+                                        class="product-promo-popup"
+                                        data-promo-popup
+                                        aria-hidden="true"
+                                    >
+                                        <div class="product-promo-popup__inner">
+                                            <div class="product-promo-popup__header">
+                                                <div class="product-promo-popup__title-wrap">
+                                                    <span class="product-promo-popup__eyebrow">
+                                                        <i class="fas fa-gift" aria-hidden="true"></i>
+                                                        {{ $product->promotion_display_title }}
+                                                    </span>
+                                                    @if($product->promotion_gift_name)
+                                                        <h3 class="product-promo-popup__gift-name">{{ $product->promotion_gift_name }}</h3>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="product-promo-popup__body{{ $promotionGiftImageUrl ? '' : ' no-image' }}">
+                                                @if($promotionGiftImageUrl)
+                                                    <figure class="product-promo-popup__media">
+                                                        <img src="{{ $promotionGiftImageUrl }}" alt="{{ $product->promotion_gift_name ?: $product->promotion_display_title }}" loading="lazy" decoding="async">
+                                                    </figure>
+                                                @endif
+
+                                                <div class="product-promo-popup__content">
+                                                    <p class="product-promo-popup__description">{{ $product->promotion_display_description }}</p>
+
+                                                    @if($promotionEndsAtTimestamp)
+                                                        <div
+                                                            class="product-promo-popup__countdown"
+                                                            data-promo-countdown
+                                                            data-promo-end-at="{{ $promotionEndsAtTimestamp }}"
+                                                        >
+                                                            <span class="product-promo-popup__countdown-label">Kết thúc sau</span>
+                                                            <strong class="product-promo-popup__countdown-value">--:--:--</strong>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="product-highlight-badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
+                            @endif
                         @endforeach
                     </div>
                 @endif
@@ -306,8 +373,8 @@
                                 @if($relatedProduct->display_image_url)
                                     <img src="{{ $media->url($relatedProduct->display_image, ['width' => 640, 'quality' => 76]) ?? $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}" loading="lazy" decoding="async">
                                 @endif
-                                @if($relatedProduct->installment_percent)
-                                    <span class="badge-installment">Khuyến mãi</span>
+                                @if($relatedProduct->has_active_promotion)
+                                    <span class="badge-installment"><i class="fas fa-gift" aria-hidden="true"></i> Khuyến mãi</span>
                                 @endif
                                 @if(((int) $relatedProduct->discount_percent) > 0)
                                     <span class="badge-discount-ribbon">-{{ (int) $relatedProduct->discount_percent }}%</span>
@@ -466,6 +533,154 @@ document.addEventListener('DOMContentLoaded', function () {
                 relatedToggle.textContent = relatedToggle.getAttribute('data-collapse-text') || 'Thu gọn';
             }
         });
+    }
+
+    const promoWidget = document.querySelector('[data-promo-widget]');
+    if (promoWidget) {
+        const promoTrigger = promoWidget.querySelector('[data-promo-trigger]');
+        const promoPopup = promoWidget.querySelector('[data-promo-popup]');
+        const promoCountdown = promoWidget.querySelector('[data-promo-countdown]');
+        let promoCloseTimer = null;
+        let promoCountdownTimer = null;
+
+        const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const isOpen = () => promoWidget.classList.contains('is-open');
+
+        const setPromoOpen = (open) => {
+            promoWidget.classList.toggle('is-open', open);
+            if (promoTrigger) {
+                promoTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+            if (promoPopup) {
+                promoPopup.setAttribute('aria-hidden', open ? 'false' : 'true');
+            }
+        };
+
+        const clearPromoCloseTimer = () => {
+            if (promoCloseTimer) {
+                window.clearTimeout(promoCloseTimer);
+                promoCloseTimer = null;
+            }
+        };
+
+        const updatePromoCountdown = () => {
+            if (!promoCountdown) {
+                return;
+            }
+
+            const countdownValue = promoCountdown.querySelector('.product-promo-popup__countdown-value');
+            const endAt = Number.parseInt(promoCountdown.getAttribute('data-promo-end-at') || '', 10);
+
+            if (!countdownValue || Number.isNaN(endAt)) {
+                return;
+            }
+
+            const remainingMs = endAt - Date.now();
+
+            if (remainingMs <= 0) {
+                countdownValue.textContent = 'Đã kết thúc';
+                setPromoOpen(false);
+
+                if (promoCountdownTimer) {
+                    window.clearInterval(promoCountdownTimer);
+                    promoCountdownTimer = null;
+                }
+
+                return;
+            }
+
+            const totalSeconds = Math.floor(remainingMs / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const timeParts = [
+                String(hours).padStart(2, '0'),
+                String(minutes).padStart(2, '0'),
+                String(seconds).padStart(2, '0'),
+            ];
+
+            countdownValue.textContent = days > 0
+                ? `${days} ngày ${timeParts.join(':')}`
+                : timeParts.join(':');
+        };
+
+        const openPromo = () => {
+            clearPromoCloseTimer();
+            setPromoOpen(true);
+        };
+
+        const closePromo = () => {
+            clearPromoCloseTimer();
+            setPromoOpen(false);
+        };
+
+        const schedulePromoClose = () => {
+            clearPromoCloseTimer();
+            promoCloseTimer = window.setTimeout(() => {
+                if (!promoWidget.matches(':hover') && !promoWidget.contains(document.activeElement)) {
+                    closePromo();
+                }
+            }, 120);
+        };
+
+        if (promoTrigger) {
+            promoTrigger.addEventListener('click', (event) => {
+                event.preventDefault();
+
+                if (canHover()) {
+                    setPromoOpen(!isOpen());
+                    return;
+                }
+
+                if (isOpen()) {
+                    closePromo();
+                } else {
+                    openPromo();
+                }
+            });
+        }
+
+        promoWidget.addEventListener('mouseenter', () => {
+            if (canHover()) {
+                openPromo();
+            }
+        });
+
+        promoWidget.addEventListener('mouseleave', () => {
+            if (canHover()) {
+                schedulePromoClose();
+            }
+        });
+
+        promoWidget.addEventListener('focusin', openPromo);
+        promoWidget.addEventListener('focusout', () => {
+            window.setTimeout(() => {
+                if (!promoWidget.contains(document.activeElement)) {
+                    closePromo();
+                }
+            }, 0);
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!promoWidget.contains(event.target)) {
+                closePromo();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closePromo();
+            }
+        });
+
+        window.addEventListener('resize', closePromo);
+
+        if (promoCountdown) {
+            updatePromoCountdown();
+            promoCountdownTimer = window.setInterval(updatePromoCountdown, 1000);
+        }
     }
 });
 </script>

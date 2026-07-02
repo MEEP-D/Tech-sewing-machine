@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\ResolvesMediaUrl;
 use App\Models\Concerns\RendersRichContent;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,6 +31,7 @@ class Product extends Model
         'price', 'brand', 'origin', 'specifications', 'image', 'thumbnail',
         'gallery', 'specification_images', 'video_id', 'category_id', 'status', 'is_featured', 'is_new', 'is_hot',
         'is_exclusive', 'show_in_banner_switcher', 'sort_order', 'view_count', 'discount_percent', 'installment_percent',
+        'promotion_title', 'promotion_description', 'promotion_gift_name', 'promotion_gift_image', 'promotion_starts_at', 'promotion_ends_at',
         'availability_badge', 'support_prompt',
         'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
         'overview_heading', 'overview_content', 'seo_heading', 'seo_content',
@@ -47,6 +49,8 @@ class Product extends Model
         'show_in_banner_switcher' => 'boolean',
         'discount_percent' => 'integer',
         'installment_percent' => 'boolean',
+        'promotion_starts_at' => 'datetime',
+        'promotion_ends_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -122,6 +126,24 @@ class Product extends Model
     public static function availabilityBadgeOptions(): array
     {
         return self::AVAILABILITY_BADGE_LABELS;
+    }
+
+    public function scopeActivePromotion($query, ?CarbonInterface $moment = null)
+    {
+        $moment ??= now();
+
+        return $query
+            ->where('installment_percent', true)
+            ->where(function ($promotionQuery) use ($moment) {
+                $promotionQuery
+                    ->whereNull('promotion_starts_at')
+                    ->orWhere('promotion_starts_at', '<=', $moment);
+            })
+            ->where(function ($promotionQuery) use ($moment) {
+                $promotionQuery
+                    ->whereNull('promotion_ends_at')
+                    ->orWhere('promotion_ends_at', '>=', $moment);
+            });
     }
 
     public static function extractYoutubeId(?string $value): ?string
@@ -207,6 +229,62 @@ class Product extends Model
     public function getAvailabilityBadgeLabelAttribute(): ?string
     {
         return self::AVAILABILITY_BADGE_LABELS[$this->availability_badge] ?? null;
+    }
+
+    public function getHasActivePromotionAttribute(): bool
+    {
+        if (! $this->installment_percent) {
+            return false;
+        }
+
+        $now = now();
+
+        if ($this->promotion_starts_at instanceof CarbonInterface && $this->promotion_starts_at->isAfter($now)) {
+            return false;
+        }
+
+        if ($this->promotion_ends_at instanceof CarbonInterface && $this->promotion_ends_at->isBefore($now)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getPromotionDisplayTitleAttribute(): string
+    {
+        $title = trim((string) $this->promotion_title);
+
+        if ($title !== '') {
+            return $title;
+        }
+
+        return filled($this->promotion_gift_name) ? 'Quà tặng kèm' : 'Ưu đãi đặc biệt';
+    }
+
+    public function getPromotionDisplayDescriptionAttribute(): string
+    {
+        $description = trim((string) $this->promotion_description);
+
+        if ($description !== '') {
+            return $description;
+        }
+
+        $giftName = trim((string) $this->promotion_gift_name);
+
+        if ($giftName !== '') {
+            return 'Tặng ' . $giftName . ' khi mua ' . $this->name;
+        }
+
+        return 'Liên hệ để nhận thông tin ưu đãi chi tiết cho sản phẩm này.';
+    }
+
+    public function getPromotionGiftImageUrlAttribute(): ?string
+    {
+        if (! $this->promotion_gift_image) {
+            return null;
+        }
+
+        return $this->resolveMediaUrl($this->promotion_gift_image);
     }
 
     public function getRenderedDescriptionAttribute(): string

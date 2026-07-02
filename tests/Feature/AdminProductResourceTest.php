@@ -33,6 +33,13 @@ class AdminProductResourceTest extends TestCase
             'usage_guide_content' => '<p>Huong dan su dung</p>',
             'usage_guide_video_id' => 'abc123xyz',
             'usage_guide_attachment' => 'products/guides/huong-dan.pdf',
+            'installment_percent' => true,
+            'promotion_title' => 'Qua tang kem',
+            'promotion_description' => 'Tang 1 iPhone khi mua may.',
+            'promotion_gift_name' => 'iPhone 16',
+            'promotion_gift_image' => 'products/promotions/iphone.jpg',
+            'promotion_starts_at' => '2026-07-01 08:00:00',
+            'promotion_ends_at' => '2026-07-31 23:59:00',
             'specifications' => [['key' => 'Toc do', 'value' => '5000rpm']],
             'thumbnail' => 'products/thumb.jpg',
             'gallery' => ['products/1.jpg'],
@@ -51,5 +58,9 @@ class AdminProductResourceTest extends TestCase
         $this->assertSame(['products/specification-images/spec-01.jpg'], $product->specification_images);
         $this->assertSame('abc123xyz', $product->usage_guide_video_id);
         $this->assertSame('products/guides/huong-dan.pdf', $product->usage_guide_attachment);
+        $this->assertTrue($product->installment_percent);
+        $this->assertSame('Qua tang kem', $product->promotion_title);
+        $this->assertSame('iPhone 16', $product->promotion_gift_name);
+        $this->assertSame('products/promotions/iphone.jpg', $product->promotion_gift_image);
     }
 }
