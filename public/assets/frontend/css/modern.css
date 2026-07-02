@@ -3727,6 +3727,80 @@ body.no-scroll {
     padding-bottom: 0.65rem;
 }
 
+.product-guide-content {
+    margin-bottom: 1rem;
+}
+
+.product-guide-media + .product-guide-media {
+    margin-top: 1rem;
+}
+
+.product-guide-media h4 {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    color: #1e3a5f;
+}
+
+.product-guide-file-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #d8e2ef;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #f8fbff 0%, #f2f7fc 100%);
+}
+
+.product-guide-file-card p {
+    margin-top: 0.25rem;
+    color: #475569;
+    word-break: break-word;
+}
+
+.product-guide-file-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.product-guide-file-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    background: #1d4ed8;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-guide-file-actions a:last-child {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.product-guide-file-actions a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+}
+
+.product-guide-pdf-frame {
+    width: 100%;
+    min-height: 520px;
+    margin-top: 0.9rem;
+    border: 1px solid #d8e2ef;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.product-guide-file-note {
+    margin-top: 0.85rem;
+    color: #475569;
+}
+
 @keyframes detail-tab-reveal {
     from {
         opacity: 0;
@@ -3746,6 +3820,23 @@ body.no-scroll {
 
     .detail-tab-content {
         padding: 1rem;
+    }
+
+    .product-guide-file-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .product-guide-file-actions {
+        width: 100%;
+    }
+
+    .product-guide-file-actions a {
+        flex: 1 1 160px;
+    }
+
+    .product-guide-pdf-frame {
+        min-height: 380px;
     }
 }
 

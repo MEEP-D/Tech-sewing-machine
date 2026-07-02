@@ -9,6 +9,7 @@
                 $toText = static function (mixed $value, string $default = ''): string {
                     if (is_string($value) || is_numeric($value)) {
                         $text = trim((string) $value);
+
                         return $text !== '' ? $text : $default;
                     }
 
@@ -40,13 +41,20 @@
 
                 $galleryImages = collect();
                 $specificationImages = collect();
+                $usageGuideAttachmentUrl = $product->usage_guide_attachment_url;
+                $usageGuideAttachmentExtension = $product->usage_guide_attachment_extension;
+                $usageGuideAttachmentName = $product->usage_guide_attachment_filename ?: 'tai-lieu-huong-dan';
+                $usageGuideIsPdf = $usageGuideAttachmentExtension === 'pdf';
+                $hasUsageGuide = filled($product->rendered_usage_guide_content)
+                    || filled($product->usage_guide_video_id)
+                    || filled($usageGuideAttachmentUrl);
 
                 if ($product->display_image_url) {
                     $galleryImages->push($media->url($product->display_image, ['width' => 1280, 'quality' => 78]) ?? $product->display_image_url);
                 }
 
                 foreach ((array) ($product->gallery ?? []) as $galleryPath) {
-                    if (!is_string($galleryPath) || $galleryPath === '') {
+                    if (! is_string($galleryPath) || $galleryPath === '') {
                         continue;
                     }
 
@@ -54,7 +62,7 @@
                 }
 
                 foreach ((array) ($product->specification_images ?? []) as $specificationImagePath) {
-                    if (!is_string($specificationImagePath) || $specificationImagePath === '') {
+                    if (! is_string($specificationImagePath) || $specificationImagePath === '') {
                         continue;
                     }
 
@@ -65,6 +73,7 @@
                 $specificationImages = $specificationImages->filter()->unique()->values();
                 $mainImage = $galleryImages->first();
             @endphp
+
             @push('preload_assets')
                 @if($mainImage)
                     <link rel="preload" as="image" href="{{ $mainImage }}" fetchpriority="high">
@@ -85,18 +94,21 @@
                                 type="button"
                                 class="product-thumb-btn {{ $index === 0 ? 'active' : '' }}"
                                 data-image="{{ $imageUrl }}"
-                                aria-label="Anh thu {{ $index + 1 }}"
+                                aria-label="Ảnh thứ {{ $index + 1 }}"
                             >
-                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} - anh {{ $index + 1 }}" loading="lazy" decoding="async">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} - ảnh {{ $index + 1 }}" loading="lazy" decoding="async">
                             </button>
                         @endforeach
                     </div>
                 @endif
 
                 @if($product->video_id)
-                    <div class="video-container"><iframe src="https://www.youtube.com/embed/{{ $product->video_id }}" loading="lazy" allowfullscreen></iframe></div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/{{ $product->video_id }}" loading="lazy" allowfullscreen title="Video sản phẩm {{ $product->name }}"></iframe>
+                    </div>
                 @endif
             </div>
+
             <div class="special-product-content">
                 @php
                     $detailBadges = collect([
@@ -122,10 +134,12 @@
                             : null,
                     ])->filter()->values();
                 @endphp
+
                 <span class="special-tag">Chi tiết sản phẩm</span>
                 <h1 class="special-title">{{ $product->name }}</h1>
                 <span class="special-code">Mã: {{ $product->code ?: $product->sku }}</span>
                 <div class="special-price"><i class="fas fa-tag"></i> Giá: {{ $product->price ?: 'Liên hệ' }}</div>
+
                 @if($detailBadges->isNotEmpty())
                     <div class="product-highlight-badges">
                         @foreach($detailBadges as $badge)
@@ -133,6 +147,7 @@
                         @endforeach
                     </div>
                 @endif
+
                 <p class="special-description">{{ $product->short_description }}</p>
 
                 <div class="product-support-block">
@@ -142,7 +157,7 @@
                             {{ $product->cta_primary_label ?: 'Bạn cần hỗ trợ thông tin gì về sản phẩm này?' }}
                         </a>
                         <a href="{{ $product->cta_secondary_url ?: route('products.index') }}" class="product-support-btn secondary">
-                            {{ $product->cta_secondary_label ?: 'Kham pha cac mau theu mien phi tai day' }}
+                            {{ $product->cta_secondary_label ?: 'Khám phá các mẫu thêu miễn phí tại đây' }}
                         </a>
                     </div>
 
@@ -152,7 +167,7 @@
                             <div class="page-rich-content product-rich-content">{!! $product->rendered_overview_content ?: ($product->rendered_long_description ?: '<p>Nội dung đang cập nhật.</p>') !!}</div>
                         </section>
                         <section class="product-support-section">
-                            <h3>{{ $product->seo_heading ?: 'Tim hieu ve may lam seo' }}</h3>
+                            <h3>{{ $product->seo_heading ?: 'Tìm hiểu về máy làm seo' }}</h3>
                             <div class="page-rich-content product-rich-content">{!! $product->rendered_seo_content ?: '<p>Nội dung đang cập nhật.</p>' !!}</div>
                         </section>
                     </div>
@@ -163,12 +178,13 @@
         @php
             $productSpecs = $product->relationLoaded('specs') ? $product->specs : collect();
         @endphp
+
         <div class="product-detail-tabs">
             <div class="detail-tab-nav" role="tablist" aria-label="Chi tiết sản phẩm">
                 <button class="detail-tab-btn active" type="button" id="tab-btn-info" role="tab" aria-selected="true" aria-controls="tab-info" data-target="tab-info">Thông tin sản phẩm</button>
                 <button class="detail-tab-btn" type="button" id="tab-btn-specs" role="tab" aria-selected="false" aria-controls="tab-specs" data-target="tab-specs">Thông số kỹ thuật</button>
                 <button class="detail-tab-btn" type="button" id="tab-btn-warranty" role="tab" aria-selected="false" aria-controls="tab-warranty" data-target="tab-warranty">Chính sách bảo hành</button>
-                <button class="detail-tab-btn" type="button" id="tab-btn-review" role="tab" aria-selected="false" aria-controls="tab-review" data-target="tab-review">Đánh giá</button>
+                <button class="detail-tab-btn" type="button" id="tab-btn-guide" role="tab" aria-selected="false" aria-controls="tab-guide" data-target="tab-guide">Hướng dẫn sử dụng</button>
                 <button class="detail-tab-btn" type="button" id="tab-btn-comment" role="tab" aria-selected="false" aria-controls="tab-comment" data-target="tab-comment">Bình luận</button>
             </div>
 
@@ -183,15 +199,16 @@
 
             <div class="detail-tab-content" id="tab-specs" role="tabpanel" aria-labelledby="tab-btn-specs">
                 @php
-                    $hasSpecs = $productSpecs->isNotEmpty() || !empty($product->specifications);
+                    $hasSpecs = $productSpecs->isNotEmpty() || ! empty($product->specifications);
                 @endphp
+
                 @if($productSpecs->isNotEmpty())
                     <div class="special-specs-grid" style="margin-top: 1rem;">
                         @foreach($productSpecs as $spec)
                             <div class="spec-item"><span class="spec-label">{{ $spec->key }}</span><span class="spec-value">{{ $spec->value }}</span></div>
                         @endforeach
                     </div>
-                @elseif(!empty($product->specifications))
+                @elseif(! empty($product->specifications))
                     <div class="special-specs-grid" style="margin-top: 1rem;">
                         @foreach((array) $product->specifications as $key => $value)
                             <div class="spec-item"><span class="spec-label">{{ $toText($key, '-') }}</span><span class="spec-value">{{ $toText($value, '-') }}</span></div>
@@ -203,13 +220,13 @@
                     <div class="product-spec-gallery">
                         @foreach($specificationImages as $index => $imageUrl)
                             <figure class="product-spec-gallery-item">
-                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} - thong so ky thuat {{ $index + 1 }}" loading="lazy" decoding="async">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} - thông số kỹ thuật {{ $index + 1 }}" loading="lazy" decoding="async">
                             </figure>
                         @endforeach
                     </div>
                 @endif
 
-                @if(!$hasSpecs && $specificationImages->isEmpty())
+                @if(! $hasSpecs && $specificationImages->isEmpty())
                     <p>Thông số đang cập nhật.</p>
                 @endif
             </div>
@@ -218,8 +235,57 @@
                 <p>Tất cả các sản phẩm máy móc của thương hiệu smart sẽ được bảo hành 12 tháng kể từ ngày lắp đặt và không bảo hành với những linh kiện cơ khí dễ mài mòn tự nhiên do sản xuất, thiên tai và tác nhân bên ngoài.</p>
             </div>
 
-            <div class="detail-tab-content" id="tab-review" role="tabpanel" aria-labelledby="tab-btn-review">
-                <p>Đánh giá đang được cập nhật.</p>
+            <div class="detail-tab-content" id="tab-guide" role="tabpanel" aria-labelledby="tab-btn-guide">
+                <h3>Hướng dẫn sử dụng</h3>
+
+                @if(filled($product->rendered_usage_guide_content))
+                    <div class="page-rich-content product-rich-content product-guide-content">{!! $product->rendered_usage_guide_content !!}</div>
+                @endif
+
+                @if($product->usage_guide_video_id)
+                    <section class="product-guide-media">
+                        <h4>Video hướng dẫn</h4>
+                        <div class="video-container">
+                            <iframe
+                                src="https://www.youtube.com/embed/{{ $product->usage_guide_video_id }}"
+                                title="Video hướng dẫn sử dụng {{ $product->name }}"
+                                loading="lazy"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                    </section>
+                @endif
+
+                @if($usageGuideAttachmentUrl)
+                    <section class="product-guide-media">
+                        <h4>Tài liệu hướng dẫn</h4>
+                        <div class="product-guide-file-card">
+                            <div>
+                                <strong>{{ strtoupper($usageGuideAttachmentExtension ?: 'FILE') }}</strong>
+                                <p>{{ $usageGuideAttachmentName }}</p>
+                            </div>
+                            <div class="product-guide-file-actions">
+                                <a href="{{ $usageGuideAttachmentUrl }}" target="_blank" rel="noopener">Xem file</a>
+                                <a href="{{ $usageGuideAttachmentUrl }}" download>Tải xuống</a>
+                            </div>
+                        </div>
+
+                        @if($usageGuideIsPdf)
+                            <iframe
+                                class="product-guide-pdf-frame"
+                                src="{{ $usageGuideAttachmentUrl }}#view=FitH"
+                                title="Tài liệu hướng dẫn {{ $product->name }}"
+                                loading="lazy"
+                            ></iframe>
+                        @else
+                            <p class="product-guide-file-note">File Excel/CSV sẽ được mở hoặc tải xuống trên thiết bị của khách.</p>
+                        @endif
+                    </section>
+                @endif
+
+                @unless($hasUsageGuide)
+                    <p>Hướng dẫn sử dụng đang được cập nhật.</p>
+                @endunless
             </div>
 
             <div class="detail-tab-content" id="tab-comment" role="tabpanel" aria-labelledby="tab-btn-comment">
@@ -231,6 +297,7 @@
             $initialRelatedVisible = 4;
             $hiddenRelatedCount = max($relatedProducts->count() - $initialRelatedVisible, 0);
         @endphp
+
         @if($relatedProducts->isNotEmpty())
             <section class="related-products-block" id="relatedProductsBlock">
                 <div class="section-header related-products-header">
@@ -239,34 +306,34 @@
 
                 <div class="related-products-grid" id="relatedProductsGrid">
                     @foreach($relatedProducts as $index => $relatedProduct)
-                    <article class="product-card catalog-card related-product-card clickable-card {{ $index >= $initialRelatedVisible ? 'is-hidden' : '' }}" data-card-link="{{ route('products.show', $relatedProduct->slug) }}">
-                <div class="product-img">
-                    @if($relatedProduct->display_image_url)
-                        <img src="{{ $media->url($relatedProduct->display_image, ['width' => 640, 'quality' => 76]) ?? $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}" loading="lazy" decoding="async">
-                    @endif
-                    @if($relatedProduct->installment_percent)
-                        <span class="badge-installment">Khuyến mãi</span>
-                    @endif
-                    @if(((int) $relatedProduct->discount_percent) > 0)
-                        <span class="badge-discount-ribbon">-{{ (int) $relatedProduct->discount_percent }}%</span>
-                    @endif
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">
-                        <a href="{{ route('products.show', $relatedProduct->slug) }}">{{ $relatedProduct->name }}</a>
-                    </h3>
-                    <div class="product-price">{{ $relatedProduct->price ?: 'Liên hệ' }}</div>
-                    <div class="product-meta">Mã SP: {{ $relatedProduct->code ?: ($relatedProduct->sku ?: 'Đang cập nhật') }}</div>
-                    @if($relatedProduct->short_description)
-                        <p class="product-snippet">{{ \Illuminate\Support\Str::limit(strip_tags($relatedProduct->short_description), 120) }}</p>
-                    @endif
-                    <div class="product-cat">{{ optional($relatedProduct->category)->name }}</div>
-                    <div class="product-actions catalog-actions">
-                        <a href="{{ route('contact') }}" class="btn-detail btn-buy">Liên hệ</a>
-                        <a href="{{ route('products.show', $relatedProduct->slug) }}" class="btn-detail btn-outline">Xem chi tiết</a>
-                    </div>
-                </div>
-            </article>
+                        <article class="product-card catalog-card related-product-card clickable-card {{ $index >= $initialRelatedVisible ? 'is-hidden' : '' }}" data-card-link="{{ route('products.show', $relatedProduct->slug) }}">
+                            <div class="product-img">
+                                @if($relatedProduct->display_image_url)
+                                    <img src="{{ $media->url($relatedProduct->display_image, ['width' => 640, 'quality' => 76]) ?? $relatedProduct->display_image_url }}" alt="{{ $relatedProduct->name }}" loading="lazy" decoding="async">
+                                @endif
+                                @if($relatedProduct->installment_percent)
+                                    <span class="badge-installment">Khuyến mãi</span>
+                                @endif
+                                @if(((int) $relatedProduct->discount_percent) > 0)
+                                    <span class="badge-discount-ribbon">-{{ (int) $relatedProduct->discount_percent }}%</span>
+                                @endif
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-name">
+                                    <a href="{{ route('products.show', $relatedProduct->slug) }}">{{ $relatedProduct->name }}</a>
+                                </h3>
+                                <div class="product-price">{{ $relatedProduct->price ?: 'Liên hệ' }}</div>
+                                <div class="product-meta">Mã SP: {{ $relatedProduct->code ?: ($relatedProduct->sku ?: 'Đang cập nhật') }}</div>
+                                @if($relatedProduct->short_description)
+                                    <p class="product-snippet">{{ \Illuminate\Support\Str::limit(strip_tags($relatedProduct->short_description), 120) }}</p>
+                                @endif
+                                <div class="product-cat">{{ optional($relatedProduct->category)->name }}</div>
+                                <div class="product-actions catalog-actions">
+                                    <a href="{{ route('contact') }}" class="btn-detail btn-buy">Liên hệ</a>
+                                    <a href="{{ route('products.show', $relatedProduct->slug) }}" class="btn-detail btn-outline">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </article>
                     @endforeach
                 </div>
 
@@ -407,5 +474,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
 @include('front.partials.newsletter-signup')
 @endsection

@@ -33,6 +33,7 @@ class Product extends Model
         'availability_badge', 'support_prompt',
         'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
         'overview_heading', 'overview_content', 'seo_heading', 'seo_content',
+        'usage_guide_content', 'usage_guide_video_id', 'usage_guide_attachment',
     ];
 
     protected $casts = [
@@ -123,6 +124,21 @@ class Product extends Model
         return self::AVAILABILITY_BADGE_LABELS;
     }
 
+    public static function extractYoutubeId(?string $value): ?string
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        if (preg_match('~(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)([A-Za-z0-9_-]{6,})~', $value, $matches)) {
+            return $matches[1];
+        }
+
+        return $value;
+    }
+
     // ─── Helpers ─────────────────────────────────────────────────
 
     public function getUrlAttribute(): string
@@ -211,5 +227,42 @@ class Product extends Model
     public function getRenderedSeoContentAttribute(): string
     {
         return $this->renderRichContent($this->seo_content);
+    }
+
+    public function getRenderedUsageGuideContentAttribute(): string
+    {
+        return $this->renderRichContent($this->usage_guide_content);
+    }
+
+    public function getUsageGuideAttachmentUrlAttribute(): ?string
+    {
+        if (! $this->usage_guide_attachment) {
+            return null;
+        }
+
+        return $this->resolveMediaUrl($this->usage_guide_attachment);
+    }
+
+    public function getUsageGuideAttachmentExtensionAttribute(): ?string
+    {
+        if (! $this->usage_guide_attachment) {
+            return null;
+        }
+
+        $path = parse_url($this->usage_guide_attachment, PHP_URL_PATH) ?: $this->usage_guide_attachment;
+
+        return strtolower((string) pathinfo($path, PATHINFO_EXTENSION)) ?: null;
+    }
+
+    public function getUsageGuideAttachmentFilenameAttribute(): ?string
+    {
+        if (! $this->usage_guide_attachment) {
+            return null;
+        }
+
+        $path = parse_url($this->usage_guide_attachment, PHP_URL_PATH) ?: $this->usage_guide_attachment;
+        $filename = basename((string) $path);
+
+        return $filename !== '' ? urldecode($filename) : null;
     }
 }

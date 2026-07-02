@@ -60,4 +60,33 @@ class ProductCrudTest extends TestCase
         $response->assertSee('5000rpm');
         $response->assertSee('product-spec-gallery');
     }
+
+    public function test_product_detail_page_renders_usage_guide_content_from_admin(): void
+    {
+        $category = Category::create([
+            'name' => 'May lap trinh',
+            'slug' => 'may-lap-trinh',
+            'type' => 'product',
+        ]);
+
+        Product::create([
+            'name' => 'May co huong dan',
+            'slug' => 'may-co-huong-dan',
+            'price' => '30.000.000',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'usage_guide_content' => '<p>Buoc 1: Cai dat may.</p>',
+            'usage_guide_video_id' => 'guide12345',
+            'usage_guide_attachment' => 'products/guides/huong-dan.pdf',
+        ]);
+
+        $response = $this->get('/san-pham/may-co-huong-dan');
+
+        $response->assertOk();
+        $response->assertSee('Hướng dẫn sử dụng');
+        $response->assertSee('Buoc 1: Cai dat may.', false);
+        $response->assertSee('https://www.youtube.com/embed/guide12345', false);
+        $response->assertSee('/storage/products/guides/huong-dan.pdf', false);
+        $response->assertDontSee('Đánh giá đang được cập nhật.');
+    }
 }

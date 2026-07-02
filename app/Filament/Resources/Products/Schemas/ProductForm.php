@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Models\Product;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
@@ -47,7 +48,12 @@ class ProductForm
                             ->label('SKU')
                             ->maxLength(100)
                             ->unique(ignoreRecord: true),
-                        TextInput::make('video_id')->label('YouTube Video ID')->maxLength(100),
+                        TextInput::make('video_id')
+                            ->label('Video sản phẩm (YouTube)')
+                            ->helperText('Dán link YouTube đầy đủ hoặc video ID, hệ thống sẽ tự chuẩn hóa.')
+                            ->placeholder('https://www.youtube.com/watch?v=...')
+                            ->maxLength(100)
+                            ->dehydrateStateUsing(fn ($state) => Product::extractYoutubeId($state)),
                         TextInput::make('price')
                             ->label('Giá')
                             ->placeholder('Liên hệ hoặc 120.000.000')
@@ -67,7 +73,7 @@ class ProductForm
                             ->default(false),
                         Select::make('availability_badge')
                             ->label('Thẻ nổi bật')
-                            ->options(\App\Models\Product::availabilityBadgeOptions())
+                            ->options(Product::availabilityBadgeOptions())
                             ->placeholder('Không gắn thẻ')
                             ->native(false)
                             ->helperText('Hiển thị thêm nhãn Giao ngay hoặc Đặt trước dưới giá ở trang chi tiết sản phẩm.'),
@@ -125,7 +131,7 @@ class ProductForm
                                 ->validationMessages([
                                     'regex' => 'Link phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
                                 ])
-                                ->placeholder('/trang/mẫu-thêu'),
+                                ->placeholder('/trang/mau-theu'),
                         ]),
                         Grid::make(2)->schema([
                             TextInput::make('overview_heading')
@@ -142,6 +148,37 @@ class ProductForm
                             ->columnSpanFull(),
                         RichEditor::make('seo_content')
                             ->label('Nội dung đầu mục 2')
+                            ->columnSpanFull(),
+                        Section::make('Hướng dẫn sử dụng')
+                            ->description('Dùng cho tab Hướng dẫn sử dụng ở trang chi tiết sản phẩm.')
+                            ->schema([
+                                RichEditor::make('usage_guide_content')
+                                    ->label('Nội dung hướng dẫn sử dụng')
+                                    ->columnSpanFull(),
+                                TextInput::make('usage_guide_video_id')
+                                    ->label('Video hướng dẫn (YouTube)')
+                                    ->helperText('Dán link YouTube đầy đủ hoặc video ID.')
+                                    ->placeholder('https://www.youtube.com/watch?v=...')
+                                    ->maxLength(100)
+                                    ->dehydrateStateUsing(fn ($state) => Product::extractYoutubeId($state)),
+                                FileUpload::make('usage_guide_attachment')
+                                    ->label('Tài liệu hướng dẫn')
+                                    ->helperText('Tải lên file PDF, XLS, XLSX hoặc CSV để hiển thị hoặc cho tải xuống ở tab hướng dẫn.')
+                                    ->disk('public')
+                                    ->directory('products/guides')
+                                    ->acceptedFileTypes([
+                                        'application/pdf',
+                                        'application/vnd.ms-excel',
+                                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                        'text/csv',
+                                        'text/plain',
+                                    ])
+                                    ->maxSize(10240)
+                                    ->downloadable()
+                                    ->openable()
+                                    ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
+                            ])
+                            ->columns(1)
                             ->columnSpanFull(),
                     ])->columnSpanFull(),
                 ]),

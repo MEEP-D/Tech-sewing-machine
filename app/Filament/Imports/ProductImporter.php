@@ -465,16 +465,6 @@ class ProductImporter extends Importer
 
     protected static function extractYoutubeId(?string $value): ?string
     {
-        if (blank($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        if (preg_match('~(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)([A-Za-z0-9_-]{6,})~', $value, $matches)) {
-            return $matches[1];
-        }
-
-        return $value;
+        return Product::extractYoutubeId($value);
     }
 }

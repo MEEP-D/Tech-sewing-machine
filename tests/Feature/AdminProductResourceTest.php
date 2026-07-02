@@ -30,6 +30,9 @@ class AdminProductResourceTest extends TestCase
             'price' => '10000000',
             'brand' => 'TechSewing',
             'origin' => 'VN',
+            'usage_guide_content' => '<p>Huong dan su dung</p>',
+            'usage_guide_video_id' => 'abc123xyz',
+            'usage_guide_attachment' => 'products/guides/huong-dan.pdf',
             'specifications' => [['key' => 'Toc do', 'value' => '5000rpm']],
             'thumbnail' => 'products/thumb.jpg',
             'gallery' => ['products/1.jpg'],
@@ -46,5 +49,7 @@ class AdminProductResourceTest extends TestCase
         $this->assertTrue($product->is_featured);
         $this->assertSame(['products/1.jpg'], $product->gallery);
         $this->assertSame(['products/specification-images/spec-01.jpg'], $product->specification_images);
+        $this->assertSame('abc123xyz', $product->usage_guide_video_id);
+        $this->assertSame('products/guides/huong-dan.pdf', $product->usage_guide_attachment);
     }
 }
