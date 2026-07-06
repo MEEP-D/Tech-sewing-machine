@@ -542,6 +542,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // 9. Slider Logic for Products (Infinite Loop + Dynamic Visibility)
     const sliderButtons = document.querySelectorAll('.slider-btn');
     const sliders = document.querySelectorAll('.product-grid');
+    const sliderAutoState = new WeakMap();
+
+    const getSliderStep = (slider) => {
+        const firstCard = slider?.querySelector('.product-card');
+        if (!firstCard) return 400;
+
+        const styles = window.getComputedStyle(slider);
+        const gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+
+        return firstCard.getBoundingClientRect().width + gap;
+    };
+
+    const moveSlider = (slider, direction = 1) => {
+        if (!slider) return;
+
+        const scrollAmount = getSliderStep(slider);
+        const maxScroll = Math.max(0, slider.scrollWidth - slider.clientWidth);
+
+        if (maxScroll <= 0) return;
+
+        if (direction > 0) {
+            const nextLeft = slider.scrollLeft + scrollAmount;
+
+            if (nextLeft >= maxScroll - 4) {
+                slider.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                slider.scrollTo({ left: nextLeft, behavior: 'smooth' });
+            }
+        } else {
+            const nextLeft = slider.scrollLeft - scrollAmount;
+
+            if (nextLeft <= 4) {
+                slider.scrollTo({ left: maxScroll, behavior: 'smooth' });
+            } else {
+                slider.scrollTo({ left: nextLeft, behavior: 'smooth' });
+            }
+        }
+    };
 
     function updateSliderButtons() {
         sliders.forEach(slider => {
@@ -565,31 +603,50 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const targetId = btn.getAttribute('data-target');
             const slider = document.getElementById(targetId);
-            if (slider) {
-                const firstCard = slider.querySelector('.product-card');
-                const cardWidth = firstCard ? firstCard.offsetWidth : 400;
-                const gap = 32; // 2rem = 32px
-                const scrollAmount = cardWidth + gap;
-                
-                const maxScroll = slider.scrollWidth - slider.clientWidth;
-                
-                if (btn.classList.contains('next-btn')) {
-                    // If near the end, loop back to start
-                    if (slider.scrollLeft >= maxScroll - 50) {
-                        slider.scrollTo({ left: 0, behavior: 'smooth' });
-                    } else {
-                        slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                    }
-                } else {
-                    // If near the start, loop to end
-                    if (slider.scrollLeft <= 50) {
-                        slider.scrollTo({ left: maxScroll, behavior: 'smooth' });
-                    } else {
-                        slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                    }
-                }
-            }
+            moveSlider(slider, btn.classList.contains('next-btn') ? 1 : -1);
         });
+    });
+
+    const stopSliderAutoplay = (slider) => {
+        const state = sliderAutoState.get(slider);
+        if (!state?.timerId) return;
+
+        window.clearInterval(state.timerId);
+        state.timerId = 0;
+    };
+
+    const startSliderAutoplay = (slider) => {
+        if (!slider || slider.dataset.sliderAuto !== 'true') return;
+
+        const intervalMs = Number.parseInt(slider.dataset.sliderInterval || '3800', 10);
+        const safeIntervalMs = Number.isFinite(intervalMs) ? Math.max(intervalMs, 1800) : 3800;
+        const existingState = sliderAutoState.get(slider) || {};
+
+        stopSliderAutoplay(slider);
+
+        existingState.timerId = window.setInterval(() => {
+            if (document.hidden) return;
+            if (slider.matches(':hover, :focus-within')) return;
+            moveSlider(slider, 1);
+        }, safeIntervalMs);
+
+        sliderAutoState.set(slider, existingState);
+    };
+
+    sliders.forEach(slider => {
+        if (slider.dataset.sliderAuto !== 'true') return;
+
+        const resumeAutoplay = () => startSliderAutoplay(slider);
+        const pauseAutoplay = () => stopSliderAutoplay(slider);
+
+        slider.addEventListener('mouseenter', pauseAutoplay);
+        slider.addEventListener('mouseleave', resumeAutoplay);
+        slider.addEventListener('focusin', pauseAutoplay);
+        slider.addEventListener('focusout', resumeAutoplay);
+        slider.addEventListener('touchstart', pauseAutoplay, { passive: true });
+        slider.addEventListener('touchend', resumeAutoplay, { passive: true });
+
+        startSliderAutoplay(slider);
     });
 
     // Run on load and resize
@@ -607,6 +664,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     queueSliderButtonUpdate();
     window.addEventListener('resize', queueSliderButtonUpdate);
+    document.addEventListener('visibilitychange', () => {
+        sliders.forEach(slider => {
+            if (slider.dataset.sliderAuto !== 'true') return;
+
+            if (document.hidden) {
+                stopSliderAutoplay(slider);
+            } else {
+                startSliderAutoplay(slider);
+            }
+        });
+    });
 
     // 10. Banner Switcher Logic
     const bannerData = Array.isArray(window.__homeBannerData) ? window.__homeBannerData : [];

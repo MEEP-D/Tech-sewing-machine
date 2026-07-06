@@ -320,11 +320,18 @@
 <script>window.__homeBannerData = @json($bannerProducts);</script>
 @endif
 
+@php($newProductBenefits = [
+    'Lắp đặt miễn phí.',
+    'Giao hàng tận nơi trên toàn quốc (Việt Nam).',
+    'Hỗ trợ tư vấn miễn phí.',
+    'Gọi trực tiếp để được giá rẻ hơn.',
+])
+
 <section id="new-products" class="container" style="padding: 5px 1.5rem;">
     <div class="section-header"><h2 class="section-title">Sản phẩm mới nhất</h2></div>
-    <div class="slider-wrapper">
+    <div class="slider-wrapper new-products-slider">
         <button class="slider-btn prev-btn" data-target="product-grid-new"><i class="fas fa-chevron-left"></i></button>
-        <div class="product-grid" id="product-grid-new">
+        <div class="product-grid" id="product-grid-new" data-slider-auto="true" data-slider-interval="3800">
             @foreach(($newProducts ?? collect()) as $product)
                 <article class="product-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
                     <div class="product-img">
@@ -344,17 +351,14 @@
                     <div class="product-info">
                         <div class="product-cat">{{ $product->category?->name }}</div>
                         <h3 class="product-name"><a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a></h3>
-                        @php($cardFeatures = collect(preg_split('/\r\n|\r|\n|<br\s*\/?>/i', strip_tags((string) ($product->short_description ?: $product->long_description))))->map(fn($line) => trim($line))->filter())
-                        @if($cardFeatures->isNotEmpty())
-                            <ul class="product-features product-features-lined">
-                                @foreach($cardFeatures as $feature)
-                                    <li><i class="fas fa-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
-                                @endforeach
-                            </ul>
-                        @endif
+                        <ul class="product-features product-features-lined new-product-benefits">
+                            @foreach($newProductBenefits as $benefit)
+                                <li><i class="fas fa-check" aria-hidden="true"></i><span>{{ $benefit }}</span></li>
+                            @endforeach
+                        </ul>
                         @php($cardSpecs = $resolveProductSpecs($product))
                         @if($cardSpecs->isNotEmpty())
-                            <div class="product-specs-mini product-specs-middle">
+                            <div class="product-specs-mini product-specs-middle new-product-specs">
                                 @foreach($cardSpecs as $spec)
                                     <div class="spec">
                                         <i class="fas fa-circle-check" aria-hidden="true"></i>
