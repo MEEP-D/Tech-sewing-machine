@@ -93,10 +93,10 @@ class SiteVisitorService
         $onlineCount = SiteVisitor::query()
             ->where('last_seen_at', '>=', $onlineThreshold)
             ->count();
-        $totalVisits = SiteVisitor::query()->count();
+        $totalVisits = (int) SiteVisitor::query()->sum('total_requests');
 
         return self::$stats = [
-            'online_count' => max($onlineCount, self::DEFAULT_ONLINE_COUNT),
+            'online_count' => self::DEFAULT_ONLINE_COUNT + $onlineCount,
             'total_visits' => self::DEFAULT_TOTAL_VISITS + $totalVisits,
         ];
     }
