@@ -166,6 +166,8 @@ class ProductCrudTest extends TestCase
             Product::create([
                 'name' => "May demo {$index}",
                 'slug' => "may-demo-{$index}",
+                'code' => "DEMO-{$index}",
+                'short_description' => "Mo ta ngan cho may demo {$index}",
                 'price' => '10.000.000',
                 'category_id' => $category->id,
                 'status' => 'published',
@@ -183,6 +185,10 @@ class ProductCrudTest extends TestCase
         $response->assertSee('/storage/site/products-hero.png', false);
         $response->assertSee('products-hero-marquee-track', false);
         $response->assertSee('products-hero-card', false);
+        $response->assertSee('products-hero-card-meta', false);
+        $response->assertSee('products-hero-card-summary', false);
+        $this->assertSame(1, substr_count($response->getContent(), 'products-hero-marquee-row'));
+        $response->assertDontSee('products-hero-marquee-row is-reverse', false);
         $response->assertSee('May demo 1');
     }
 }

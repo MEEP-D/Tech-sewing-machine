@@ -30,38 +30,50 @@
 
         @if($heroProducts->isNotEmpty())
             <div class="products-hero-showcase" aria-label="Sản phẩm mới nhất" style="--hero-item-count: {{ $heroProducts->count() }};">
-                @foreach([false, true] as $isReverse)
-                    <div class="products-hero-marquee-row{{ $isReverse ? ' is-reverse' : '' }}">
-                        <div class="products-hero-marquee-track" style="--marquee-items: {{ $heroProducts->count() }};">
-                            @foreach([false, true] as $isDuplicateGroup)
-                                <div class="products-hero-marquee-group" @if($isDuplicateGroup) aria-hidden="true" @endif>
-                                    @foreach($heroProducts as $heroProduct)
-                                        @php
-                                            $heroImage = $media->url($heroProduct->display_image, ['width' => 520, 'quality' => 76]) ?? $heroProduct->display_image_url;
-                                            $heroBadge = $heroProduct->is_new ? 'Mới' : ($heroProduct->is_featured ? 'Nổi bật' : 'Sản phẩm');
-                                        @endphp
-                                        <article class="products-hero-card">
-                                            <a href="{{ route('products.show', $heroProduct->slug) }}" class="products-hero-card-link" @if($isDuplicateGroup) tabindex="-1" @endif>
-                                                <div class="products-hero-card-media">
-                                                    <span class="products-hero-card-badge">{{ $heroBadge }}</span>
-                                                    @if($heroImage)
-                                                        <img src="{{ $heroImage }}" alt="{{ $heroProduct->name }}" loading="lazy" decoding="async">
-                                                    @else
-                                                        <div class="products-hero-card-placeholder" aria-hidden="true"></div>
+                <div class="products-hero-marquee-row">
+                    <div class="products-hero-marquee-track" style="--marquee-items: {{ $heroProducts->count() }};">
+                        @foreach([false, true] as $isDuplicateGroup)
+                            <div class="products-hero-marquee-group" @if($isDuplicateGroup) aria-hidden="true" @endif>
+                                @foreach($heroProducts as $heroProduct)
+                                    @php
+                                        $heroImage = $media->url($heroProduct->display_image, ['width' => 520, 'quality' => 76]) ?? $heroProduct->display_image_url;
+                                        $heroBadge = $heroProduct->is_new ? 'Mới' : ($heroProduct->is_featured ? 'Nổi bật' : 'Sản phẩm');
+                                        $heroCode = $heroProduct->code ?: ($heroProduct->sku ?: null);
+                                        $heroCategory = optional($heroProduct->category)->name;
+                                        $heroSummary = trim(strip_tags((string) $heroProduct->short_description));
+                                    @endphp
+                                    <article class="products-hero-card">
+                                        <a href="{{ route('products.show', $heroProduct->slug) }}" class="products-hero-card-link" @if($isDuplicateGroup) tabindex="-1" @endif>
+                                            <div class="products-hero-card-media">
+                                                <span class="products-hero-card-badge">{{ $heroBadge }}</span>
+                                                @if($heroImage)
+                                                    <img src="{{ $heroImage }}" alt="{{ $heroProduct->name }}" loading="lazy" decoding="async">
+                                                @else
+                                                    <div class="products-hero-card-placeholder" aria-hidden="true"></div>
+                                                @endif
+                                            </div>
+                                            <div class="products-hero-card-body">
+                                                <div class="products-hero-card-name">{{ \Illuminate\Support\Str::limit($heroProduct->name, 64) }}</div>
+                                                <div class="products-hero-card-price">{{ $heroProduct->formatted_price ?: ($heroProduct->price ?: 'Liên hệ') }}</div>
+                                                <div class="products-hero-card-meta">
+                                                    @if($heroCode)
+                                                        <span>Mã: {{ $heroCode }}</span>
+                                                    @endif
+                                                    @if($heroCategory)
+                                                        <span>{{ $heroCategory }}</span>
                                                     @endif
                                                 </div>
-                                                <div class="products-hero-card-body">
-                                                    <div class="products-hero-card-name">{{ \Illuminate\Support\Str::limit($heroProduct->name, 52) }}</div>
-                                                    <div class="products-hero-card-price">{{ $heroProduct->formatted_price ?: ($heroProduct->price ?: 'Liên hệ') }}</div>
-                                                </div>
-                                            </a>
-                                        </article>
-                                    @endforeach
-                                </div>
-                            @endforeach
-                        </div>
+                                                @if($heroSummary !== '')
+                                                    <p class="products-hero-card-summary">{{ \Illuminate\Support\Str::limit($heroSummary, 92) }}</p>
+                                                @endif
+                                            </div>
+                                        </a>
+                                    </article>
+                                @endforeach
+                            </div>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
             </div>
         @endif
     </div>

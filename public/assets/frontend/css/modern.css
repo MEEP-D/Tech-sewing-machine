@@ -3461,7 +3461,7 @@ body.no-scroll {
 
 .products-hero-showcase {
     --hero-showcase-gap: 1rem;
-    --hero-card-size: min(19vw, 192px);
+    --hero-card-size: clamp(218px, 20vw, 260px);
     --hero-group-width: calc((var(--hero-item-count) * var(--hero-card-size)) + ((var(--hero-item-count) - 1) * var(--hero-showcase-gap)));
     display: grid;
     gap: 1rem;
@@ -3560,7 +3560,7 @@ body.no-scroll {
 
 .products-hero-card-media {
     position: relative;
-    aspect-ratio: 1 / 0.88;
+    aspect-ratio: 1 / 0.82;
     background: linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
 }
 
@@ -3572,7 +3572,8 @@ body.no-scroll {
 }
 
 .products-hero-card-media img {
-    object-fit: cover;
+    object-fit: contain;
+    padding: 0.7rem;
 }
 
 .products-hero-card-placeholder {
@@ -3599,21 +3600,55 @@ body.no-scroll {
 
 .products-hero-card-body {
     display: grid;
-    gap: 0.65rem;
-    padding: 1rem 1rem 1.15rem;
+    align-content: start;
+    gap: 0.55rem;
+    padding: 1rem 1rem 1.18rem;
 }
 
 .products-hero-card-name {
     color: #0f172a;
-    font-size: 0.98rem;
-    font-weight: 700;
-    line-height: 1.5;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.35;
 }
 
 .products-hero-card-price {
     color: #dc2626;
     font-size: 1.12rem;
     font-weight: 900;
+}
+
+.products-hero-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.products-hero-card-meta span {
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.28rem 0.5rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 0.76rem;
+    font-weight: 800;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.products-hero-card-summary {
+    margin: 0;
+    color: #475569;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
 }
 
 @keyframes productsHeroMarquee {
@@ -3645,7 +3680,7 @@ body.no-scroll {
 
 @media (max-width: 1200px) {
     .products-hero-showcase {
-        --hero-card-size: min(21vw, 184px);
+        --hero-card-size: clamp(208px, 23vw, 244px);
     }
 }
 
@@ -3662,7 +3697,7 @@ body.no-scroll {
     }
 
     .products-hero-showcase {
-        --hero-card-size: min(24vw, 186px);
+        --hero-card-size: clamp(206px, 30vw, 250px);
     }
 }
 
@@ -8320,7 +8355,7 @@ body.no-scroll {
         box-shadow: 0 18px 40px rgba(37, 99, 235, 0.08);
         backdrop-filter: blur(10px);
         position: relative;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .products-hero-copy::before {
@@ -8341,10 +8376,13 @@ body.no-scroll {
     }
 
     .products-hero-inner h1 {
-        max-width: 9.3ch;
-        font-size: clamp(1.95rem, 9.3vw, 2.55rem) !important;
-        line-height: 1;
-        letter-spacing: -0.035em;
+        max-width: min(100%, 13ch);
+        font-size: clamp(1.9rem, 8.6vw, 2.5rem) !important;
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+        padding-top: 0.06em;
+        padding-bottom: 0.14em;
+        overflow: visible;
     }
 
     .products-hero-inner p {
@@ -8433,14 +8471,14 @@ body.no-scroll {
     }
 
     .products-hero-card {
-        flex: 0 0 min(calc(100vw - 9.1rem), 248px);
-        width: min(calc(100vw - 9.1rem), 248px);
+        flex: 0 0 min(calc(100vw - 5.2rem), 292px);
+        width: min(calc(100vw - 5.2rem), 292px);
         scroll-snap-align: start;
     }
 
     .products-hero-card:first-child {
-        flex-basis: min(calc(100vw - 6.8rem), 274px);
-        width: min(calc(100vw - 6.8rem), 274px);
+        flex-basis: min(calc(100vw - 4.8rem), 306px);
+        width: min(calc(100vw - 4.8rem), 306px);
     }
 
     .products-hero-card-link {
@@ -8450,7 +8488,7 @@ body.no-scroll {
     }
 
     .products-hero-card-media {
-        aspect-ratio: 1 / 0.8;
+        aspect-ratio: 1 / 0.78;
     }
 
     .products-hero-card:first-child .products-hero-card-media {
@@ -8458,17 +8496,17 @@ body.no-scroll {
     }
 
     .products-hero-card-body {
-        gap: 0.42rem;
-        padding: 0.8rem 0.86rem 0.92rem;
+        gap: 0.46rem;
+        padding: 0.86rem 0.9rem 1rem;
     }
 
     .products-hero-card-name {
-        font-size: 0.96rem;
-        line-height: 1.35;
+        font-size: 1rem;
+        line-height: 1.32;
     }
 
     .products-hero-card-price {
-        font-size: 1.02rem;
+        font-size: 1.06rem;
     }
 }
 
@@ -8481,8 +8519,9 @@ body.no-scroll {
     }
 
     .products-hero-inner h1 {
-        max-width: 9ch;
-        font-size: clamp(1.85rem, 10vw, 2.3rem) !important;
+        max-width: min(100%, 12ch);
+        font-size: clamp(1.82rem, 9.4vw, 2.25rem) !important;
+        line-height: 1.1;
     }
 
     .products-hero-inner p {
@@ -8491,13 +8530,13 @@ body.no-scroll {
     }
 
     .products-hero-card {
-        flex-basis: min(calc(100vw - 8.2rem), 234px);
-        width: min(calc(100vw - 8.2rem), 234px);
+        flex-basis: min(calc(100vw - 4rem), 278px);
+        width: min(calc(100vw - 4rem), 278px);
     }
 
     .products-hero-card:first-child {
-        flex-basis: min(calc(100vw - 5.8rem), 252px);
-        width: min(calc(100vw - 5.8rem), 252px);
+        flex-basis: min(calc(100vw - 3.4rem), 292px);
+        width: min(calc(100vw - 3.4rem), 292px);
     }
 }
 
@@ -8509,9 +8548,9 @@ body.no-scroll {
     }
 
     .products-hero-inner h1 {
-        max-width: 9.6ch;
-        font-size: clamp(1.8rem, 8.5vw, 2.2rem) !important;
-        line-height: 0.98;
+        max-width: min(100%, 13ch);
+        font-size: clamp(1.72rem, 8vw, 2.12rem) !important;
+        line-height: 1.08;
     }
 
     .products-hero-inner p {
@@ -8535,8 +8574,8 @@ body.no-scroll {
     }
 
     .products-hero-card {
-        flex-basis: min(calc(100vw - 9.8rem), 220px);
-        width: min(calc(100vw - 9.8rem), 220px);
+        flex-basis: min(calc(100vw - 5rem), 260px);
+        width: min(calc(100vw - 5rem), 260px);
     }
 
     .products-hero-card-media {
@@ -8622,8 +8661,8 @@ body.no-scroll {
 
     .products-hero-card,
     .products-hero-card:first-child {
-        flex: 0 0 min(31vw, 124px);
-        width: min(31vw, 124px);
+        flex: 0 0 min(58vw, 268px);
+        width: min(58vw, 268px);
     }
 
     .products-hero-card-link {
@@ -8633,17 +8672,17 @@ body.no-scroll {
 
     .products-hero-card-media,
     .products-hero-card:first-child .products-hero-card-media {
-        aspect-ratio: 1 / 0.92;
+        aspect-ratio: 1 / 0.78;
     }
 
     .products-hero-card-body {
-        gap: 0.28rem;
-        padding: 0.56rem 0.58rem 0.68rem;
+        gap: 0.4rem;
+        padding: 0.78rem 0.82rem 0.92rem;
     }
 
     .products-hero-card-name {
-        font-size: 0.76rem;
-        line-height: 1.28;
+        font-size: 0.95rem;
+        line-height: 1.32;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
@@ -8651,15 +8690,29 @@ body.no-scroll {
     }
 
     .products-hero-card-price {
-        font-size: 0.82rem;
+        font-size: 1rem;
+    }
+
+    .products-hero-card-meta {
+        gap: 0.3rem;
+    }
+
+    .products-hero-card-meta span {
+        padding: 0.24rem 0.44rem;
+        font-size: 0.68rem;
+    }
+
+    .products-hero-card-summary {
+        font-size: 0.74rem;
+        line-height: 1.38;
     }
 }
 
 @media (max-width: 420px) {
     .products-hero-card,
     .products-hero-card:first-child {
-        flex-basis: min(32vw, 118px);
-        width: min(32vw, 118px);
+        flex-basis: min(68vw, 252px);
+        width: min(68vw, 252px);
     }
 }
 
@@ -8670,17 +8723,17 @@ body.no-scroll {
 
     .products-hero-card,
     .products-hero-card:first-child {
-        flex-basis: min(30vw, 114px);
-        width: min(30vw, 114px);
+        flex-basis: min(54vw, 236px);
+        width: min(54vw, 236px);
     }
 
     .products-hero-card-media,
     .products-hero-card:first-child .products-hero-card-media {
-        aspect-ratio: 1 / 0.94;
+        aspect-ratio: 1 / 0.76;
     }
 
     .products-hero-card-body {
-        padding: 0.5rem 0.52rem 0.58rem;
+        padding: 0.68rem 0.72rem 0.78rem;
     }
 }
 
