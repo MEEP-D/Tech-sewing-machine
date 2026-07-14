@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\MenuService;
+use App\Services\SiteVisitorService;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Post;
@@ -43,6 +44,10 @@ class AppServiceProvider extends ServiceProvider
                     'menuCategories' => collect(),
                     'publicPages' => [],
                     'siteMenus' => [],
+                    'siteVisitorStats' => [
+                        'online_count' => 0,
+                        'total_visits' => 0,
+                    ],
                 ];
 
                 try {
@@ -76,6 +81,7 @@ class AppServiceProvider extends ServiceProvider
                             'page_news_heading' => $siteSettings['page_news_heading'] ?? 'Tin tức',
                             'page_news_desc' => $siteSettings['page_news_desc'] ?? 'Cập nhật nhanh thị trường, sản phẩm và hướng dẫn vận hành thực tế cho xưởng may.',
                             'page_news_hero_image' => $siteSettings['page_news_hero_image'] ?? null,
+                            'page_products_kicker' => $siteSettings['page_products_kicker'] ?? 'Trải nghiệm sản phẩm',
                             'page_products_heading' => $siteSettings['page_products_heading'] ?? 'Sản phẩm',
                             'page_products_desc' => $siteSettings['page_products_desc'] ?? 'Giải pháp máy công nghiệp, máy lập trình và phụ kiện cho xưởng sản xuất.',
                             'page_products_hero_image' => $siteSettings['page_products_hero_image'] ?? null,
@@ -149,6 +155,8 @@ class AppServiceProvider extends ServiceProvider
                     if (Schema::hasTable('menus')) {
                         $payload['siteMenus'] = Cache::rememberForever('site_menus_v2', fn () => app(MenuService::class)->grouped());
                     }
+
+                    $payload['siteVisitorStats'] = app(SiteVisitorService::class)->stats();
                 } catch (\Throwable) {
                     // Table might not exist yet during migration.
                 }

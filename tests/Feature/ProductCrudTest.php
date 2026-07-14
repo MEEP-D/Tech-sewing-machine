@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -146,5 +147,42 @@ class ProductCrudTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('data-promo-popup', false);
+    }
+
+    public function test_product_index_page_renders_admin_hero_and_product_marquee(): void
+    {
+        $category = Category::create([
+            'name' => 'May demo',
+            'slug' => 'may-demo',
+            'type' => 'product',
+        ]);
+
+        Setting::create(['key' => 'page_products_kicker', 'value' => 'Bo suu tap moi']);
+        Setting::create(['key' => 'page_products_heading', 'value' => 'San pham moi nhat']);
+        Setting::create(['key' => 'page_products_desc', 'value' => 'Noi dung mo ta tu admin cho hero san pham.']);
+        Setting::create(['key' => 'page_products_hero_image', 'value' => 'site/products-hero.png']);
+
+        foreach (range(1, 10) as $index) {
+            Product::create([
+                'name' => "May demo {$index}",
+                'slug' => "may-demo-{$index}",
+                'price' => '10.000.000',
+                'category_id' => $category->id,
+                'status' => 'published',
+                'is_new' => true,
+                'show_in_banner_switcher' => true,
+            ]);
+        }
+
+        $response = $this->get('/san-pham');
+
+        $response->assertOk();
+        $response->assertSee('Bo suu tap moi');
+        $response->assertSee('San pham moi nhat');
+        $response->assertSee('Noi dung mo ta tu admin cho hero san pham.');
+        $response->assertSee('/storage/site/products-hero.png', false);
+        $response->assertSee('products-hero-marquee-track', false);
+        $response->assertSee('products-hero-card', false);
+        $response->assertSee('May demo 1');
     }
 }

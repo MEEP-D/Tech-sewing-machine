@@ -12,6 +12,39 @@ use Illuminate\Support\Collection;
 
 class NewsController extends Controller
 {
+    private const HERO_POST_LIMIT = 10;
+
+    private function heroPosts(): Collection
+    {
+        $limit = self::HERO_POST_LIMIT;
+        $baseQuery = Post::published()
+            ->with('category')
+            ->latest('published_at')
+            ->latest('updated_at');
+
+        $featuredPosts = (clone $baseQuery)
+            ->where('is_featured', true)
+            ->take($limit)
+            ->get();
+
+        if ($featuredPosts->count() >= $limit) {
+            return $featuredPosts;
+        }
+
+        $fallbackPosts = (clone $baseQuery)
+            ->when(
+                $featuredPosts->isNotEmpty(),
+                fn ($query) => $query->whereNotIn('id', $featuredPosts->pluck('id')->all())
+            )
+            ->take($limit - $featuredPosts->count())
+            ->get();
+
+        return $featuredPosts
+            ->concat($fallbackPosts)
+            ->take($limit)
+            ->values();
+    }
+
     private function buildNewsSidebarData(): array
     {
         $allNewsCategories = Category::query()
@@ -114,8 +147,10 @@ class NewsController extends Controller
             ]);
         }
 
+        $heroPosts = $this->heroPosts();
+
         return view('front.pages.news.index', array_merge(
-            compact('posts', 'seo', 'keyword', 'newsTags', 'activeTag'),
+            compact('posts', 'seo', 'keyword', 'newsTags', 'activeTag', 'heroPosts'),
             $this->buildNewsSidebarData()
         ));
     }
@@ -152,8 +187,10 @@ class NewsController extends Controller
             ]);
         }
 
+        $heroPosts = $this->heroPosts();
+
         return view('front.pages.news.category', array_merge(
-            compact('category', 'posts', 'seo', 'keyword', 'newsTags', 'activeTag'),
+            compact('category', 'posts', 'seo', 'keyword', 'newsTags', 'activeTag', 'heroPosts'),
             $this->buildNewsSidebarData()
         ));
     }

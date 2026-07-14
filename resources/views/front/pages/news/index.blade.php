@@ -2,26 +2,26 @@
 
 @section('content')
 @php
+    $media = app(\App\Support\OptimizedMedia::class);
     $newsHeroImage = $siteContent['page_news_hero_image'] ?? null;
-    if (is_string($newsHeroImage) && $newsHeroImage !== '' && !str_starts_with($newsHeroImage, 'http://') && !str_starts_with($newsHeroImage, 'https://')) {
-        $newsHeroImage = str_starts_with($newsHeroImage, 'assets/')
-            ? asset($newsHeroImage)
-            : \Illuminate\Support\Facades\Storage::disk('public')->url($newsHeroImage);
-    }
+    $newsHeroImage = $media->url($newsHeroImage, ['width' => 1600, 'quality' => 74])
+        ?? (
+            is_string($newsHeroImage) && $newsHeroImage !== ''
+                ? (str_starts_with($newsHeroImage, 'assets/')
+                    ? asset($newsHeroImage)
+                    : \Illuminate\Support\Facades\Storage::disk('public')->url($newsHeroImage))
+                : null
+        );
+    $newsHeroActionUrl = route('news.index') . '#news-list';
 @endphp
 @push('preload_assets')
     @if(!empty($newsHeroImage))
         <link rel="preload" as="image" href="{{ $newsHeroImage }}" fetchpriority="high">
     @endif
 @endpush
-<section class="news-hero page-hero" @if(!empty($newsHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $newsHeroImage }}'); background-size: cover; background-position: center;" @endif>
-    <div class="container">
-        <h1>{{ $siteContent['page_news_heading'] ?? 'Tin tức' }}</h1>
-        <p>{{ $siteContent['page_news_desc'] ?? 'Cập nhật nhanh thị trường, sản phẩm và hướng dẫn vận hành thực tế cho xưởng may.' }}</p>
-    </div>
-</section>
+@include('front.pages.news._hero')
 
-<section class="news-page">
+<section class="news-page" id="news-list">
     <div class="container">
         <form method="GET" action="{{ route('news.index') }}" class="news-search-form news-search-form--wide" id="newsSearchForm">
             @if(!empty($activeTag))

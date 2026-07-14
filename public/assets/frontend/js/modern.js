@@ -92,6 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuOverlay = document.getElementById('menu-overlay');
     let navOverflowItems = [];
 
+    const setDesktopMoreToggleVisible = (isVisible) => {
+        if (!desktopMoreToggle) return;
+        desktopMoreToggle.classList.toggle('is-visible', isVisible);
+    };
+
     const restoreOverflowItems = () => {
         if (!navLinksRoot || !desktopMoreList) return;
         navOverflowItems.forEach(item => navLinksRoot.appendChild(item));
@@ -102,19 +107,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const rebalanceOverflowMenu = () => {
         if (!navLinksRoot || !desktopMoreList || !desktopMoreToggle) return;
         restoreOverflowItems();
+        setDesktopMoreToggleVisible(false);
 
         if (window.innerWidth <= 1024) {
-            desktopMoreToggle.style.display = 'none';
             return;
         }
 
-        const navItems = Array.from(navLinksRoot.querySelectorAll(':scope > .nav-item:not(.more-menu)'));
+        const navItems = Array.from(navLinksRoot.querySelectorAll(':scope > .nav-item'));
         if (navItems.length === 0) return;
-        const DESKTOP_VISIBLE_MENU_LIMIT = 6;
-        const overflowed = navItems.slice(DESKTOP_VISIBLE_MENU_LIMIT);
 
-        desktopMoreToggle.style.display = overflowed.length > 0 ? 'inline-flex' : 'none';
+        const remainingItems = [...navItems];
+        const overflowed = [];
+
+        while (remainingItems.length > 0 && navLinksRoot.scrollWidth > navLinksRoot.clientWidth) {
+            const item = remainingItems.pop();
+            if (!item) break;
+
+            overflowed.unshift(item);
+            item.remove();
+        }
+
         if (overflowed.length === 0) return;
+
+        setDesktopMoreToggleVisible(true);
 
         overflowed.forEach(item => {
             navOverflowItems.push(item);
@@ -388,6 +403,205 @@ document.addEventListener('DOMContentLoaded', () => {
 
         startSlider();
     }
+
+    const setupProductsHeroMobileMarquee = () => {
+        const showcase = document.querySelector('.products-hero-showcase');
+        if (!showcase) return;
+
+        const mobileQuery = window.matchMedia('(max-width: 768px)');
+        let intervalId = 0;
+        let previousTimestamp = 0;
+        let resizeTimer = 0;
+        let lastShowcaseWidth = 0;
+        let states = [];
+
+        const createHiddenMarqueeClone = (group, position) => {
+            const clone = group.cloneNode(true);
+            clone.dataset.marqueeClone = position;
+            clone.setAttribute('aria-hidden', 'true');
+            clone.querySelectorAll('a, button, input, select, textarea').forEach((element) => {
+                element.setAttribute('tabindex', '-1');
+            });
+            return clone;
+        };
+
+        const prepareTrackGroups = (track) => {
+            if (!track) return;
+
+            const visibleGroup = track.querySelector('.products-hero-marquee-group:not([aria-hidden="true"])');
+            if (!visibleGroup) return;
+
+            const beforeClone = track.querySelector('.products-hero-marquee-group[data-marquee-clone="before"]');
+            if (!beforeClone) {
+                track.insertBefore(createHiddenMarqueeClone(visibleGroup, 'before'), track.firstChild);
+            }
+
+            const afterGroup = Array.from(track.querySelectorAll('.products-hero-marquee-group[aria-hidden="true"]'))
+                .find((group) => group.dataset.marqueeClone !== 'before');
+
+            if (!afterGroup) {
+                track.appendChild(createHiddenMarqueeClone(visibleGroup, 'after'));
+            }
+        };
+
+        const clearTrackStyles = () => {
+            states.forEach(({ track }) => {
+                track.classList.remove('is-mobile-loop');
+                track.style.removeProperty('transform');
+                track.style.removeProperty('--hero-mobile-loop-start');
+                track.style.removeProperty('--hero-mobile-loop-end');
+                track.style.removeProperty('--hero-mobile-loop-duration');
+            });
+        };
+
+        const getOffsetRatio = (state) => {
+            if (!state || !state.distance) return 0;
+            return Math.min(Math.max(state.offset / state.distance, 0), 0.9995);
+        };
+
+        const measureStates = (preserveProgress = false) => {
+            const rows = Array.from(showcase.querySelectorAll('.products-hero-marquee-row'));
+            const previousStates = states;
+            states = rows.map((row, index) => {
+                const track = row.querySelector('.products-hero-marquee-track');
+                prepareTrackGroups(track);
+                const firstGroup = track?.querySelector('.products-hero-marquee-group:not([aria-hidden="true"])');
+                const distance = firstGroup ? firstGroup.getBoundingClientRect().width : 0;
+                const durationMs = index === 0 ? 26000 : 27500;
+                const previousState = previousStates.find((state) => state.row === row);
+                const previousRatio = preserveProgress ? getOffsetRatio(previousState) : 0;
+
+                return {
+                    row,
+                    track,
+                    distance,
+                    durationMs,
+                    reverse: row.classList.contains('is-reverse'),
+                    offset: previousRatio * distance,
+                };
+            }).filter((state) => state.track && state.distance > 0);
+        };
+
+        const renderStates = () => {
+            states.forEach((state) => {
+                if (!state.track) return;
+
+                if (!state.distance) {
+                    const firstGroup = state.track.querySelector('.products-hero-marquee-group:not([aria-hidden="true"])');
+                    state.distance = firstGroup ? firstGroup.getBoundingClientRect().width : 0;
+                }
+
+                if (!state.distance) return;
+
+                const translateX = state.reverse
+                    ? (-state.distance + state.offset)
+                    : (-state.distance - state.offset);
+                state.track.style.setProperty('transform', `translate3d(${translateX}px, 0, 0)`, 'important');
+            });
+        };
+
+        const tick = () => {
+            if (!mobileQuery.matches) {
+                intervalId = 0;
+                previousTimestamp = 0;
+                clearTrackStyles();
+                return;
+            }
+
+            const timestamp = performance.now();
+            if (!previousTimestamp) {
+                previousTimestamp = timestamp;
+            }
+
+            const elapsed = Math.min(timestamp - previousTimestamp, 22);
+            previousTimestamp = timestamp;
+
+            states.forEach((state) => {
+                if (!state.distance) return;
+
+                const speed = state.distance / state.durationMs;
+                state.offset += elapsed * speed;
+                if (state.offset >= state.distance) {
+                    state.offset -= state.distance;
+                }
+            });
+
+            renderStates();
+        };
+
+        const start = (preserveProgress = false) => {
+            measureStates(preserveProgress);
+
+            if (!mobileQuery.matches || states.length === 0) {
+                clearTrackStyles();
+                return;
+            }
+
+            if (intervalId) {
+                window.clearInterval(intervalId);
+            }
+
+            lastShowcaseWidth = showcase.getBoundingClientRect().width;
+            previousTimestamp = 0;
+            renderStates();
+            intervalId = window.setInterval(tick, 16);
+        };
+
+        const stop = () => {
+            if (intervalId) {
+                window.clearInterval(intervalId);
+                intervalId = 0;
+            }
+
+            previousTimestamp = 0;
+            clearTrackStyles();
+        };
+
+        const sync = () => {
+            if (mobileQuery.matches) {
+                start(true);
+            } else {
+                stop();
+            }
+        };
+
+        showcase.querySelectorAll('img').forEach((image) => {
+            image.addEventListener('load', () => start(true), { passive: true });
+        });
+
+        if ('ResizeObserver' in window) {
+            const observer = new ResizeObserver(() => {
+                if (!mobileQuery.matches) return;
+                window.clearTimeout(resizeTimer);
+                resizeTimer = window.setTimeout(() => {
+                    const nextWidth = showcase.getBoundingClientRect().width;
+                    if (Math.abs(nextWidth - lastShowcaseWidth) < 2) return;
+                    start(true);
+                }, 120);
+            });
+
+            observer.observe(showcase);
+        }
+
+        if (typeof mobileQuery.addEventListener === 'function') {
+            mobileQuery.addEventListener('change', sync);
+        } else if (typeof mobileQuery.addListener === 'function') {
+            mobileQuery.addListener(sync);
+        }
+
+        window.addEventListener('resize', sync);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stop();
+            } else {
+                start(true);
+            }
+        });
+
+        sync();
+    };
+
+    setupProductsHeroMobileMarquee();
 
     // 6. Mobile Menu Toggle with Drawer & Overlay
     const mobileToggle = document.getElementById('mobile-toggle');

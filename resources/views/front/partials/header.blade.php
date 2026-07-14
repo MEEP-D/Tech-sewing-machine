@@ -36,6 +36,8 @@
             $headerProductsLink = $toText($siteContent['header_products_link'] ?? null, 'Sản phẩm');
             $headerNewsLink = $toText($siteContent['header_news_link'] ?? null, 'Tin tức');
             $headerContactLink = $toText($siteContent['header_contact_link'] ?? null, 'Liên hệ');
+            $onlineVisitors = (int) data_get($siteVisitorStats ?? [], 'online_count', 0);
+            $totalVisits = (int) data_get($siteVisitorStats ?? [], 'total_visits', 0);
             $menuService = app(\App\Services\MenuService::class);
             $headerMenuSource = (array) data_get($siteMenus ?? [], 'header', []);
 
@@ -70,6 +72,20 @@
 
         <nav class="main-nav-combined">
             <ul class="nav-links">
+                <li class="mobile-traffic-entry" aria-label="Thống kê truy cập website">
+                    <div class="header-traffic-panel header-traffic-panel-mobile">
+                        <div class="header-traffic-row header-traffic-row-online" aria-label="Số người online: {{ number_format($onlineVisitors) }}">
+                            <span class="header-online-dot" aria-hidden="true"></span>
+                            <span class="header-traffic-label">Số người online</span>
+                            <strong class="header-traffic-value">{{ number_format($onlineVisitors) }}</strong>
+                        </div>
+                        <div class="header-traffic-row" aria-label="Số lượt truy cập: {{ number_format($totalVisits) }}">
+                            <i class="fas fa-user header-traffic-icon" aria-hidden="true"></i>
+                            <span class="header-traffic-label">Số lượt truy cập</span>
+                            <strong class="header-traffic-value">{{ number_format($totalVisits) }}</strong>
+                        </div>
+                    </div>
+                </li>
                 @if(!empty($headerMenus))
                     @foreach($headerMenus as $menu)
                         @php
@@ -189,7 +205,8 @@
             </ul>
         </nav>
 
-        <div class="contact-info">
+        <div class="header-actions">
+            <div class="contact-info">
             <a class="contact-item" href="{{ $facebookUrl !== '' ? $facebookUrl : 'javascript:void(0)' }}" @if($facebookUrl !== '') target="_blank" rel="noopener noreferrer" @endif aria-label="Facebook">
                 <i class="fab fa-tiktok" style="color: #000000; font-size: 1.2rem;"></i>
             </a>
@@ -199,11 +216,24 @@
             <a class="btn btn-primary header-hotline-btn" href="{{ !empty($siteProfile['hotline']) ? 'tel:' . preg_replace('/\D+/', '', $siteProfile['hotline']) : route('contact') }}">
                 {{ $headerButtonText }}
             </a>
+            <div class="header-traffic-panel" aria-label="Thống kê truy cập website">
+                <div class="header-traffic-row header-traffic-row-online" aria-label="Số người online: {{ number_format($onlineVisitors) }}">
+                    <span class="header-online-dot" aria-hidden="true"></span>
+                    <span class="header-traffic-label">Số người online</span>
+                    <strong class="header-traffic-value">{{ number_format($onlineVisitors) }}</strong>
+                </div>
+                <div class="header-traffic-row" aria-label="Số lượt truy cập: {{ number_format($totalVisits) }}">
+                    <i class="fas fa-user header-traffic-icon" aria-hidden="true"></i>
+                    <span class="header-traffic-label">Số lượt truy cập</span>
+                    <strong class="header-traffic-value">{{ number_format($totalVisits) }}</strong>
+                </div>
+            </div>
         </div>
 
         <button class="desktop-more-toggle" id="desktop-more-toggle" type="button" aria-expanded="false" aria-label="Mở menu">
             <i class="fas fa-bars"></i>
         </button>
+        </div>
 
         <div class="mobile-toggle" id="mobile-toggle">
             <i class="fas fa-bars"></i>

@@ -15,6 +15,7 @@ class ProductController extends Controller
 {
     private const ALLOWED_PER_PAGES = [8, 12, 16, 24];
     private const DEFAULT_PER_PAGE = 12;
+    private const HERO_PRODUCT_LIMIT = 10;
 
     private function resolvePerPage(Request $request): int
     {
@@ -224,6 +225,41 @@ class ProductController extends Controller
         ];
     }
 
+    private function heroProducts(): Collection
+    {
+        $limit = self::HERO_PRODUCT_LIMIT;
+        $baseQuery = Product::published()
+            ->with('category')
+            ->orderByDesc('is_new')
+            ->latest('updated_at');
+
+        if (! Schema::hasColumn('products', 'show_in_banner_switcher')) {
+            return $baseQuery->take($limit)->get();
+        }
+
+        $preferredProducts = (clone $baseQuery)
+            ->where('show_in_banner_switcher', true)
+            ->take($limit)
+            ->get();
+
+        if ($preferredProducts->count() >= $limit) {
+            return $preferredProducts;
+        }
+
+        $fallbackProducts = (clone $baseQuery)
+            ->when(
+                $preferredProducts->isNotEmpty(),
+                fn ($query) => $query->whereNotIn('id', $preferredProducts->pluck('id')->all())
+            )
+            ->take($limit - $preferredProducts->count())
+            ->get();
+
+        return $preferredProducts
+            ->concat($fallbackProducts)
+            ->take($limit)
+            ->values();
+    }
+
     private function applyFilters($query, Request $request, array $excludedFilters = [], bool $applySorting = true)
     {
         $keyword = in_array('q', $excludedFilters, true)
@@ -335,6 +371,7 @@ class ProductController extends Controller
         $query = $this->applyFilters($query, $request);
 
         $products = $query->paginate($perPage)->withQueryString();
+        $heroProducts = $this->heroProducts();
         $seo = $seoService->defaults(
             \App\Models\Setting::getValue('seo_products_title', 'Tất cả sản phẩm'),
             \App\Models\Setting::getValue('seo_products_description', 'Danh sach may may cong nghiep chat luong cao')
@@ -342,7 +379,7 @@ class ProductController extends Controller
         $sort = $request->get('sort', 'latest');
 
         return view('front.pages.products.index', array_merge(
-            compact('products', 'seo', 'sort'),
+            compact('products', 'seo', 'sort', 'heroProducts'),
             $this->buildFilterData($request)
         ));
     }
@@ -357,11 +394,12 @@ class ProductController extends Controller
         $query = $this->applyFilters($query, $request);
 
         $products = $query->paginate($perPage)->withQueryString();
+        $heroProducts = $this->heroProducts();
         $seo = $seoService->defaults("Kết quả tìm kiếm: {$keyword}");
         $sort = $request->get('sort', 'latest');
 
         return view('front.pages.products.index', array_merge(
-            compact('products', 'seo', 'keyword', 'sort'),
+            compact('products', 'seo', 'keyword', 'sort', 'heroProducts'),
             $this->buildFilterData($request)
         ));
     }
@@ -382,11 +420,12 @@ class ProductController extends Controller
         $query = $this->applyFilters($query, $request);
 
         $products = $query->paginate($perPage)->withQueryString();
+        $heroProducts = $this->heroProducts();
         $seo = $seoService->forModel($category);
         $sort = $request->get('sort', 'latest');
 
         return view('front.pages.products.category', array_merge(
-            compact('category', 'products', 'seo', 'sort'),
+            compact('category', 'products', 'seo', 'sort', 'heroProducts'),
             $this->buildFilterData($request, $category)
         ));
     }

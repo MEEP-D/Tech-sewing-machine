@@ -4,21 +4,23 @@
 @php
     $media = app(\App\Support\OptimizedMedia::class);
     $productsHeroImage = $siteContent['page_products_hero_image'] ?? null;
-    $productsHeroImage = $media->url($productsHeroImage, ['width' => 1600, 'quality' => 74]);
+    $productsHeroImage = $media->url($productsHeroImage, ['width' => 1600, 'quality' => 74])
+        ?? (
+            is_string($productsHeroImage) && $productsHeroImage !== ''
+                ? (str_starts_with($productsHeroImage, 'assets/')
+                    ? asset($productsHeroImage)
+                    : \Illuminate\Support\Facades\Storage::disk('public')->url($productsHeroImage))
+                : null
+        );
 @endphp
 @push('preload_assets')
     @if(!empty($productsHeroImage))
         <link rel="preload" as="image" href="{{ $productsHeroImage }}" fetchpriority="high">
     @endif
 @endpush
-<section class="products-hero page-hero" @if(!empty($productsHeroImage)) style="background-image: linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(29, 78, 216, 0.62)), url('{{ $productsHeroImage }}'); background-size: cover; background-position: center;" @endif>
-    <div class="products-hero-inner container">
-        <h1>{{ $siteContent['page_products_heading'] ?? 'Sản phẩm' }}</h1>
-        <p>{{ $siteContent['page_products_desc'] ?? 'Giải pháp máy công nghiệp, máy lập trình và phụ kiện cho xưởng sản xuất.' }}</p>
-    </div>
-</section>
+@include('front.pages.products._hero')
 
-<section class="products-page products-page-full">
+<section class="products-page products-page-full" id="product-catalog">
     <div class="container">
         <div class="section-header"><h2 class="section-title">Sản phẩm</h2></div>
 
