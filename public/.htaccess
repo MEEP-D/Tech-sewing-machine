@@ -5,6 +5,11 @@
 
     RewriteEngine On
 
+    <IfModule mod_mime.c>
+        AddType text/css .css
+        AddType application/javascript .js
+    </IfModule>
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

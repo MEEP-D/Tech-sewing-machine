@@ -151,10 +151,26 @@
     border-radius: var(--admin-control-radius);
 }
 
+.fi-dropdown,
+.fi-fo-date-time-picker,
+.fi-input-wrp {
+    position: relative;
+}
+
+.fi-input-wrp:focus-within,
+.fi-input-wrp:has(.fi-dropdown-panel),
+.fi-input-wrp:has(.fi-fo-date-time-picker-panel),
+.fi-fo-date-time-picker:focus-within,
+.fi-fo-date-time-picker:has(.fi-fo-date-time-picker-panel),
+.fi-dropdown:focus-within,
+.fi-dropdown:has(.fi-dropdown-panel) {
+    z-index: 1200;
+}
+
 .fi-dropdown-panel,
 .fi-select-input .fi-dropdown-panel,
 .fi-fo-date-time-picker-panel {
-    z-index: 50;
+    z-index: 1300 !important;
     border: 1px solid var(--admin-border);
     border-radius: 0.75rem;
     background: var(--admin-surface-1);
