@@ -218,6 +218,7 @@
 
 @php($flashSaleItems = $flashSale?->items?->filter(fn ($item) => $item->product !== null)->values() ?? collect())
 @if($flashSale && $flashSaleItems->isNotEmpty())
+@php($flashSaleHasCarousel = $flashSaleItems->count() > 6)
 @php($flashSaleEndsAt = $flashSale->ends_at)
 @php($flashSaleSecondsRemaining = $flashSaleEndsAt && $flashSaleEndsAt->isFuture() ? (int) now()->diffInSeconds($flashSaleEndsAt) : 0)
 @php($flashSaleHours = intdiv($flashSaleSecondsRemaining, 3600))
@@ -252,33 +253,50 @@
                     @endif
                 </div>
             </div>
-            <div class="flash-sale-scroller" id="flash-sale-grid" data-slider-auto="true" data-slider-interval="3200">
-                @foreach($flashSaleItems as $item)
-                    @php($product = $item->product)
-                    <article class="flash-sale-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
-                        <a class="flash-sale-img" href="{{ route('products.show', $product->slug) }}" aria-label="{{ $product->name }}">
-                            @if($product->display_image_url)
-                                <img src="{{ $media->url($product->display_image, ['width' => 520, 'quality' => 76]) ?? $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
-                            @endif
-                            @if($item->badge_label)
-                                <span class="flash-sale-favorite">{{ $item->badge_label }}</span>
-                            @endif
-                            @if($item->display_discount_percent > 0)
-                                <span class="flash-sale-discount">{{ $item->display_discount_percent }}%</span>
-                            @endif
-                        </a>
-                        <div class="flash-sale-body">
-                            <h3 class="flash-sale-product-name {{ $item->is_blinking ? 'is-blinking' : '' }}">
-                                <a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a>
-                            </h3>
-                            <div class="flash-sale-price">{{ $item->display_price }}</div>
-                            <div class="flash-sale-status">
-                                <i class="fas fa-fire" aria-hidden="true"></i>
-                                <span>{{ $item->display_status_label }}</span>
+            <div class="flash-sale-carousel {{ $flashSaleHasCarousel ? 'has-carousel' : '' }}">
+                @if($flashSaleHasCarousel)
+                    <button class="slider-btn flash-sale-nav prev-btn" type="button" data-target="flash-sale-grid" aria-label="Xem sản phẩm flash sale trước">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                @endif
+                <div
+                    class="flash-sale-scroller"
+                    id="flash-sale-grid"
+                    data-slider-auto="{{ $flashSaleHasCarousel ? 'true' : 'false' }}"
+                    data-slider-interval="3200"
+                >
+                    @foreach($flashSaleItems as $item)
+                        @php($product = $item->product)
+                        <article class="flash-sale-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
+                            <a class="flash-sale-img" href="{{ route('products.show', $product->slug) }}" aria-label="{{ $product->name }}">
+                                @if($product->display_image_url)
+                                    <img src="{{ $media->url($product->display_image, ['width' => 520, 'quality' => 76]) ?? $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                                @endif
+                                @if($item->badge_label)
+                                    <span class="flash-sale-favorite">{{ $item->badge_label }}</span>
+                                @endif
+                                @if($item->display_discount_percent > 0)
+                                    <span class="flash-sale-discount">{{ $item->display_discount_percent }}%</span>
+                                @endif
+                            </a>
+                            <div class="flash-sale-body">
+                                <h3 class="flash-sale-product-name {{ $item->is_blinking ? 'is-blinking' : '' }}">
+                                    <a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a>
+                                </h3>
+                                <div class="flash-sale-price">{{ $item->display_price }}</div>
+                                <div class="flash-sale-status">
+                                    <i class="fas fa-fire" aria-hidden="true"></i>
+                                    <span>{{ $item->display_status_label }}</span>
+                                </div>
                             </div>
-                        </div>
-                    </article>
-                @endforeach
+                        </article>
+                    @endforeach
+                </div>
+                @if($flashSaleHasCarousel)
+                    <button class="slider-btn flash-sale-nav next-btn" type="button" data-target="flash-sale-grid" aria-label="Xem sản phẩm flash sale tiếp theo">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                @endif
             </div>
         </div>
     </div>
