@@ -779,18 +779,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (direction > 0) {
             const nextLeft = slider.scrollLeft + scrollAmount;
 
-            if (nextLeft >= maxScroll - 4) {
+            if (slider.scrollLeft >= maxScroll - 4) {
                 slider.scrollTo({ left: 0, behavior: 'smooth' });
             } else {
-                slider.scrollTo({ left: nextLeft, behavior: 'smooth' });
+                slider.scrollTo({ left: Math.min(nextLeft, maxScroll), behavior: 'smooth' });
             }
         } else {
             const nextLeft = slider.scrollLeft - scrollAmount;
 
-            if (nextLeft <= 4) {
+            if (slider.scrollLeft <= 4) {
                 slider.scrollTo({ left: maxScroll, behavior: 'smooth' });
             } else {
-                slider.scrollTo({ left: nextLeft, behavior: 'smooth' });
+                slider.scrollTo({ left: Math.max(nextLeft, 0), behavior: 'smooth' });
             }
         }
     };
