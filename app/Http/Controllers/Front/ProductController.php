@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\FlashSaleItem;
 use App\Models\Product;
 use App\Models\Tag;
 use App\Services\SeoService;
@@ -439,6 +440,17 @@ class ProductController extends Controller
         $product = Product::with($with)->where('slug', $slug)->published()->firstOrFail();
         $product->incrementViewCount();
 
+        $flashSaleItem = Schema::hasTable('flash_sales') && Schema::hasTable('flash_sale_items')
+            ? FlashSaleItem::query()
+                ->where('product_id', $product->id)
+                ->where('is_active', true)
+                ->whereHas('flashSale', fn ($query) => $query->current())
+                ->with('flashSale')
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->first()
+            : null;
+
         $relatedProducts = Product::published()
             ->with('category')
             ->where('category_id', $product->category_id)
@@ -469,6 +481,6 @@ class ProductController extends Controller
             ['name' => $product->name, 'url' => $product->url],
         ]));
 
-        return view('front.pages.products.show', compact('product', 'relatedProducts', 'seo'));
+        return view('front.pages.products.show', compact('product', 'relatedProducts', 'seo', 'flashSaleItem'));
     }
 }

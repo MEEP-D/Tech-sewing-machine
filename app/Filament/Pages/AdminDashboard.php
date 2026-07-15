@@ -12,7 +12,7 @@ use Filament\Pages\Dashboard as BaseDashboard;
 
 class AdminDashboard extends BaseDashboard
 {
-    protected static ?string $title = 'Dashboard Admin';
+    protected static ?string $title = 'Bảng điều khiển quản trị';
 
     public function getSubheading(): string|\Illuminate\Contracts\Support\Htmlable|null
     {

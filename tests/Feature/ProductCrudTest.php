@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\FlashSale;
+use App\Models\FlashSaleItem;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
@@ -60,6 +62,46 @@ class ProductCrudTest extends TestCase
         $response->assertSee('25.000.000');
         $response->assertSee('5000rpm');
         $response->assertSee('product-spec-gallery');
+    }
+
+    public function test_product_detail_page_displays_active_flash_sale_badge(): void
+    {
+        $category = Category::create([
+            'name' => 'May flash sale',
+            'slug' => 'may-flash-sale',
+            'type' => 'product',
+        ]);
+
+        $product = Product::create([
+            'name' => 'May dang flash sale',
+            'slug' => 'may-dang-flash-sale',
+            'price' => '20.000.000',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'discount_percent' => 10,
+        ]);
+
+        $flashSale = FlashSale::create([
+            'title' => 'Flash Sale 15.7',
+            'starts_at' => now()->subHour(),
+            'ends_at' => now()->addHours(2),
+            'is_active' => true,
+        ]);
+
+        FlashSaleItem::create([
+            'flash_sale_id' => $flashSale->id,
+            'product_id' => $product->id,
+            'discount_percent' => 25,
+            'is_blinking' => true,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/san-pham/may-dang-flash-sale');
+
+        $response->assertOk();
+        $response->assertSee('Flash Sale 25%');
+        $response->assertSee('is-flash-sale is-blinking', false);
+        $response->assertSee('Giảm giá 10%');
     }
 
     public function test_product_detail_page_renders_usage_guide_content_from_admin(): void

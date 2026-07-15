@@ -151,6 +151,220 @@
     border-radius: var(--admin-control-radius);
 }
 
+.fi-dropdown-panel,
+.fi-select-input .fi-dropdown-panel,
+.fi-fo-date-time-picker-panel {
+    z-index: 50;
+    border: 1px solid var(--admin-border);
+    border-radius: 0.75rem;
+    background: var(--admin-surface-1);
+    color: var(--admin-text);
+    box-shadow: 0 18px 40px -24px rgb(2 8 23 / 0.55), 0 0 0 1px rgb(15 23 42 / 0.03);
+}
+
+.dark .fi-dropdown-panel,
+.dark .fi-select-input .fi-dropdown-panel,
+.dark .fi-fo-date-time-picker-panel {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+    box-shadow: 0 22px 44px -24px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+.fi-dropdown-list-item,
+.fi-select-input-option,
+.fi-select-input-message,
+.fi-select-input-placeholder,
+.fi-select-input-search-ctn input {
+    color: var(--admin-text);
+}
+
+.dark .fi-dropdown-list-item,
+.dark .fi-select-input-option,
+.dark .fi-select-input-message,
+.dark .fi-select-input-placeholder,
+.dark .fi-select-input-search-ctn input {
+    color: #f8fafc;
+}
+
+.fi-select-input-search-ctn,
+.fi-select-input-option-group:not(:last-child) {
+    border-color: var(--admin-border);
+}
+
+.dark .fi-select-input-search-ctn,
+.dark .fi-select-input-option-group:not(:last-child) {
+    border-color: #334155;
+}
+
+.fi-select-input-search-ctn input::placeholder {
+    color: var(--admin-text-muted);
+}
+
+.dark .fi-select-input-search-ctn input::placeholder {
+    color: #94a3b8;
+}
+
+.fi-select-input-option[aria-selected="true"],
+.fi-select-input-option.fi-selected,
+.fi-dropdown-list-item.fi-selected {
+    background: color-mix(in srgb, var(--admin-primary-soft) 70%, transparent);
+    color: var(--admin-primary-deep);
+}
+
+.dark .fi-select-input-option[aria-selected="true"],
+.dark .fi-select-input-option.fi-selected,
+.dark .fi-dropdown-list-item.fi-selected {
+    background: rgb(37 99 235 / 0.26);
+    color: #bfdbfe;
+}
+
+@media (hover: hover) {
+    .fi-select-input-option:hover,
+    .fi-dropdown-list-item:hover {
+        background: var(--admin-surface-2);
+    }
+
+    .dark .fi-select-input-option:hover,
+    .dark .fi-dropdown-list-item:hover {
+        background: rgb(30 41 59 / 0.92);
+    }
+}
+
+.fi-fo-date-time-picker-panel {
+    width: max-content;
+    min-width: 16rem;
+    max-width: min(calc(100vw - 2rem), 20rem);
+    overflow: hidden;
+    padding: 0.875rem;
+}
+
+.fi-fo-date-time-picker-panel-header {
+    gap: 0.75rem;
+}
+
+.fi-fo-date-time-picker-month-select,
+.fi-fo-date-time-picker-year-input,
+.fi-fo-date-time-picker-time-inputs input {
+    height: 2rem;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--admin-text);
+    font-weight: 650;
+    line-height: 1.25;
+}
+
+.dark .fi-fo-date-time-picker-month-select,
+.dark .fi-fo-date-time-picker-year-input,
+.dark .fi-fo-date-time-picker-time-inputs input {
+    color: #f8fafc;
+}
+
+.fi-fo-date-time-picker-month-select {
+    min-width: 7rem;
+    padding-inline: 0.5rem 1.75rem;
+}
+
+.fi-fo-date-time-picker-month-select option {
+    background: var(--admin-surface-1);
+    color: var(--admin-text);
+}
+
+.dark .fi-fo-date-time-picker-month-select option {
+    background: #0f172a;
+    color: #f8fafc;
+}
+
+.fi-fo-date-time-picker-year-input {
+    width: 4.25rem;
+    padding-inline: 0.5rem;
+    text-align: center;
+}
+
+.fi-fo-date-time-picker-calendar-header,
+.fi-fo-date-time-picker-calendar {
+    gap: 0.25rem;
+}
+
+.fi-fo-date-time-picker-calendar-header-day {
+    color: var(--admin-text-muted);
+    font-weight: 700;
+}
+
+.dark .fi-fo-date-time-picker-calendar-header-day {
+    color: #cbd5e1;
+}
+
+.fi-fo-date-time-picker-calendar-day {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: var(--admin-text);
+    font-weight: 650;
+    line-height: 1;
+}
+
+.dark .fi-fo-date-time-picker-calendar-day {
+    color: #f8fafc;
+}
+
+.fi-fo-date-time-picker-calendar-day.fi-selected,
+.fi-fo-date-time-picker-calendar-day.fi-focused.fi-selected {
+    background: var(--admin-primary);
+    color: #fff;
+}
+
+.dark .fi-fo-date-time-picker-calendar-day.fi-selected,
+.dark .fi-fo-date-time-picker-calendar-day.fi-focused.fi-selected {
+    background: #3b82f6;
+    color: #fff;
+}
+
+.fi-fo-date-time-picker-calendar-day.fi-focused:not(.fi-selected):not(.fi-disabled) {
+    background: var(--admin-primary-soft);
+    color: var(--admin-primary-deep);
+}
+
+.dark .fi-fo-date-time-picker-calendar-day.fi-focused:not(.fi-selected):not(.fi-disabled) {
+    background: rgb(37 99 235 / 0.28);
+    color: #bfdbfe;
+}
+
+.fi-fo-date-time-picker-calendar-day.fi-fo-date-time-picker-calendar-day-today:not(.fi-selected) {
+    color: var(--admin-primary);
+}
+
+.dark .fi-fo-date-time-picker-calendar-day.fi-fo-date-time-picker-calendar-day-today:not(.fi-selected) {
+    color: #93c5fd;
+}
+
+.fi-fo-date-time-picker-time-inputs {
+    gap: 0.45rem;
+    padding-top: 0.25rem;
+}
+
+.fi-fo-date-time-picker-time-inputs input {
+    width: 2.75rem;
+    background: var(--admin-surface-2);
+    text-align: center;
+}
+
+.dark .fi-fo-date-time-picker-time-inputs input {
+    background: #1e293b;
+}
+
+.fi-fo-date-time-picker-time-input-separator {
+    color: var(--admin-text-muted);
+    font-weight: 800;
+}
+
+.dark .fi-fo-date-time-picker-time-input-separator {
+    color: #cbd5e1;
+}
+
 .fi-btn {
     border-radius: var(--admin-control-radius);
     font-family: var(--admin-font-family);

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\AdminFormValidation as V;
 use App\Models\Setting;
 use BackedEnum;
 use Filament\Forms\Components\Checkbox;
@@ -58,8 +59,8 @@ class SeoSettings extends Page
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            \Filament\Schemas\Components\Tabs::make('SEO Settings')->tabs([
-                \Filament\Schemas\Components\Tabs\Tab::make(self::u('M\\u1eb7c \\u0111\\u1ecbnh Global'))->schema([
+            \Filament\Schemas\Components\Tabs::make('Cài đặt SEO')->tabs([
+                \Filament\Schemas\Components\Tabs\Tab::make(self::u('M\\u1eb7c \\u0111\\u1ecbnh to\\u00e0n website'))->schema([
                     Grid::make(2)->schema([
                         TextInput::make('seo_default_title')->label(self::u('SEO title m\\u1eb7c \\u0111\\u1ecbnh')),
                         TextInput::make('seo_default_canonical')->label(self::u('Canonical m\\u1eb7c \\u0111\\u1ecbnh')),
@@ -111,6 +112,7 @@ class SeoSettings extends Page
     public function save(): void
     {
         $this->data = array_replace($this->data, $this->form->getState());
+        $this->validate($this->settingsValidationRules(), V::messages());
 
         $this->persistUploadSettings();
         $this->form->fill($this->data);
@@ -138,6 +140,28 @@ class SeoSettings extends Page
         }
 
         Notification::make()->title(self::u('\\u0110\\u00e3 l\\u01b0u c\\u1ea5u h\\u00ecnh SEO.'))->success()->send();
+    }
+
+    protected function settingsValidationRules(): array
+    {
+        return [
+            'data.seo_default_title' => V::text(70),
+            'data.seo_default_description' => V::text(160),
+            'data.seo_default_canonical' => ['nullable', 'url', 'max:500'],
+            'data.seo_default_og_image' => ['nullable', 'string', 'max:500'],
+            'data.seo_default_og_image_upload' => ['nullable'],
+            'data.seo_organization_name' => V::text(),
+            'data.seo_organization_url' => ['nullable', 'url', 'max:500'],
+            'data.seo_robots_default' => V::text(100),
+            'data.seo_enable_schema' => ['boolean'],
+            'data.seo_enable_og' => ['boolean'],
+            'data.seo_products_title' => V::text(70),
+            'data.seo_products_description' => V::text(160),
+            'data.seo_news_title' => V::text(70),
+            'data.seo_news_description' => V::text(160),
+            'data.seo_contact_title' => V::text(70),
+            'data.seo_contact_description' => V::text(160),
+        ];
     }
 
     protected function persistUploadSettings(): void

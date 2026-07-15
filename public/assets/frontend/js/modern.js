@@ -755,11 +755,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 9. Slider Logic for Products (Infinite Loop + Dynamic Visibility)
     const sliderButtons = document.querySelectorAll('.slider-btn');
-    const sliders = document.querySelectorAll('.product-grid');
+    const sliders = document.querySelectorAll('.product-grid, .flash-sale-scroller');
     const sliderAutoState = new WeakMap();
 
     const getSliderStep = (slider) => {
-        const firstCard = slider?.querySelector('.product-card');
+        const firstCard = slider?.querySelector('.product-card, .flash-sale-card');
         if (!firstCard) return 400;
 
         const styles = window.getComputedStyle(slider);
@@ -888,6 +888,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 startSliderAutoplay(slider);
             }
         });
+    });
+
+    const countdowns = document.querySelectorAll('[data-flash-sale-countdown]');
+    countdowns.forEach(countdown => {
+        const endValue = countdown.getAttribute('data-end');
+        const endTime = endValue ? new Date(endValue).getTime() : 0;
+        const hourEl = countdown.querySelector('[data-countdown-hours]');
+        const minuteEl = countdown.querySelector('[data-countdown-minutes]');
+        const secondEl = countdown.querySelector('[data-countdown-seconds]');
+
+        if (!endTime || !hourEl || !minuteEl || !secondEl) return;
+
+        const pad = (value) => String(Math.max(0, value)).padStart(2, '0');
+        const renderCountdown = () => {
+            const remainingSeconds = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+            const hours = Math.floor(remainingSeconds / 3600);
+            const minutes = Math.floor((remainingSeconds % 3600) / 60);
+            const seconds = remainingSeconds % 60;
+
+            hourEl.textContent = pad(hours);
+            minuteEl.textContent = pad(minutes);
+            secondEl.textContent = pad(seconds);
+
+            if (remainingSeconds <= 0) {
+                countdown.classList.add('is-ended');
+            }
+        };
+
+        renderCountdown();
+        window.setInterval(renderCountdown, 1000);
     });
 
     // 10. Banner Switcher Logic

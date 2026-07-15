@@ -51,6 +51,7 @@ class Login extends BaseLogin
             ->helperText('Dùng email đã được cấp quyền quản trị.')
             ->prefixIcon('heroicon-m-envelope')
             ->email()
+            ->maxLength(255)
             ->required()
             ->validationMessages([
                 'required' => 'Vui lòng nhập email quản trị.',
@@ -70,6 +71,7 @@ class Login extends BaseLogin
             ->password()
             ->revealable(filament()->arePasswordsRevealable())
             ->autocomplete('current-password')
+            ->maxLength(255)
             ->required()
             ->validationMessages([
                 'required' => 'Vui lòng nhập mật khẩu.',

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Settings\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -22,12 +23,12 @@ class SettingsTable
                 TextColumn::make('updated_at')->label('Cập nhật')->dateTime()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                VietnameseAction::edit(EditAction::make(), 'cấu hình'),
+                VietnameseAction::delete(DeleteAction::make(), 'cấu hình'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'cấu hình'),
                 ]),
             ]);
     }

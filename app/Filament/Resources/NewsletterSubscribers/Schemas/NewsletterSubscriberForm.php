@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NewsletterSubscribers\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -16,14 +17,14 @@ class NewsletterSubscriberForm
         return $schema->components([
             Section::make('Người đăng ký')->schema([
                 Grid::make(2)->schema([
-                    TextInput::make('email')->label('Email')->email()->required()->disabled(),
+                    TextInput::make('email')->label('Email')->email()->required()->rules(['required', 'email', 'max:255'])->validationMessages(V::messages())->disabled(),
                     Select::make('status')->label('Trạng thái')->options([
                         'pending' => 'Chờ xác nhận',
                         'active' => 'Đang nhận tin',
                         'unsubscribed' => 'Đã hủy đăng ký',
-                    ])->required(),
-                    DateTimePicker::make('confirmed_at')->label('Thời gian xác nhận')->disabled(),
-                    DateTimePicker::make('unsubscribed_at')->label('Thời gian hủy')->disabled(),
+                    ])->required()->rules(['required', 'in:pending,active,unsubscribed'])->validationMessages(V::messages()),
+                    DateTimePicker::make('confirmed_at')->label('Thời gian xác nhận')->rules(['nullable', 'date'])->validationMessages(V::messages())->disabled(),
+                    DateTimePicker::make('unsubscribed_at')->label('Thời gian hủy')->rules(['nullable', 'date'])->validationMessages(V::messages())->disabled(),
                 ]),
             ]),
         ]);

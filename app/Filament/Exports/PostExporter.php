@@ -46,7 +46,7 @@ class PostExporter extends Exporter
 
     public function getJobBatchName(): ?string
     {
-        return 'Export bài viết';
+        return 'Xuất bài viết';
     }
 
     public function getFormats(): array
@@ -56,7 +56,7 @@ class PostExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Export bài viết hoàn tất: ' . Number::format($export->successful_rows) . ' dòng.';
+        $body = 'Xuất bài viết hoàn tất: ' . Number::format($export->successful_rows) . ' dòng.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
             $body .= ' ' . Number::format($failedRowsCount) . ' dòng lỗi.';

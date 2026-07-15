@@ -216,6 +216,75 @@
     @endif
 </section>
 
+@php($flashSaleItems = $flashSale?->items?->filter(fn ($item) => $item->product !== null)->values() ?? collect())
+@if($flashSale && $flashSaleItems->isNotEmpty())
+@php($flashSaleEndsAt = $flashSale->ends_at)
+@php($flashSaleSecondsRemaining = $flashSaleEndsAt && $flashSaleEndsAt->isFuture() ? (int) now()->diffInSeconds($flashSaleEndsAt) : 0)
+@php($flashSaleHours = intdiv($flashSaleSecondsRemaining, 3600))
+@php($flashSaleMinutes = intdiv($flashSaleSecondsRemaining % 3600, 60))
+@php($flashSaleSeconds = $flashSaleSecondsRemaining % 60)
+<section class="flash-sale-section" aria-label="{{ $flashSale->title }}">
+    <div class="container">
+        <div class="flash-sale-panel">
+            <div class="flash-sale-head">
+                <div class="flash-sale-title-wrap">
+                    <h2 class="flash-sale-title">
+                        <i class="fas fa-fire-flame-curved" aria-hidden="true"></i>
+                        <span>{{ $flashSale->title }}</span>
+                    </h2>
+                    @if($flashSale->show_countdown && $flashSaleEndsAt)
+                        <div class="flash-sale-countdown" data-flash-sale-countdown data-end="{{ $flashSaleEndsAt->toIso8601String() }}" aria-label="Thời gian flash sale còn lại">
+                            <span data-countdown-hours>{{ str_pad((string) $flashSaleHours, 2, '0', STR_PAD_LEFT) }}</span>
+                            <span data-countdown-minutes>{{ str_pad((string) $flashSaleMinutes, 2, '0', STR_PAD_LEFT) }}</span>
+                            <span data-countdown-seconds>{{ str_pad((string) $flashSaleSeconds, 2, '0', STR_PAD_LEFT) }}</span>
+                        </div>
+                    @endif
+                    @if($flashSale->subtitle)
+                        <p class="flash-sale-subtitle">{{ $flashSale->subtitle }}</p>
+                    @endif
+                </div>
+                <div class="flash-sale-head-actions">
+                    @if($flashSale->view_all_url)
+                        <a class="flash-sale-view-all" href="{{ $flashSale->view_all_url }}">
+                            <span>Xem tất cả</span>
+                            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                </div>
+            </div>
+            <div class="flash-sale-scroller" id="flash-sale-grid" data-slider-auto="true" data-slider-interval="3200">
+                @foreach($flashSaleItems as $item)
+                    @php($product = $item->product)
+                    <article class="flash-sale-card clickable-card" data-card-link="{{ route('products.show', $product->slug) }}">
+                        <a class="flash-sale-img" href="{{ route('products.show', $product->slug) }}" aria-label="{{ $product->name }}">
+                            @if($product->display_image_url)
+                                <img src="{{ $media->url($product->display_image, ['width' => 520, 'quality' => 76]) ?? $product->display_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                            @endif
+                            @if($item->badge_label)
+                                <span class="flash-sale-favorite">{{ $item->badge_label }}</span>
+                            @endif
+                            @if($item->display_discount_percent > 0)
+                                <span class="flash-sale-discount">{{ $item->display_discount_percent }}%</span>
+                            @endif
+                        </a>
+                        <div class="flash-sale-body">
+                            <h3 class="flash-sale-product-name {{ $item->is_blinking ? 'is-blinking' : '' }}">
+                                <a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a>
+                            </h3>
+                            <div class="flash-sale-price">{{ $item->display_price }}</div>
+                            <div class="flash-sale-status">
+                                <i class="fas fa-fire" aria-hidden="true"></i>
+                                <span>{{ $item->display_status_label }}</span>
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
+@endif
+
 @if($highlightProduct)
 <section class="special-product-section">
     <div class="container">
@@ -328,7 +397,7 @@
 ])
 
 <section id="new-products" class="container" style="padding: 5px 1.5rem;">
-    <div class="section-header"><h2 class="section-title">Sản phẩm mới nhất</h2></div>
+    <div class="section-header"><h2 class="section-title">Sản phẩm bán chạy</h2></div>
     <div class="slider-wrapper new-products-slider">
         <button class="slider-btn prev-btn" data-target="product-grid-new"><i class="fas fa-chevron-left"></i></button>
         <div class="product-grid" id="product-grid-new" data-slider-auto="true" data-slider-interval="3800">
@@ -342,7 +411,7 @@
                             <span class="badge-installment"><i class="fas fa-gift" aria-hidden="true"></i> Khuyến mãi</span>
                         @endif
                         @if(((int) $product->discount_percent) > 0)
-                            <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
+                            <span class="badge-discount-ribbon">{{ (int) $product->discount_percent }}%</span>
                         @endif
                         @if($product->is_new)<span class="badge-new">Mới</span>@endif
                         @if($product->is_hot)<span class="badge-hot">Nổi bật</span>@endif
@@ -419,7 +488,7 @@
                                         <span class="badge-installment"><i class="fas fa-gift" aria-hidden="true"></i> Khuyến mãi</span>
                                     @endif
                                     @if(((int) $product->discount_percent) > 0)
-                                        <span class="badge-discount-ribbon">-{{ (int) $product->discount_percent }}%</span>
+                                        <span class="badge-discount-ribbon">{{ (int) $product->discount_percent }}%</span>
                                     @endif
                                 </div>
                                 <h3 class="home-product-row-name">

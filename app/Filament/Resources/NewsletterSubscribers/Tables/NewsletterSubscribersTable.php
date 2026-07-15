@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NewsletterSubscribers\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -28,7 +29,7 @@ class NewsletterSubscribersTable
                 ]),
             ])
             ->recordActions([
-                EditAction::make(),
+                VietnameseAction::edit(EditAction::make(), 'người nhận email'),
             ]);
     }
 }

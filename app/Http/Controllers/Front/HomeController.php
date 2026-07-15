@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\FlashSale;
 use App\Models\Partner;
 use App\Models\Product;
 use App\Models\Section;
@@ -68,6 +69,21 @@ class HomeController extends Controller
             ->take(12)
             ->get();
 
+        $flashSale = Schema::hasTable('flash_sales') && Schema::hasTable('flash_sale_items')
+            ? FlashSale::query()
+                ->current()
+                ->with([
+                    'items' => fn ($query) => $query
+                        ->where('is_active', true)
+                        ->with([
+                            'product' => fn ($productQuery) => $productQuery
+                                ->published()
+                                ->with($exclusiveWith),
+                        ]),
+                ])
+                ->first()
+            : null;
+
         $menuCategories = Category::query()
             ->where('type', 'product')
             ->whereNull('parent_id')
@@ -129,6 +145,7 @@ class HomeController extends Controller
             'newProducts' => $newProducts,
             'exclusiveProducts' => collect(),
             'bannerSwitcherProducts' => $bannerSwitcherProducts,
+            'flashSale' => $flashSale,
             'highlightProduct' => $highlightProduct,
             'homeProductRows' => $homeProductRows,
             'menuCategories' => $menuCategories,

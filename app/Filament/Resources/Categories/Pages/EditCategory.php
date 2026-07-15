@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories\Pages;
 
 use App\Filament\Resources\Categories\CategoryResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -15,12 +16,14 @@ class EditCategory extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()
-                ->requiresConfirmation()
-                ->modalHeading('Xác nhận xóa danh mục')
-                ->modalDescription('Bạn có chắc chắn muốn xóa danh mục này không?'),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
+            VietnameseAction::delete(DeleteAction::make(), 'danh mục'),
+            VietnameseAction::forceDelete(ForceDeleteAction::make(), 'danh mục'),
+            VietnameseAction::restore(RestoreAction::make(), 'danh mục'),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Đã cập nhật thông tin danh mục thành công.';
     }
 }

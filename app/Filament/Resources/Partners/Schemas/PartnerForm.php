@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Partners\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -16,6 +17,8 @@ class PartnerForm
                 TextInput::make('name')
                     ->label('Tên đối tác')
                     ->required()
+                    ->rules(V::requiredText())
+                    ->validationMessages(V::messages())
                     ->maxLength(255),
                 FileUpload::make('logo')
                     ->label('Logo')
@@ -28,10 +31,14 @@ class PartnerForm
                 TextInput::make('url')
                     ->label('Link website')
                     ->url()
+                    ->rules(['nullable', 'url', 'max:500'])
+                    ->validationMessages(V::messages())
                     ->maxLength(500),
                 TextInput::make('sort_order')
                     ->label('Thứ tự hiển thị')
                     ->numeric()
+                    ->rules(V::nonNegativeInteger())
+                    ->validationMessages(V::messages())
                     ->minValue(0)
                     ->default(0),
                 Toggle::make('is_active')

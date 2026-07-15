@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NewsletterCampaigns\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -23,7 +24,7 @@ class NewsletterCampaignsTable
                 TextColumn::make('sent_at')->label('Gửi lúc')->dateTime('d/m/Y H:i')->sortable(),
             ])
             ->recordActions([
-                EditAction::make(),
+                VietnameseAction::edit(EditAction::make(), 'chiến dịch email'),
             ]);
     }
 }

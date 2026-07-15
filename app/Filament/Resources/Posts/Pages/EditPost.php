@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Posts\Pages;
 
 use App\Filament\Resources\Posts\PostResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -15,12 +16,14 @@ class EditPost extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()
-                ->requiresConfirmation()
-                ->modalHeading('Xác nhận xóa bài viết')
-                ->modalDescription('Bạn có chắc chắn muốn xóa bài viết này không?'),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
+            VietnameseAction::delete(DeleteAction::make(), 'bài viết'),
+            VietnameseAction::forceDelete(ForceDeleteAction::make(), 'bài viết'),
+            VietnameseAction::restore(RestoreAction::make(), 'bài viết'),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Đã cập nhật thông tin bài viết thành công.';
     }
 }

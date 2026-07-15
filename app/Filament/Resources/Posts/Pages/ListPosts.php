@@ -6,6 +6,7 @@ use App\Filament\Actions\ImportSpreadsheetAction;
 use App\Filament\Exports\PostExporter;
 use App\Filament\Imports\PostImporter;
 use App\Filament\Resources\Posts\PostResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
@@ -18,12 +19,12 @@ class ListPosts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            VietnameseAction::create(CreateAction::make(), 'bài viết'),
             ImportSpreadsheetAction::make()
-                ->label('Import bài viết')
+                ->label('Nhập bài viết')
                 ->importer(PostImporter::class),
             ExportAction::make()
-                ->label('Export bài viết')
+                ->label('Xuất bài viết')
                 ->modalHeading('Chọn trường xuất bài viết')
                 ->modalSubmitActionLabel('Xuất Excel')
                 ->exporter(PostExporter::class)

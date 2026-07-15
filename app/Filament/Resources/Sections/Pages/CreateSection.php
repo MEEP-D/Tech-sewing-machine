@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateSection extends CreateRecord
 {
     protected static string $resource = SectionResource::class;
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Đã thêm khối nội dung mới thành công.';
+    }
 }

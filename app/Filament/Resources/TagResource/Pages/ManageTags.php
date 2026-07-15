@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\TagResource\Pages;
 
 use App\Filament\Resources\TagResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 
@@ -13,7 +14,7 @@ class ManageTags extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            VietnameseAction::create(Actions\CreateAction::make(), 'từ khóa'),
         ];
     }
 }

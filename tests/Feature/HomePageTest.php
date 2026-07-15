@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\FlashSale;
+use App\Models\FlashSaleItem;
 use App\Models\Product;
 use App\Models\ProductSpec;
 use App\Models\Setting;
@@ -54,6 +56,52 @@ class HomePageTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('May test noi bat');
+    }
+
+    public function test_home_page_displays_current_flash_sale_products(): void
+    {
+        $category = Category::create([
+            'name' => 'May flash sale',
+            'slug' => 'may-flash-sale',
+            'type' => 'product',
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+
+        $product = Product::create([
+            'name' => 'May flash sale noi bat',
+            'slug' => 'may-flash-sale-noi-bat',
+            'price' => '15000000',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'sort_order' => 1,
+            'view_count' => 0,
+        ]);
+
+        $flashSale = FlashSale::create([
+            'title' => 'Flash Sale 15.7',
+            'starts_at' => now()->subHour(),
+            'ends_at' => now()->addHours(3),
+            'is_active' => true,
+            'show_countdown' => true,
+        ]);
+
+        FlashSaleItem::create([
+            'flash_sale_id' => $flashSale->id,
+            'product_id' => $product->id,
+            'sale_price' => '12.000.000 đ',
+            'discount_percent' => 20,
+            'is_blinking' => true,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('flash-sale-section');
+        $response->assertSee('Flash Sale 15.7');
+        $response->assertSee('May flash sale noi bat');
+        $response->assertSee('12.000.000 đ');
     }
 
     public function test_home_page_renders_configured_home_blocks_and_full_product_card_data(): void

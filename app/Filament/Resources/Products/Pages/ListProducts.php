@@ -7,6 +7,7 @@ use App\Filament\Exports\ProductExporter;
 use App\Filament\Imports\Jobs\ProductImportCsv;
 use App\Filament\Imports\ProductImporter;
 use App\Filament\Resources\Products\ProductResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
@@ -19,14 +20,14 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            VietnameseAction::create(CreateAction::make(), 'sản phẩm'),
             ImportSpreadsheetAction::make()
-                ->label('Import sản phẩm')
+                ->label('Nhập sản phẩm')
                 ->importer(ProductImporter::class)
                 ->job(ProductImportCsv::class)
                 ->chunkSize(100000),
             ExportAction::make()
-                ->label('Export sản phẩm')
+                ->label('Xuất sản phẩm')
                 ->modalHeading('Chọn trường xuất sản phẩm')
                 ->modalSubmitActionLabel('Xuất Excel')
                 ->exporter(ProductExporter::class)

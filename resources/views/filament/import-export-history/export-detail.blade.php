@@ -58,12 +58,12 @@
 
     @if (! $fileAvailable)
         <p class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900/60 dark:bg-red-950/25 dark:text-red-200">
-            Export đã có lịch sử trong database nhưng file không còn trong storage. Vị trí mong đợi là
+            Lịch sử xuất dữ liệu vẫn còn trong hệ thống nhưng tệp không còn trong storage. Vị trí mong đợi là
             <span class="font-mono">{{ $record->file_disk }}:{{ $xlsxPath ?? $directory }}</span>.
         </p>
     @elseif ($failedRowsCount > 0)
         <p class="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800 dark:border-yellow-900/60 dark:bg-yellow-950/25 dark:text-yellow-200">
-            Export hoàn tất nhưng số dòng thành công nhỏ hơn tổng dòng. Filament không lưu chi tiết lỗi theo từng dòng export; hãy kiểm tra log hệ thống nếu cần nguyên nhân cấp job.
+            Xuất dữ liệu đã hoàn tất nhưng số dòng thành công nhỏ hơn tổng dòng. Filament không lưu chi tiết lỗi theo từng dòng xuất; hãy kiểm tra log hệ thống nếu cần nguyên nhân cấp tác vụ.
         </p>
     @else
         <p class="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-900/60 dark:bg-green-950/25 dark:text-green-200">
@@ -79,7 +79,7 @@
                 @foreach ($failedJobs as $failedJob)
                     <div class="rounded-lg border border-red-200 bg-red-50/70 p-3 dark:border-red-900/60 dark:bg-red-950/20">
                         <div class="flex flex-wrap items-center justify-between gap-2">
-                            <p class="text-sm font-bold text-red-800 dark:text-red-200">Queue: {{ $failedJob->queue }}</p>
+                            <p class="text-sm font-bold text-red-800 dark:text-red-200">Hàng đợi: {{ $failedJob->queue }}</p>
                             <p class="text-xs text-red-700 dark:text-red-300">{{ $failedJob->failed_at }}</p>
                         </div>
 

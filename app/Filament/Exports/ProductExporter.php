@@ -52,7 +52,7 @@ class ProductExporter extends Exporter
 
     public function getJobBatchName(): ?string
     {
-        return 'Export sản phẩm';
+        return 'Xuất sản phẩm';
     }
 
     public function getFormats(): array
@@ -62,7 +62,7 @@ class ProductExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Export sản phẩm hoàn tất: ' . Number::format($export->successful_rows) . ' dòng.';
+        $body = 'Xuất sản phẩm hoàn tất: ' . Number::format($export->successful_rows) . ' dòng.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
             $body .= ' ' . Number::format($failedRowsCount) . ' dòng lỗi.';

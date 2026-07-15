@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Posts\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -28,12 +29,16 @@ class PostForm
                                     TextInput::make('title')
                                         ->label('Tiêu đề')
                                         ->required()
+                                        ->rules(V::requiredText())
+                                        ->validationMessages(V::messages())
                                         ->maxLength(255)
                                         ->live(onBlur: true)
                                         ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Str::slug($state))),
                                     TextInput::make('slug')
                                         ->label('Slug (URL)')
                                         ->required()
+                                        ->rules(V::slug())
+                                        ->validationMessages(V::slugMessages())
                                         ->unique(ignoreRecord: true)
                                         ->maxLength(255),
                                 ]),
@@ -48,6 +53,8 @@ class PostForm
                                         ])
                                         ->default('news')
                                         ->required()
+                                        ->rules(['required', 'in:news,event,fair,seminar'])
+                                        ->validationMessages(V::messages())
                                         ->live(),
                                     Select::make('status')
                                         ->label('Trạng thái')
@@ -57,13 +64,17 @@ class PostForm
                                             'archived' => 'Lưu trữ',
                                         ])
                                         ->default('draft')
-                                        ->required(),
+                                        ->required()
+                                        ->rules(['required', 'in:draft,published,archived'])
+                                        ->validationMessages(V::messages()),
                                     Select::make('author_id')
                                         ->label('Tác giả')
                                         ->relationship('author', 'name')
                                         ->searchable()
                                         ->preload()
-                                        ->required(),
+                                        ->required()
+                                        ->rules(['required', 'exists:users,id'])
+                                        ->validationMessages(V::messages()),
                                 ]),
                                 Grid::make(2)->schema([
                                     Select::make('category_id')
@@ -71,9 +82,13 @@ class PostForm
                                         ->relationship('category', 'name', fn ($query) => $query->where('type', 'news'))
                                         ->searchable()
                                         ->preload()
-                                        ->required(),
+                                        ->required()
+                                        ->rules(['required', 'exists:categories,id'])
+                                        ->validationMessages(V::messages()),
                                     DateTimePicker::make('published_at')
                                         ->label('Ngày xuất bản')
+                                        ->rules(['nullable', 'date'])
+                                        ->validationMessages(V::messages())
                                         ->helperText('Nếu để trống khi công khai, hệ thống sẽ dùng thời điểm lưu.')
                                         ->native(false)
                                         ->displayFormat('d/m/Y H:i'),
@@ -81,11 +96,15 @@ class PostForm
                                 Textarea::make('excerpt')
                                     ->label('Mô tả tóm tắt')
                                     ->rows(3)
+                                    ->rules(V::text(500))
+                                    ->validationMessages(V::messages())
                                     ->maxLength(500)
                                     ->helperText('Hiển thị ở danh sách bài viết và SEO')
                                     ->columnSpanFull(),
                                 RichEditor::make('content')
                                     ->label('Nội dung chi tiết')
+                                    ->rules(['nullable', 'string', 'max:50000'])
+                                    ->validationMessages(V::messages())
                                     ->toolbarButtons([
                                         'bold',
                                         'italic',
@@ -110,10 +129,13 @@ class PostForm
                                         ->label('Ngày diễn ra')
                                         ->type('date')
                                         ->rules(['nullable', 'date'])
+                                        ->validationMessages(V::messages())
                                         ->helperText('Chỉ điền nếu là Hội chợ / Hội thảo'),
                                     TextInput::make('event_location')
                                         ->label('Địa điểm')
                                         ->required(fn (callable $get): bool => in_array($get('type'), ['event', 'fair', 'seminar'], true))
+                                        ->rules(V::text())
+                                        ->validationMessages(V::messages())
                                         ->maxLength(255)
                                         ->helperText('Ví dụ: TP. Hồ Chí Minh, Hà Nội, Barcelona...'),
                                 ]),
@@ -146,27 +168,35 @@ class PostForm
 
                         Tabs\Tab::make('SEO')
                             ->schema([
-                                Section::make('Meta Tags')
+                                Section::make('Thẻ SEO')
                                     ->relationship('seoMeta')
                                     ->schema([
                                         TextInput::make('meta_title')
-                                            ->label('Meta Title')
+                                            ->label('Tiêu đề SEO')
+                                            ->rules(V::text(70))
+                                            ->validationMessages(V::messages())
                                             ->maxLength(70)
                                             ->helperText('Tối ưu: 50-60 ký tự'),
                                         Textarea::make('meta_description')
-                                            ->label('Meta Description')
+                                            ->label('Mô tả SEO')
                                             ->rows(3)
+                                            ->rules(V::text(160))
+                                            ->validationMessages(V::messages())
                                             ->maxLength(160)
                                             ->helperText('Tối ưu: 120-155 ký tự'),
                                         TextInput::make('focus_keyword')
                                             ->label('Từ khóa trọng tâm')
+                                            ->rules(V::text(100))
+                                            ->validationMessages(V::messages())
                                             ->maxLength(100),
                                         Grid::make(2)->schema([
                                             TextInput::make('og_title')
-                                                ->label('OG Title (Facebook/Zalo)')
+                                                ->label('Tiêu đề chia sẻ Facebook/Zalo')
+                                                ->rules(V::text(95))
+                                                ->validationMessages(V::messages())
                                                 ->maxLength(95),
                                             FileUpload::make('og_image')
-                                                ->label('OG Image')
+                                                ->label('Ảnh chia sẻ')
                                                 ->image()
                                                 ->imageEditor()
                                                 ->directory('seo/og-images')
@@ -176,16 +206,20 @@ class PostForm
                                                 ->helperText('Khuyến nghị: 1200x630px'),
                                         ]),
                                         Textarea::make('og_description')
-                                            ->label('OG Description')
+                                            ->label('Mô tả chia sẻ')
                                             ->rows(2)
+                                            ->rules(V::text(200))
+                                            ->validationMessages(V::messages())
                                             ->maxLength(200),
                                         TextInput::make('canonical_url')
-                                            ->label('Canonical URL')
+                                            ->label('Đường dẫn chuẩn')
                                             ->url()
+                                            ->rules(['nullable', 'url', 'max:500'])
+                                            ->validationMessages(V::messages())
                                             ->maxLength(500),
                                         Grid::make(2)->schema([
-                                            Toggle::make('no_index')->label('No Index'),
-                                            Toggle::make('no_follow')->label('No Follow'),
+                                            Toggle::make('no_index')->label('Không cho công cụ tìm kiếm lập chỉ mục'),
+                                            Toggle::make('no_follow')->label('Không theo dõi liên kết trên trang'),
                                         ]),
                                     ]),
                             ]),

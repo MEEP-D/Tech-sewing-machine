@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pages\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -36,11 +37,11 @@ class PagesTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                VietnameseAction::edit(EditAction::make(), 'trang'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'trang'),
                 ]),
             ]);
     }

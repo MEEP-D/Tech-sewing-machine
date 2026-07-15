@@ -286,12 +286,12 @@ class ProductImporter extends Importer
 
     public function getJobBatchName(): ?string
     {
-        return 'Import sản phẩm';
+        return 'Nhập sản phẩm';
     }
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'Import sản phẩm hoàn tất: ' . Number::format($import->successful_rows) . ' dòng thành công.';
+        $body = 'Nhập sản phẩm hoàn tất: ' . Number::format($import->successful_rows) . ' dòng thành công.';
 
         if ($failedRowsCount = $import->getFailedRowsCount()) {
             $body .= ' ' . Number::format($failedRowsCount) . ' dòng lỗi.';

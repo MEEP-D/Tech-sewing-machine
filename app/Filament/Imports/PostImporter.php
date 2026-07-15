@@ -190,12 +190,12 @@ class PostImporter extends Importer
 
     public function getJobBatchName(): ?string
     {
-        return 'Import bài viết';
+        return 'Nhập bài viết';
     }
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'Import bài viết hoàn tất: ' . Number::format($import->successful_rows) . ' dòng thành công.';
+        $body = 'Nhập bài viết hoàn tất: ' . Number::format($import->successful_rows) . ' dòng thành công.';
 
         if ($failedRowsCount = $import->getFailedRowsCount()) {
             $body .= ' ' . Number::format($failedRowsCount) . ' dòng lỗi.';

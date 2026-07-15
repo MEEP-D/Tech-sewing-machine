@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Menus\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,34 +22,41 @@ class MenuForm
                         'header' => 'Đầu trang',
                         'footer' => 'Chân trang',
                     ])
-                    ->required(),
-                TextInput::make('label')->label('Nhãn hiển thị')->required()->maxLength(255),
+                    ->required()
+                    ->rules(['required', 'in:header,footer'])
+                    ->validationMessages(V::messages()),
+                TextInput::make('label')->label('Nhãn hiển thị')->required()->rules(V::requiredText())->validationMessages(V::messages())->maxLength(255),
                 TextInput::make('url')
                     ->label('URL')
                     ->placeholder('/duong-dan-noi-bo-hoac-https://example.com')
                     ->maxLength(500)
-                    ->rules([
-                        'nullable',
-                        'regex:/^(\\/.*|https?:\\/\\/.+)$/i',
-                    ])
-                    ->validationMessages([
-                        'regex' => 'URL phải là liên kết đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
-                    ]),
-                TextInput::make('route_name')->label('Tên route')->maxLength(255),
+                    ->rules(V::internalOrAbsoluteUrl())
+                    ->validationMessages(V::urlMessages()),
+                TextInput::make('route_name')->label('Tên route')->rules(V::text())->validationMessages(V::messages())->maxLength(255),
                 Select::make('target')->options([
                     '_self' => 'Mở cùng tab',
                     '_blank' => 'Mở tab mới',
-                ])->default('_self'),
+                ])->default('_self')
+                    ->rules(['nullable', 'in:_self,_blank'])
+                    ->validationMessages(V::messages()),
                 Select::make('parent_id')
                     ->label('Menu cha')
                     ->relationship('parent', 'label')
                     ->searchable()
                     ->preload()
-                    ->nullable(),
-                TextInput::make('sort_order')->label('Thứ tự')->numeric()->minValue(0)->default(0),
-                TextInput::make('icon')->label('Biểu tượng')->maxLength(100),
-                TextInput::make('css_class')->label('Lớp CSS')->maxLength(255),
-                Textarea::make('meta_config')->label('Meta JSON')->columnSpanFull()->json(),
+                    ->nullable()
+                    ->rules(['nullable', 'exists:menus,id'])
+                    ->validationMessages(V::messages()),
+                TextInput::make('sort_order')->label('Thứ tự')->numeric()->rules(V::nonNegativeInteger())->validationMessages(V::messages())->minValue(0)->default(0),
+                TextInput::make('icon')->label('Biểu tượng')->rules(V::text(100))->validationMessages(V::messages())->maxLength(100),
+                TextInput::make('css_class')->label('Lớp CSS')->rules(V::text())->validationMessages(V::messages())->maxLength(255),
+                Textarea::make('meta_config')
+                    ->label('Cấu hình nâng cao dạng JSON')
+                    ->helperText('Chỉ chỉnh khi cần cấu hình riêng cho menu. Dữ liệu phải đúng định dạng JSON.')
+                    ->columnSpanFull()
+                    ->json()
+                    ->rules(['nullable', 'json'])
+                    ->validationMessages(V::messages()),
                 Checkbox::make('is_active')->label('Hiển thị')->default(true),
             ]),
         ]);

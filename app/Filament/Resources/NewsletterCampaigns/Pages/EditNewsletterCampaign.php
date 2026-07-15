@@ -13,4 +13,9 @@ class EditNewsletterCampaign extends EditRecord
     {
         return [];
     }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Đã cập nhật chiến dịch email thành công.';
+    }
 }

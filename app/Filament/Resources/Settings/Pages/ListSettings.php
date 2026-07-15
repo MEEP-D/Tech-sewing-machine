@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Settings\Pages;
 
 use App\Filament\Resources\Settings\SettingResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -12,6 +13,6 @@ class ListSettings extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [CreateAction::make()];
+        return [VietnameseAction::create(CreateAction::make(), 'cấu hình')];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sections\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -23,11 +24,11 @@ class SectionsTable
             TextColumn::make('sort_order')->label('Thứ tự')->sortable(),
             IconColumn::make('is_active')->label('Hiển thị')->boolean(),
         ])->recordActions([
-            EditAction::make(),
-            DeleteAction::make(),
+            VietnameseAction::edit(EditAction::make(), 'khối nội dung'),
+            VietnameseAction::delete(DeleteAction::make(), 'khối nội dung'),
         ])->toolbarActions([
             BulkActionGroup::make([
-                DeleteBulkAction::make(),
+                VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'khối nội dung'),
             ]),
         ]);
     }

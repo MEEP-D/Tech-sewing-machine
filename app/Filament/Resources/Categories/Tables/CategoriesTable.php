@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -67,13 +68,13 @@ class CategoriesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
+                VietnameseAction::edit(EditAction::make(), 'danh mục'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'danh mục'),
+                    VietnameseAction::forceDeleteBulk(ForceDeleteBulkAction::make(), 'danh mục'),
+                    VietnameseAction::restoreBulk(RestoreBulkAction::make(), 'danh mục'),
                 ]),
             ]);
     }

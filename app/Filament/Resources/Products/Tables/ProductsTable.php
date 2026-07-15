@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Tables;
 
 use App\Models\Product;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -69,13 +70,13 @@ class ProductsTable
                             ->success()
                             ->send();
                     }),
-                EditAction::make(),
+                VietnameseAction::edit(EditAction::make(), 'sản phẩm'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'sản phẩm'),
+                    VietnameseAction::forceDeleteBulk(ForceDeleteBulkAction::make(), 'sản phẩm'),
+                    VietnameseAction::restoreBulk(RestoreBulkAction::make(), 'sản phẩm'),
                 ]),
             ]);
     }

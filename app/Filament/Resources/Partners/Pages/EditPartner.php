@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Partners\Pages;
 
 use App\Filament\Resources\Partners\PartnerResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -13,10 +14,12 @@ class EditPartner extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()
-                ->requiresConfirmation()
-                ->modalHeading('Xác nhận xóa đối tác')
-                ->modalDescription('Bạn có chắc chắn muốn xóa đối tác này không?'),
+            VietnameseAction::delete(DeleteAction::make(), 'đối tác'),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Đã cập nhật thông tin đối tác thành công.';
     }
 }

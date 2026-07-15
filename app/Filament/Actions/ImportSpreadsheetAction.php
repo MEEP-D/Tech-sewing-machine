@@ -4,6 +4,7 @@ namespace App\Filament\Actions;
 
 use DateInterval;
 use DateTimeInterface;
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Actions\ImportAction;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Forms\Components\FileUpload;
@@ -83,7 +84,7 @@ class ImportSpreadsheetAction extends ImportAction
             if ($fileComponentIndex !== null) {
                 array_splice($components, $fileComponentIndex + 1, 0, [
                     Select::make('sheet_name')
-                        ->label('Sheet')
+                        ->label('Trang tính')
                         ->options(function (Get $get): array {
                             $file = $get('file');
 
@@ -97,6 +98,8 @@ class ImportSpreadsheetAction extends ImportAction
                         })
                         ->visible(fn (Get $get): bool => $get('file') instanceof TemporaryUploadedFile && $this->isXlsxFile($get('file')))
                         ->required(fn (Get $get): bool => $get('file') instanceof TemporaryUploadedFile && $this->isXlsxFile($get('file')))
+                        ->rules(['nullable', 'string', 'max:255'])
+                        ->validationMessages(V::messages())
                         ->live()
                         ->afterStateUpdated(function (Set $set, Get $get): void {
                             $file = $get('file');

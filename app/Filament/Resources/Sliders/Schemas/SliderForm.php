@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sliders\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
@@ -33,23 +34,27 @@ class SliderForm
                         TextInput::make('sort_order')
                             ->label('Thứ tự')
                             ->numeric()
+                            ->rules(V::nonNegativeInteger())
+                            ->validationMessages(V::messages())
                             ->minValue(0)
                             ->default(0),
 
                         TextInput::make('title')
                             ->label('Tiêu đề')
+                            ->rules(V::text())
+                            ->validationMessages(V::messages())
                             ->maxLength(255),
 
                         TextInput::make('subtitle')
                             ->label('Mô tả ngắn')
+                            ->rules(V::text())
+                            ->validationMessages(V::messages())
                             ->maxLength(255),
 
                         TextInput::make('link')
                             ->label('Liên kết')
-                            ->rules(['nullable', 'regex:/^(\/.*|https?:\/\/.+)$/i'])
-                            ->validationMessages([
-                                'regex' => 'Liên kết phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
-                            ])
+                            ->rules(V::internalOrAbsoluteUrl())
+                            ->validationMessages(V::urlMessages())
                             ->maxLength(500),
                     ]),
                 ]),

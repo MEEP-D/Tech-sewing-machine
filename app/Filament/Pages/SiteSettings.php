@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\AdminFormValidation as V;
 use App\Models\Setting;
 use App\Models\Page as SitePage;
 use App\Models\Post;
@@ -171,7 +172,7 @@ class SiteSettings extends Page
                     ]),
                     Section::make(self::u('Li\\u00ean h\\u1ec7 & M\\u1ea1ng x\\u00e3 h\\u1ed9i header'))->schema([
                         Grid::make(2)->schema([
-                            TextInput::make('contact_hotline')->label('Hotline header'),
+                            TextInput::make('contact_hotline')->label('Số hotline ở đầu trang'),
                             TextInput::make('contact_email')->label(self::u('Email li\\u00ean h\\u1ec7')),
                             Textarea::make('contact_address')->label(self::u('\\u0110\\u1ecba ch\\u1ec9')),
                             TextInput::make('header_facebook_url')->label('Link TikTok')->url(),
@@ -189,17 +190,17 @@ class SiteSettings extends Page
                             TextInput::make('home_highlight_contact_secondary_phone')->label(self::u('S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i 2')),
                         ]),
                     ]),
-                    Section::make(self::u('Service banner trang ch\\u1ee7'))->schema([
+                    Section::make(self::u('Banner d\\u1ecbch v\\u1ee5 trang ch\\u1ee7'))->schema([
                         Grid::make(2)->schema([
-                            TextInput::make('home_service_title')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 section')),
-                            TextInput::make('home_service_primary_cta')->label(self::u('Text n\\u00fat CTA ch\\u00ednh')),
+                            TextInput::make('home_service_title')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 kh\\u1ed1i')),
+                            TextInput::make('home_service_primary_cta')->label(self::u('Ch\\u1eef n\\u00fat ch\\u00ednh')),
                             Textarea::make('home_service_description')
-                                ->label(self::u('M\\u00f4 t\\u1ea3 section'))
+                                ->label(self::u('M\\u00f4 t\\u1ea3 kh\\u1ed1i'))
                                 ->rows(4)
                                 ->columnSpanFull(),
-                            TextInput::make('home_service_secondary_cta')->label(self::u('Text n\\u00fat CTA ph\\u1ee5')),
+                            TextInput::make('home_service_secondary_cta')->label(self::u('Ch\\u1eef n\\u00fat ph\\u1ee5')),
                             FileUpload::make('home_service_image_upload')
-                                ->label(self::u('\\u1ea2nh section'))
+                                ->label(self::u('\\u1ea2nh kh\\u1ed1i'))
                                 ->image()
                                 ->disk('public')
                                 ->directory('site')
@@ -227,21 +228,21 @@ class SiteSettings extends Page
                             ->itemLabel(fn (array $state): ?string => filled($state['question'] ?? null) ? $state['question'] : null)
                             ->columnSpanFull(),
                     ]),
-                    Section::make(self::u('Newsletter Signup'))->schema([
+                    Section::make(self::u('\\u0110\\u0103ng k\\u00fd nh\\u1eadn b\\u1ea3n tin'))->schema([
                         TextInput::make('newsletter_signup_title')
-                            ->label(self::u('Ti\\u00eau \\u0111\\u1ec1 newsletter')),
+                            ->label(self::u('Ti\\u00eau \\u0111\\u1ec1 kh\\u1ed1i nh\\u1eadn b\\u1ea3n tin')),
                         TextInput::make('newsletter_signup_button_text')
-                            ->label(self::u('Text n\\u00fat newsletter')),
+                            ->label(self::u('Ch\\u1eef n\\u00fat nh\\u1eadn b\\u1ea3n tin')),
                         Textarea::make('newsletter_signup_description')
-                            ->label(self::u('M\\u00f4 t\\u1ea3 newsletter'))
+                            ->label(self::u('M\\u00f4 t\\u1ea3 kh\\u1ed1i nh\\u1eadn b\\u1ea3n tin'))
                             ->rows(3)
                             ->columnSpanFull(),
                         Textarea::make('newsletter_signup_note')
-                            ->label(self::u('Ghi ch\\u00fa newsletter'))
+                            ->label(self::u('Ghi ch\\u00fa kh\\u1ed1i nh\\u1eadn b\\u1ea3n tin'))
                             ->rows(3)
                             ->columnSpanFull(),
                         FileUpload::make('newsletter_signup_image_upload')
-                            ->label(self::u('\\u1ea2nh n\\u1ec1n section newsletter'))
+                            ->label(self::u('\\u1ea2nh n\\u1ec1n kh\\u1ed1i nh\\u1eadn b\\u1ea3n tin'))
                             ->image()
                             ->disk('public')
                             ->directory('site')
@@ -252,7 +253,7 @@ class SiteSettings extends Page
                 ]),
                 Tabs\Tab::make(self::u('Trang t\\u0129nh'))->schema([
                     Section::make(self::u('N\\u1ed9i dung trang Li\\u00ean h\\u1ec7'))->schema([
-                        TextInput::make('page_contact_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 (Kicker)'))->default(self::u('Li\\u00ean h\\u1ec7 & thu th\\u1eadp kh\\u00e1ch h\\u00e0ng ti\\u1ec1m n\\u0103ng')),
+                        TextInput::make('page_contact_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 tr\\u00ean ti\\u00eau \\u0111\\u1ec1'))->default(self::u('Li\\u00ean h\\u1ec7 & thu th\\u1eadp kh\\u00e1ch h\\u00e0ng ti\\u1ec1m n\\u0103ng')),
                         TextInput::make('page_contact_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 ch\\u00ednh'))->default(self::u('\\u0110\\u1eb7t l\\u1ecbch t\\u01b0 v\\u1ea5n, demo gi\\u1ea3i ph\\u00e1p v\\u00e0 nh\\u1eadn b\\u00e1o gi\\u00e1 nhanh')),
                         Textarea::make('page_contact_desc')->label(self::u('M\\u00f4 t\\u1ea3 ng\\u1eafn'))->default(self::u('H\\u00e3y \\u0111\\u1ec3 l\\u1ea1i th\\u00f4ng tin \\u0111\\u1ec3 \\u0111\\u1ed9i ng\\u0169 chuy\\u00ean gia c\\u1ee7a ch\\u00fang t\\u00f4i h\\u1ed7 tr\\u1ee3 b\\u1ea1n t\\u1ed1t nh\\u1ea5t.')),
                         FileUpload::make('page_contact_hero_image_upload')
@@ -265,7 +266,7 @@ class SiteSettings extends Page
                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     ]),
                     Section::make(self::u('N\\u1ed9i dung trang S\\u1ea3n ph\\u1ea9m'))->schema([
-                        TextInput::make('page_products_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 (Kicker)'))->default('Trải nghiệm sản phẩm'),
+                        TextInput::make('page_products_kicker')->label(self::u('D\\u00f2ng ph\\u1ee5 tr\\u00ean ti\\u00eau \\u0111\\u1ec1'))->default('Trải nghiệm sản phẩm'),
                         TextInput::make('page_products_heading')->label(self::u('Ti\\u00eau \\u0111\\u1ec1 ch\\u00ednh'))->default(self::u('Kh\\u00e1m ph\\u00e1 lineup m\\u00e1y may c\\u00f4ng nghi\\u1ec7p')),
                         Textarea::make('page_products_desc')->label(self::u('M\\u00f4 t\\u1ea3 ng\\u1eafn'))->default(self::u('Cung c\\u1ea5p c\\u00e1c d\\u00f2ng m\\u00e1y may ch\\u00ednh h\\u00e3ng, ch\\u1ea5t l\\u01b0\\u1ee3ng cao \\u0111\\u00e1p \\u1ee9ng m\\u1ecdi nhu c\\u1ea7u s\\u1ea3n xu\\u1ea5t.')),
                         FileUpload::make('page_products_hero_image_upload')
@@ -332,9 +333,9 @@ class SiteSettings extends Page
                         ]),
                         TextInput::make('promo_popup_title')->label('Tiêu đề popup'),
                         Textarea::make('promo_popup_description')->label('Mô tả popup'),
-                        TextInput::make('promo_popup_button_text')->label('Text nút CTA'),
+                        TextInput::make('promo_popup_button_text')->label('Chữ nút chính'),
 
-                        TextInput::make('promo_popup_contact_text')->label('Text nút liên hệ'),
+                        TextInput::make('promo_popup_contact_text')->label('Chữ nút liên hệ'),
                         TextInput::make('promo_popup_countdown_note')->label('Ghi chú đếm ngược'),
                         FileUpload::make('promo_popup_image_upload')
                             ->label('Ảnh popup')
@@ -436,6 +437,8 @@ class SiteSettings extends Page
             $this->data = array_replace($this->data, $state);
         }
 
+        $this->validate($this->settingsValidationRules(), V::messages());
+
         $this->persistUploadSettings();
         $this->persistMailSettings();
         $this->persistTextSettings();
@@ -473,6 +476,96 @@ class SiteSettings extends Page
         } catch (\Throwable $exception) {
             Notification::make()->title('Gửi email test thất bại: ' . $exception->getMessage())->danger()->send();
         }
+    }
+
+    protected function settingsValidationRules(): array
+    {
+        $text255 = ['nullable', 'string', 'max:255'];
+        $text500 = ['nullable', 'string', 'max:500'];
+        $longText = ['nullable', 'string', 'max:5000'];
+        $upload = ['nullable'];
+
+        return [
+            'data.site_title' => $text255,
+            'data.site_description' => $text500,
+            'data.site_logo_height' => ['nullable', 'integer', 'min:16', 'max:240'],
+            'data.site_logo_width' => ['nullable', 'integer', 'min:16', 'max:600'],
+            'data.site_logo_type' => ['required', 'in:image,text'],
+            'data.site_logo_upload' => $upload,
+            'data.site_logo_dark_upload' => $upload,
+            'data.site_logo_mobile_upload' => $upload,
+            'data.site_favicon_upload' => $upload,
+
+            'data.contact_hotline' => V::phone(),
+            'data.contact_email' => ['nullable', 'email', 'max:255'],
+            'data.contact_address' => $longText,
+            'data.header_facebook_url' => ['nullable', 'url', 'max:500'],
+            'data.header_zalo_url' => ['nullable', 'url', 'max:500'],
+            'data.header_youtube_url' => ['nullable', 'url', 'max:500'],
+
+            'data.home_highlight_contact_primary_name' => $text255,
+            'data.home_highlight_contact_primary_phone' => V::phone(),
+            'data.home_highlight_contact_secondary_name' => $text255,
+            'data.home_highlight_contact_secondary_phone' => V::phone(),
+            'data.home_service_title' => $text255,
+            'data.home_service_primary_cta' => $text255,
+            'data.home_service_secondary_cta' => $text255,
+            'data.home_service_description' => $longText,
+            'data.home_service_image_upload' => $upload,
+            'data.home_partners_title' => $text255,
+            'data.home_faqs' => ['nullable', 'array', 'max:20'],
+            'data.home_faqs.*.question' => ['required_with:data.home_faqs.*.answer', 'nullable', 'string', 'max:255'],
+            'data.home_faqs.*.answer' => ['required_with:data.home_faqs.*.question', 'nullable', 'string', 'max:2000'],
+
+            'data.newsletter_signup_title' => $text255,
+            'data.newsletter_signup_button_text' => $text255,
+            'data.newsletter_signup_description' => $longText,
+            'data.newsletter_signup_note' => $longText,
+            'data.newsletter_signup_image_upload' => $upload,
+
+            'data.page_contact_kicker' => $text255,
+            'data.page_contact_heading' => $text255,
+            'data.page_contact_desc' => $longText,
+            'data.page_contact_hero_image_upload' => $upload,
+            'data.page_products_kicker' => $text255,
+            'data.page_products_heading' => $text255,
+            'data.page_products_desc' => $longText,
+            'data.page_products_hero_image_upload' => $upload,
+            'data.page_news_heading' => $text255,
+            'data.page_news_desc' => $longText,
+            'data.page_news_hero_image_upload' => $upload,
+            'data.page_about_heading' => $text255,
+            'data.page_about_desc' => $longText,
+            'data.page_about_hero_image_upload' => $upload,
+
+            'data.promo_popup_enabled' => ['nullable', 'in:0,1'],
+            'data.promo_popup_delay_seconds' => ['nullable', 'integer', 'min:0', 'max:3600'],
+            'data.promo_popup_frequency_hours' => ['nullable', 'integer', 'min:0', 'max:8760'],
+            'data.promo_popup_button_url' => ['nullable', 'url', 'max:500'],
+            'data.promo_popup_contact_url' => ['nullable', 'url', 'max:500'],
+            'data.promo_popup_countdown_end_at' => ['nullable', 'date'],
+            'data.promo_popup_title' => $text255,
+            'data.promo_popup_description' => $longText,
+            'data.promo_popup_button_text' => $text255,
+            'data.promo_popup_contact_text' => $text255,
+            'data.promo_popup_countdown_note' => $text500,
+            'data.promo_popup_image_upload' => $upload,
+            'data.promo_popup_images_upload' => ['nullable', 'array', 'max:10'],
+
+            'data.mail_mailer' => ['required', 'in:smtp'],
+            'data.mail_host' => $text255,
+            'data.mail_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'data.mail_encryption' => ['nullable', 'in:tls,ssl'],
+            'data.mail_username' => $text255,
+            'data.mail_password' => ['nullable', 'string', 'max:500'],
+            'data.mail_from_address' => ['nullable', 'email', 'max:255'],
+            'data.mail_from_name' => $text255,
+            'data.mail_template_source_type' => ['required', 'in:post,product,page,url'],
+            'data.mail_template_source_url' => ['nullable', 'url', 'max:500'],
+            'data.mail_template_source_id' => ['nullable', 'integer', 'min:1'],
+            'data.mail_template_subject' => $text255,
+            'data.mail_template_html' => ['nullable', 'string', 'max:50000'],
+        ];
     }
 
     protected function persistUploadSettings(): void

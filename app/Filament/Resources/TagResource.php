@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TagResource\Pages;
+use App\Filament\Support\AdminFormValidation as V;
+use App\Filament\Support\VietnameseAction;
 use App\Models\Tag;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -34,12 +36,16 @@ class TagResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->label('Tên từ khóa')
                     ->required()
+                    ->rules(V::requiredText())
+                    ->validationMessages(V::messages())
                     ->maxLength(255)
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (string $operation, $state, Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
                 Forms\Components\TextInput::make('slug')
                     ->label('Slug (URL)')
                     ->required()
+                    ->rules(V::slug())
+                    ->validationMessages(V::slugMessages())
                     ->maxLength(255)
                     ->unique(Tag::class, 'slug', ignoreRecord: true),
                 Forms\Components\Select::make('type')
@@ -50,6 +56,8 @@ class TagResource extends Resource
                     ])
                     ->default('product')
                     ->required()
+                    ->rules(['required', 'in:product,news'])
+                    ->validationMessages(V::messages())
                     ->dehydrated(fn ($state) => filled($state)),
             ]);
     }
@@ -68,24 +76,19 @@ class TagResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
+                    ->label('Loại từ khóa')
                     ->options([
                         'product' => 'Sản phẩm',
                         'news' => 'Tin tức',
                     ]),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make()
-                    ->requiresConfirmation()
-                    ->modalHeading('Xác nhận xóa từ khóa')
-                    ->modalDescription('Bạn có chắc chắn muốn xóa từ khóa này không?'),
+                VietnameseAction::edit(EditAction::make(), 'từ khóa'),
+                VietnameseAction::delete(DeleteAction::make(), 'từ khóa'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->requiresConfirmation()
-                        ->modalHeading('Xác nhận xóa các từ khóa')
-                        ->modalDescription('Bạn có chắc chắn muốn xóa các từ khóa đã chọn không?'),
+                    VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'từ khóa'),
                 ]),
             ]);
     }

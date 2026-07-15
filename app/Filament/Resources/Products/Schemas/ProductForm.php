@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use App\Models\Product;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -31,39 +32,53 @@ class ProductForm
                         TextInput::make('name')
                             ->label('Tên sản phẩm')
                             ->required()
+                            ->rules(V::requiredText())
+                            ->validationMessages(V::messages())
                             ->maxLength(255)
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
                         TextInput::make('slug')
                             ->label('Slug')
                             ->required()
+                            ->rules(V::slug())
+                            ->validationMessages(V::slugMessages())
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
                     ]),
                     Grid::make(4)->schema([
                         TextInput::make('code')
                             ->label('Mã sản phẩm')
+                            ->rules(V::text(100))
+                            ->validationMessages(V::messages())
                             ->maxLength(100)
                             ->unique(ignoreRecord: true),
                         TextInput::make('sku')
                             ->label('SKU')
+                            ->rules(V::text(100))
+                            ->validationMessages(V::messages())
                             ->maxLength(100)
                             ->unique(ignoreRecord: true),
                         TextInput::make('video_id')
                             ->label('Video sản phẩm (YouTube)')
                             ->helperText('Dán link YouTube đầy đủ hoặc video ID, hệ thống sẽ tự chuẩn hóa.')
                             ->placeholder('https://www.youtube.com/watch?v=...')
+                            ->rules(V::text(100))
+                            ->validationMessages(V::messages())
                             ->maxLength(100)
                             ->dehydrateStateUsing(fn ($state) => Product::extractYoutubeId($state)),
                         TextInput::make('price')
                             ->label('Giá')
                             ->placeholder('Liên hệ hoặc 120.000.000')
+                            ->rules(V::text(50))
+                            ->validationMessages(V::messages())
                             ->maxLength(50),
                     ]),
                     Grid::make(3)->schema([
                         TextInput::make('discount_percent')
                             ->label('Giảm giá (%)')
                             ->numeric()
+                            ->rules(V::percentage())
+                            ->validationMessages(V::messages())
                             ->minValue(0)
                             ->maxValue(100)
                             ->default(0)
@@ -81,8 +96,8 @@ class ProductForm
                             ->helperText('Hiển thị thêm nhãn Giao ngay hoặc Đặt trước dưới giá ở trang chi tiết sản phẩm.'),
                     ]),
                     Grid::make(3)->schema([
-                        TextInput::make('brand')->label('Thương hiệu')->maxLength(100),
-                        TextInput::make('origin')->label('Xuất xứ')->maxLength(100),
+                        TextInput::make('brand')->label('Thương hiệu')->rules(V::text(100))->validationMessages(V::messages())->maxLength(100),
+                        TextInput::make('origin')->label('Xuất xứ')->rules(V::text(100))->validationMessages(V::messages())->maxLength(100),
                         Select::make('status')
                             ->label('Trạng thái')
                             ->options([
@@ -91,31 +106,41 @@ class ProductForm
                                 'archived' => 'Lưu trữ',
                             ])
                             ->default('draft')
-                            ->required(),
+                            ->required()
+                            ->rules(['required', 'in:draft,published,archived'])
+                            ->validationMessages(V::messages()),
                     ]),
                     Select::make('category_id')
                         ->label('Danh mục')
                         ->relationship('category', 'name', fn ($query) => $query->where('type', 'product'))
                         ->searchable()
                         ->preload()
-                        ->required(),
-                    Textarea::make('short_description')->label('Mô tả ngắn')->rows(3)->maxLength(500)->columnSpanFull(),
-                    Textarea::make('long_description')->label('Mô tả dài')->rows(4)->maxLength(2000)->columnSpanFull(),
-                    RichEditor::make('description')->label('Mô tả chi tiết')->columnSpanFull(),
+                        ->required()
+                        ->rules(['required', 'exists:categories,id'])
+                        ->validationMessages(V::messages()),
+                    Textarea::make('short_description')->label('Mô tả ngắn')->rows(3)->rules(V::text(500))->validationMessages(V::messages())->maxLength(500)->columnSpanFull(),
+                    Textarea::make('long_description')->label('Mô tả dài')->rows(4)->rules(V::text(2000))->validationMessages(V::messages())->maxLength(2000)->columnSpanFull(),
+                    RichEditor::make('description')->label('Mô tả chi tiết')->rules(['nullable', 'string', 'max:50000'])->validationMessages(V::messages())->columnSpanFull(),
                     Section::make('Khuyến mãi theo sản phẩm')
                         ->description('Nhập nội dung quà tặng hoặc ưu đãi sẽ hiển thị khi khách bấm hoặc di chuột vào badge Khuyến mãi.')
                         ->visible(fn (callable $get): bool => (bool) $get('installment_percent'))
                         ->schema([
                             TextInput::make('promotion_title')
                                 ->label('Tiêu đề khuyến mãi')
+                                ->rules(V::text())
+                                ->validationMessages(V::messages())
                                 ->maxLength(255)
                                 ->placeholder('Quà tặng kèm'),
                             TextInput::make('promotion_gift_name')
                                 ->label('Tên quà tặng')
+                                ->rules(V::text())
+                                ->validationMessages(V::messages())
                                 ->maxLength(255)
                                 ->placeholder('1 iPhone'),
                             Textarea::make('promotion_description')
                                 ->label('Nội dung khuyến mãi')
+                                ->rules(V::text(1000))
+                                ->validationMessages(V::messages())
                                 ->rows(3)
                                 ->placeholder('Mua máy lấy dấu tự động - tặng 1 iPhone'),
                             FileUpload::make('promotion_gift_image')
@@ -130,10 +155,14 @@ class ProductForm
                             Grid::make(2)->schema([
                                 DateTimePicker::make('promotion_starts_at')
                                     ->label('Bắt đầu khuyến mãi')
+                                    ->rules(['nullable', 'date'])
+                                    ->validationMessages(V::messages())
                                     ->seconds(false)
                                     ->native(false),
                                 DateTimePicker::make('promotion_ends_at')
                                     ->label('Kết thúc khuyến mãi')
+                                    ->rules(['nullable', 'date'])
+                                    ->validationMessages(V::messages())
                                     ->seconds(false)
                                     ->native(false)
                                     ->helperText('Để trống nếu không giới hạn thời gian kết thúc.'),
@@ -144,60 +173,74 @@ class ProductForm
                     Section::make('Nội dung bổ sung trang chi tiết')->schema([
                         Textarea::make('support_prompt')
                             ->label('Dòng hỗ trợ')
+                            ->rules(V::text(1000))
+                            ->validationMessages(V::messages())
                             ->rows(3)
                             ->placeholder('Bạn cần hỗ trợ thông tin gì về sản phẩm này?'),
                         Grid::make(2)->schema([
                             TextInput::make('cta_primary_label')
                                 ->label('Nút 1 - Tiêu đề')
+                                ->rules(V::text(120))
+                                ->validationMessages(V::messages())
                                 ->maxLength(120)
                                 ->placeholder('Bạn cần hỗ trợ thông tin gì về sản phẩm này?'),
                             TextInput::make('cta_primary_url')
                                 ->label('Nút 1 - Link')
+                                ->rules(V::internalOrAbsoluteUrl())
+                                ->validationMessages(V::urlMessages())
                                 ->maxLength(500)
-                                ->rules(['nullable', 'regex:/^(\\/.*|https?:\\/\\/.+)$/i'])
-                                ->validationMessages([
-                                    'regex' => 'Link phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
-                                ])
                                 ->placeholder('/lien-he'),
                         ]),
                         Grid::make(2)->schema([
                             TextInput::make('cta_secondary_label')
                                 ->label('Nút 2 - Tiêu đề')
+                                ->rules(V::text(120))
+                                ->validationMessages(V::messages())
                                 ->maxLength(120)
                                 ->placeholder('Khám phá các mẫu thêu miễn phí tại đây'),
                             TextInput::make('cta_secondary_url')
                                 ->label('Nút 2 - Link')
+                                ->rules(V::internalOrAbsoluteUrl())
+                                ->validationMessages(V::urlMessages())
                                 ->maxLength(500)
-                                ->rules(['nullable', 'regex:/^(\\/.*|https?:\\/\\/.+)$/i'])
-                                ->validationMessages([
-                                    'regex' => 'Link phải là URL đầy đủ (https://...) hoặc đường dẫn nội bộ bắt đầu bằng "/".',
-                                ])
                                 ->placeholder('/trang/mau-theu'),
                         ]),
                         Grid::make(2)->schema([
                             TextInput::make('overview_heading')
                                 ->label('Đầu mục 1')
+                                ->rules(V::text(160))
+                                ->validationMessages(V::messages())
                                 ->maxLength(160)
                                 ->placeholder('Tổng quan về sản phẩm'),
                             TextInput::make('seo_heading')
                                 ->label('Đầu mục 2')
+                                ->rules(V::text(160))
+                                ->validationMessages(V::messages())
                                 ->maxLength(160)
                                 ->placeholder('Tìm hiểu về máy làm seo'),
                         ]),
                         RichEditor::make('overview_content')
                             ->label('Nội dung đầu mục 1')
+                            ->rules(['nullable', 'string', 'max:50000'])
+                            ->validationMessages(V::messages())
                             ->columnSpanFull(),
                         RichEditor::make('seo_content')
                             ->label('Nội dung đầu mục 2')
+                            ->rules(['nullable', 'string', 'max:50000'])
+                            ->validationMessages(V::messages())
                             ->columnSpanFull(),
                         Section::make('Hướng dẫn sử dụng')
                             ->description('Dùng cho tab Hướng dẫn sử dụng ở trang chi tiết sản phẩm.')
                             ->schema([
                                 RichEditor::make('usage_guide_content')
                                     ->label('Nội dung hướng dẫn sử dụng')
+                                    ->rules(['nullable', 'string', 'max:50000'])
+                                    ->validationMessages(V::messages())
                                     ->columnSpanFull(),
                                 TextInput::make('usage_guide_video_id')
                                     ->label('Video hướng dẫn (YouTube)')
+                                    ->rules(V::text(100))
+                                    ->validationMessages(V::messages())
                                     ->helperText('Dán link YouTube đầy đủ hoặc video ID.')
                                     ->placeholder('https://www.youtube.com/watch?v=...')
                                     ->maxLength(100)
@@ -250,7 +293,7 @@ class ProductForm
                         ->maxSize(3072)
                         ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state),
                     FileUpload::make('gallery')
-                        ->label('Gallery')
+                        ->label('Bộ sưu tập ảnh')
                         ->image()
                         ->imageEditor()
                         ->multiple()
@@ -267,15 +310,17 @@ class ProductForm
                         ->label('Thông số chung')
                         ->keyLabel('Thông số')
                         ->valueLabel('Giá trị')
+                        ->rules(['nullable', 'array'])
+                        ->validationMessages(V::messages())
                         ->columnSpanFull(),
                     Repeater::make('specs')
                         ->label('Thông số sản phẩm đột phá')
                         ->relationship()
                         ->orderColumn('sort_order')
                         ->schema([
-                            TextInput::make('key')->label('Thông số')->required(),
-                            TextInput::make('value')->label('Giá trị')->required(),
-                            TextInput::make('sort_order')->label('Thứ tự')->numeric()->minValue(0)->default(0),
+                            TextInput::make('key')->label('Thông số')->required()->rules(V::requiredText())->validationMessages(V::messages()),
+                            TextInput::make('value')->label('Giá trị')->required()->rules(V::requiredText())->validationMessages(V::messages()),
+                            TextInput::make('sort_order')->label('Thứ tự')->numeric()->rules(V::nonNegativeInteger())->validationMessages(V::messages())->minValue(0)->default(0),
                         ])
                         ->defaultItems(0)
                         ->columnSpanFull(),
@@ -302,14 +347,14 @@ class ProductForm
                         Toggle::make('is_exclusive')->label('Sản phẩm đột phá'),
                         Toggle::make('show_in_banner_switcher')->label('Hiển thị banner switcher'),
                     ]),
-                    TextInput::make('sort_order')->label('Thứ tự')->numeric()->default(0)->minValue(0),
+                    TextInput::make('sort_order')->label('Thứ tự')->numeric()->rules(V::nonNegativeInteger())->validationMessages(V::messages())->default(0)->minValue(0),
                 ]),
 
                 Tabs\Tab::make('SEO')->schema([
-                    Section::make('Meta')->relationship('seoMeta')->schema([
-                        TextInput::make('meta_title')->label('Meta Title')->maxLength(70),
-                        Textarea::make('meta_description')->label('Meta Description')->rows(3)->maxLength(160),
-                        TextInput::make('focus_keyword')->label('Focus Keyword')->maxLength(100),
+                    Section::make('Thẻ SEO')->relationship('seoMeta')->schema([
+                        TextInput::make('meta_title')->label('Tiêu đề SEO')->rules(V::text(70))->validationMessages(V::messages())->maxLength(70),
+                        Textarea::make('meta_description')->label('Mô tả SEO')->rows(3)->rules(V::text(160))->validationMessages(V::messages())->maxLength(160),
+                        TextInput::make('focus_keyword')->label('Từ khóa trọng tâm')->rules(V::text(100))->validationMessages(V::messages())->maxLength(100),
                     ]),
                 ]),
             ])->columnSpanFull(),

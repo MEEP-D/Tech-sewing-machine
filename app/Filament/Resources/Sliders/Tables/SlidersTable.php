@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sliders\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -25,10 +26,10 @@ class SlidersTable
             IconColumn::make('show_button')->label('Hiện nút')->boolean(),
             IconColumn::make('is_active')->label('Hiển thị')->boolean(),
         ])->recordActions([
-            EditAction::make(),
+            VietnameseAction::edit(EditAction::make(), 'slider'),
         ])->toolbarActions([
             BulkActionGroup::make([
-                DeleteBulkAction::make(),
+                VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'slider'),
             ]),
         ]);
     }

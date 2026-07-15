@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Leads\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -16,14 +17,14 @@ class LeadForm
         return $schema->components([
             Section::make('Thông tin khách hàng')->schema([
                 Grid::make(2)->schema([
-                    TextInput::make('name')->label('Họ và tên')->required()->disabled(),
-                    TextInput::make('phone')->label('Số điện thoại')->required()->disabled(),
-                    TextInput::make('email')->label('Email')->disabled(),
-                    TextInput::make('company')->label('Công ty')->disabled(),
-                    TextInput::make('interest')->label('Nhu cầu quan tâm')->disabled(),
-                    TextInput::make('source')->label('Nguồn')->disabled(),
+                    TextInput::make('name')->label('Họ và tên')->required()->rules(V::requiredText())->validationMessages(V::messages())->disabled(),
+                    TextInput::make('phone')->label('Số điện thoại')->required()->rules(['required', 'string', 'max:50', 'regex:/^[0-9+\s().\/-]{9,50}$/'])->validationMessages(V::phoneMessages())->disabled(),
+                    TextInput::make('email')->label('Email')->email()->rules(['nullable', 'email', 'max:255'])->validationMessages(V::messages())->disabled(),
+                    TextInput::make('company')->label('Công ty')->rules(V::text())->validationMessages(V::messages())->disabled(),
+                    TextInput::make('interest')->label('Nhu cầu quan tâm')->rules(V::text())->validationMessages(V::messages())->disabled(),
+                    TextInput::make('source')->label('Nguồn')->rules(V::text(100))->validationMessages(V::messages())->disabled(),
                 ]),
-                Textarea::make('message')->label('Nội dung liên hệ')->rows(4)->disabled(),
+                Textarea::make('message')->label('Nội dung liên hệ')->rows(4)->rules(V::text(5000))->validationMessages(V::messages())->disabled(),
             ]),
             Section::make('Xử lý liên hệ')->schema([
                 Grid::make(2)->schema([
@@ -35,9 +36,11 @@ class LeadForm
                             'qualified' => 'Đủ điều kiện',
                             'closed' => 'Đã đóng',
                         ])
-                        ->required(),
+                        ->required()
+                        ->rules(['required', 'in:new,contacted,qualified,closed'])
+                        ->validationMessages(V::messages()),
                 ]),
-                Textarea::make('notes')->label('Ghi chú nội bộ')->rows(5),
+                Textarea::make('notes')->label('Ghi chú nội bộ')->rows(5)->rules(V::text(5000))->validationMessages(V::messages()),
             ]),
         ]);
     }

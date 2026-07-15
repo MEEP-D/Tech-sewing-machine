@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Posts\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -51,13 +52,13 @@ class PostsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
+                VietnameseAction::edit(EditAction::make(), 'bài viết'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'bài viết'),
+                    VietnameseAction::forceDeleteBulk(ForceDeleteBulkAction::make(), 'bài viết'),
+                    VietnameseAction::restoreBulk(RestoreBulkAction::make(), 'bài viết'),
                 ]),
             ]);
     }

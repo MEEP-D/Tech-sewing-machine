@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pages\Schemas;
 
+use App\Filament\Support\AdminFormValidation as V;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -26,12 +27,16 @@ class PageForm
                                 TextInput::make('title')
                                     ->label('Tiêu đề trang')
                                     ->required()
+                                    ->rules(V::requiredText())
+                                    ->validationMessages(V::messages())
                                     ->maxLength(255)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
                                 TextInput::make('slug')
                                     ->label('Slug (URL)')
                                     ->required()
+                                    ->rules(V::slug())
+                                    ->validationMessages(V::slugMessages())
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(255),
                                 Select::make('layout')
@@ -43,7 +48,9 @@ class PageForm
                                     ])
                                     ->default('default')
                                     ->live()
-                                    ->required(),
+                                    ->required()
+                                    ->rules(['required', 'in:default,full_width,blank'])
+                                    ->validationMessages(V::messages()),
                                 Select::make('layout_mode')
                                     ->label('Kiểu layout')
                                     ->options([
@@ -52,11 +59,15 @@ class PageForm
                                     ])
                                     ->default('content')
                                     ->live()
-                                    ->helperText('Content: hiển thị chuẩn. Builder: dùng bố cục linh hoạt + style_config.')
-                                    ->required(),
+                                    ->helperText('Nội dung truyền thống: hiển thị chuẩn. Builder linh hoạt: dùng cấu hình giao diện nâng cao.')
+                                    ->required()
+                                    ->rules(['required', 'in:content,builder'])
+                                    ->validationMessages(V::messages()),
                                 TextInput::make('cache_ttl')
                                     ->label('Cache TTL (giây)')
                                     ->numeric()
+                                    ->rules(['nullable', 'integer', 'min:60', 'max:86400'])
+                                    ->validationMessages(V::messages())
                                     ->minValue(60)
                                     ->maxValue(86400)
                                     ->default(3600),
@@ -69,6 +80,8 @@ class PageForm
                             ]),
                             TextInput::make('excerpt')
                                 ->label('Mô tả ngắn')
+                                ->rules(V::text(500))
+                                ->validationMessages(V::messages())
                                 ->maxLength(500)
                                 ->columnSpanFull(),
                             FileUpload::make('image')
@@ -81,6 +94,8 @@ class PageForm
                                 ->columnSpanFull(),
                             RichEditor::make('content')
                                 ->label('Nội dung chi tiết')
+                                ->rules(['nullable', 'string', 'max:50000'])
+                                ->validationMessages(V::messages())
                                 ->columnSpanFull(),
                             Textarea::make('style_config')
                                 ->label('Cấu hình style (JSON)')
@@ -88,27 +103,35 @@ class PageForm
                                 ->visible(fn (callable $get) => $get('layout_mode') === 'builder')
                                 ->helperText('Chỉ áp dụng khi chọn Kiểu layout = Builder.')
                                 ->json()
+                                ->rules(['nullable', 'json'])
+                                ->validationMessages(V::messages())
                                 ->rows(4)
                                 ->columnSpanFull(),
                             Grid::make(2)->schema([
                                 TextInput::make('container_class')
-                                    ->label('Container class')
+                                    ->label('Lớp CSS khung nội dung')
+                                    ->rules(V::text())
+                                    ->validationMessages(V::messages())
                                     ->maxLength(255),
                                 TextInput::make('bg_color')
                                     ->label('Màu nền')
-                                    ->maxLength(20)
-                                    ->rules(['nullable', 'regex:/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/'])
-                                    ->validationMessages(['regex' => 'Màu nền phải là mã HEX hợp lệ, ví dụ #ffffff.']),
+                                    ->rules(V::hexColor())
+                                    ->validationMessages(V::hexColorMessages())
+                                    ->maxLength(20),
                                 TextInput::make('text_color')
                                     ->label('Màu chữ')
-                                    ->maxLength(20)
-                                    ->rules(['nullable', 'regex:/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/'])
-                                    ->validationMessages(['regex' => 'Màu chữ phải là mã HEX hợp lệ, ví dụ #0f172a.']),
+                                    ->rules(V::hexColor())
+                                    ->validationMessages(V::hexColorMessages())
+                                    ->maxLength(20),
                                 TextInput::make('spacing_top')
-                                    ->label('Spacing top')
+                                    ->label('Khoảng cách phía trên')
+                                    ->rules(V::text(20))
+                                    ->validationMessages(V::messages())
                                     ->maxLength(20),
                                 TextInput::make('spacing_bottom')
-                                    ->label('Spacing bottom')
+                                    ->label('Khoảng cách phía dưới')
+                                    ->rules(V::text(20))
+                                    ->validationMessages(V::messages())
                                     ->maxLength(20),
                             ])->columnSpanFull(),
                         ]),
@@ -119,23 +142,31 @@ class PageForm
                                 ->relationship('seoMeta')
                                 ->schema([
                                     TextInput::make('meta_title')
-                                        ->label('Meta Title')
+                                        ->label('Tiêu đề SEO')
+                                        ->rules(V::text(70))
+                                        ->validationMessages(V::messages())
                                         ->maxLength(70)
                                         ->helperText('Tối ưu: 50-60 ký tự'),
                                     Textarea::make('meta_description')
-                                        ->label('Meta Description')
+                                        ->label('Mô tả SEO')
                                         ->rows(3)
+                                        ->rules(V::text(160))
+                                        ->validationMessages(V::messages())
                                         ->maxLength(160)
                                         ->helperText('Tối ưu: 120-155 ký tự'),
                                     TextInput::make('focus_keyword')
                                         ->label('Từ khóa trọng tâm')
+                                        ->rules(V::text(100))
+                                        ->validationMessages(V::messages())
                                         ->maxLength(100),
                                     Grid::make(2)->schema([
                                         TextInput::make('og_title')
-                                            ->label('OG Title (Facebook/Zalo)')
+                                            ->label('Tiêu đề chia sẻ Facebook/Zalo')
+                                            ->rules(V::text(95))
+                                            ->validationMessages(V::messages())
                                             ->maxLength(95),
                                         FileUpload::make('og_image')
-                                            ->label('OG Image')
+                                            ->label('Ảnh chia sẻ')
                                             ->image()->imageEditor()->directory('seo/og-images')
                                             ->disk('public')
                                             ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
@@ -143,18 +174,22 @@ class PageForm
                                             ->helperText('Khuyến nghị: 1200x630px'),
                                     ]),
                                     Textarea::make('og_description')
-                                        ->label('OG Description')
+                                        ->label('Mô tả chia sẻ')
                                         ->rows(2)
+                                        ->rules(V::text(200))
+                                        ->validationMessages(V::messages())
                                         ->maxLength(200),
                                     TextInput::make('canonical_url')
-                                        ->label('Canonical URL')
+                                        ->label('Đường dẫn chuẩn')
                                         ->url()
+                                        ->rules(['nullable', 'url', 'max:500'])
+                                        ->validationMessages(V::messages())
                                         ->maxLength(500),
                                     Grid::make(2)->schema([
                                         Toggle::make('no_index')
-                                            ->label('No Index'),
+                                            ->label('Không cho công cụ tìm kiếm lập chỉ mục'),
                                         Toggle::make('no_follow')
-                                            ->label('No Follow'),
+                                            ->label('Không theo dõi liên kết trên trang'),
                                     ]),
                                 ]),
                         ]),

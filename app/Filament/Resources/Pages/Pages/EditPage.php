@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pages\Pages;
 
 use App\Filament\Resources\Pages\PageResource;
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -13,10 +14,12 @@ class EditPage extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()
-                ->requiresConfirmation()
-                ->modalHeading('Xác nhận xóa trang')
-                ->modalDescription('Bạn có chắc chắn muốn xóa trang này không?'),
+            VietnameseAction::delete(DeleteAction::make(), 'trang'),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Đã cập nhật thông tin trang thành công.';
     }
 }

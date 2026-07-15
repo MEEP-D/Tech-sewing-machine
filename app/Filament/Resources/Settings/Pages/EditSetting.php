@@ -8,4 +8,9 @@ use Filament\Resources\Pages\EditRecord;
 class EditSetting extends EditRecord
 {
     protected static string $resource = SettingResource::class;
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Đã cập nhật cấu hình thành công.';
+    }
 }

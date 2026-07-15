@@ -13,7 +13,7 @@
                 ],
             ],
             [
-                'title' => '2) SEO Settings',
+                'title' => '2) Cài đặt SEO',
                 'items' => [
                     ['label' => 'SEO title mặc định', 'text' => 'Dùng khi bài/trang chưa có SEO riêng, nên dài 50-60 ký tự.'],
                     ['label' => 'SEO description mặc định', 'text' => 'Nên dài 120-160 ký tự, chứa từ khóa chính.'],

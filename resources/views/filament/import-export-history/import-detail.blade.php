@@ -15,7 +15,7 @@
 <div class="space-y-5">
     @if ($isWaiting && $pendingBatchJobsCount > 0)
         <p class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/25 dark:text-amber-200">
-            Import đang chờ queue xử lý. Hiện còn {{ number_format($pendingBatchJobsCount) }} job trong batch. Queue driver: {{ $queueDriver }}.
+            Dữ liệu nhập đang chờ hàng đợi xử lý. Hiện còn {{ number_format($pendingBatchJobsCount) }} tác vụ trong lô. Driver hàng đợi: {{ $queueDriver }}.
         </p>
     @endif
 
@@ -94,7 +94,7 @@
                 @foreach ($failedJobs as $failedJob)
                     <div class="rounded-lg border border-red-200 bg-red-50/70 p-3 dark:border-red-900/60 dark:bg-red-950/20">
                         <div class="flex flex-wrap items-center justify-between gap-2">
-                            <p class="text-sm font-bold text-red-800 dark:text-red-200">Queue: {{ $failedJob->queue }}</p>
+                            <p class="text-sm font-bold text-red-800 dark:text-red-200">Hàng đợi: {{ $failedJob->queue }}</p>
                             <p class="text-xs text-red-700 dark:text-red-300">{{ $failedJob->failed_at }}</p>
                         </div>
 

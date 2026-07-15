@@ -52,22 +52,22 @@ class SeoPerformanceOverview extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->color($coverage >= 80 ? 'success' : ($coverage >= 50 ? 'warning' : 'danger')),
 
-            Stat::make('Thiếu Meta Description', (string) $missingMetaDescription)
+            Stat::make('Thiếu mô tả SEO', (string) $missingMetaDescription)
                 ->description('Số bản ghi SEO chưa có mô tả')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color($missingMetaDescription === 0 ? 'success' : 'warning'),
 
-            Stat::make('Thiếu OG Image', (string) $missingOgImage)
+            Stat::make('Thiếu ảnh chia sẻ', (string) $missingOgImage)
                 ->description('Bản ghi SEO chưa có ảnh chia sẻ')
                 ->descriptionIcon('heroicon-m-photo')
                 ->color($missingOgImage === 0 ? 'success' : 'warning'),
 
-            Stat::make('Thiếu Canonical URL', (string) $missingCanonical)
+            Stat::make('Thiếu đường dẫn chuẩn', (string) $missingCanonical)
                 ->description('Bản ghi SEO chưa có canonical')
                 ->descriptionIcon('heroicon-m-link')
                 ->color($missingCanonical === 0 ? 'success' : 'warning'),
 
-            Stat::make('Có Focus Keyword', (string) $focusKeywordFilled)
+            Stat::make('Có từ khóa trọng tâm', (string) $focusKeywordFilled)
                 ->description("{$seoMetaCount} bản ghi SEO tổng")
                 ->descriptionIcon('heroicon-m-hashtag')
                 ->color('primary'),

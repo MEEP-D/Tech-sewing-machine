@@ -118,7 +118,14 @@
 
             <div class="special-product-content">
                 @php
+                    $flashSaleDiscountPercent = $flashSaleItem?->display_discount_percent ?? 0;
                     $detailBadges = collect([
+                        $flashSaleItem
+                            ? [
+                                'label' => 'Flash Sale' . ($flashSaleDiscountPercent > 0 ? ' ' . $flashSaleDiscountPercent . '%' : ''),
+                                'class' => 'is-flash-sale is-blinking',
+                            ]
+                            : null,
                         $product->has_active_promotion
                             ? [
                                 'label' => 'Khuyến mãi',
@@ -377,7 +384,7 @@
                                     <span class="badge-installment"><i class="fas fa-gift" aria-hidden="true"></i> Khuyến mãi</span>
                                 @endif
                                 @if(((int) $relatedProduct->discount_percent) > 0)
-                                    <span class="badge-discount-ribbon">-{{ (int) $relatedProduct->discount_percent }}%</span>
+                                    <span class="badge-discount-ribbon">{{ (int) $relatedProduct->discount_percent }}%</span>
                                 @endif
                             </div>
                             <div class="product-info">

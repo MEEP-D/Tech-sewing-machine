@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Menus\Tables;
 
+use App\Filament\Support\VietnameseAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -22,11 +23,11 @@ class MenusTable
             TextColumn::make('sort_order')->label('Thứ tự')->sortable(),
             IconColumn::make('is_active')->label('Hiển thị')->boolean(),
         ])->recordActions([
-            EditAction::make(),
-            DeleteAction::make(),
+            VietnameseAction::edit(EditAction::make(), 'menu'),
+            VietnameseAction::delete(DeleteAction::make(), 'menu'),
         ])->toolbarActions([
             BulkActionGroup::make([
-                DeleteBulkAction::make(),
+                VietnameseAction::deleteBulk(DeleteBulkAction::make(), 'menu'),
             ]),
         ]);
     }
