@@ -48,7 +48,63 @@ php artisan storage:link
 
 Thu muc web server phai tro document root vao `public/`, khong tro vao root project.
 
-## 4. Queue worker
+## 4. Build asset frontend va admin
+
+Admin Filament dang nap theme tu Vite qua `resources/css/filament/admin/theme.css`.
+Neu production co Node.js/npm, co the build truc tiep tren server. Neu shared hosting khong co `npm`, can build o local/CI va deploy kem thu muc `public/build`.
+
+Truong hop production co `npm`, chay trong root project:
+
+```bash
+npm ci
+npm run build
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Truong hop production khong co `npm`, hay build truoc o local/CI:
+
+```bash
+npm ci
+npm run build
+```
+
+Sau do commit va deploy cac file sau:
+
+```text
+public/build/manifest.json
+public/build/assets/*.css
+public/build/assets/*.js
+```
+
+Tren server chi can chay:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Kiem tra nhanh file CSS admin da duoc tao:
+
+```bash
+php artisan about
+ls -la public/build
+cat public/build/manifest.json
+```
+
+Trong `manifest.json` phai co entry:
+
+```json
+"resources/css/filament/admin/theme.css"
+```
+
+Neu admin production van chua an CSS, hay kiem tra tab Network tren trinh duyet xem file `/build/assets/theme-*.css` co bi 404 hay khong. Neu bi 404, server chua chay `npm run build` hoac document root chua tro vao thu muc `public/`.
+
+## 5. Queue worker
 
 App dang dung `QUEUE_CONNECTION=database`. Cac tac vu can worker:
 
@@ -86,7 +142,7 @@ Tren shared hosting khong co Supervisor, dat cron moi phut:
 * * * * * cd /path/to/project && php artisan queue:work database --stop-when-empty --tries=3 --timeout=120 >> storage/logs/queue-cron.log 2>&1
 ```
 
-## 5. Scheduler
+## 6. Scheduler
 
 Scheduler dang goi `newsletter:dispatch-due` moi phut de dua cac bai viet da den gio publish vao queue newsletter.
 
@@ -98,7 +154,7 @@ Dat cron moi phut:
 
 Neu scheduler khong chay, bai viet publish theo lich se khong tu dong tao newsletter campaign.
 
-## 6. SMTP / Mail
+## 7. SMTP / Mail
 
 Co 2 lop cau hinh mail:
 
@@ -113,7 +169,7 @@ Sau khi dien SMTP trong admin, bam gui email test. Cac truong can co:
 
 Voi Gmail/Google Workspace, dung App Password hoac SMTP relay hop le, khong dung mat khau tai khoan thuong.
 
-## 7. Telescope va Pulse
+## 8. Telescope va Pulse
 
 Production nen tat mac dinh:
 
@@ -124,7 +180,7 @@ PULSE_ENABLED=false
 
 Chi bat tam thoi khi debug, va can bao ve duong dan admin.
 
-## 8. Ben thu ba
+## 9. Ben thu ba
 
 Hien repo co package Cloudinary va S3/Flysystem, nhung upload trong admin dang ghi vao disk `public`.
 
@@ -143,7 +199,7 @@ AWS_USE_PATH_STYLE_ENDPOINT=false
 
 Neu muon dung Cloudinary, can noi lai cac FileUpload/ImageService sang Cloudinary disk hoac uploader rieng. Chi dien `CLOUDINARY_URL` se chua tu dong doi luong upload hien tai.
 
-## 9. Lenh kiem tra nhanh sau deploy
+## 10. Lenh kiem tra nhanh sau deploy
 
 ```bash
 php artisan about
