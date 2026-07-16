@@ -3,14 +3,6 @@
 @section('content')
 @php
     $postCoverImage = $post->thumbnail_url;
-    if (! $postCoverImage) {
-        $postCoverImage = $siteContent['page_news_hero_image'] ?? null;
-        if (is_string($postCoverImage) && $postCoverImage !== '' && !str_starts_with($postCoverImage, 'http://') && !str_starts_with($postCoverImage, 'https://')) {
-            $postCoverImage = str_starts_with($postCoverImage, 'assets/')
-                ? asset($postCoverImage)
-                : \Illuminate\Support\Facades\Storage::disk('public')->url($postCoverImage);
-        }
-    }
 @endphp
 @push('preload_assets')
     @if($postCoverImage)

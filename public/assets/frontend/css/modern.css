@@ -6708,6 +6708,7 @@ body.no-scroll {
 }
 
 .news-detail-content img {
+    display: inline-block;
     max-width: 100%;
     height: auto;
     margin: 1rem 0;
@@ -6723,6 +6724,8 @@ body.no-scroll {
 
 .news-detail-content [style*="text-align:left"],
 .news-detail-content [style*="text-align: left"],
+.news-detail-content [style*="text-align:start"],
+.news-detail-content [style*="text-align: start"],
 .news-detail-content .text-left,
 .news-detail-content .is-left,
 .news-detail-content .image-style-align-left {
@@ -6731,49 +6734,39 @@ body.no-scroll {
 
 .news-detail-content [style*="text-align:right"],
 .news-detail-content [style*="text-align: right"],
+.news-detail-content [style*="text-align:end"],
+.news-detail-content [style*="text-align: end"],
 .news-detail-content .text-right,
 .news-detail-content .is-right,
 .news-detail-content .image-style-align-right {
     text-align: right !important;
 }
 
-.news-detail-content p[style*="text-align:left"] img,
-.news-detail-content p[style*="text-align: left"] img,
-.news-detail-content div[style*="text-align:left"] img,
-.news-detail-content div[style*="text-align: left"] img,
 .news-detail-content figure.image.image-style-align-left img,
 .news-detail-content figure.image-style-align-left img,
 .news-detail-content figure.is-left img,
 .news-detail-content .text-left img {
-    display: inline-block !important;
+    display: block !important;
     float: none !important;
     margin-left: 0 !important;
     margin-right: auto !important;
 }
 
-.news-detail-content p[style*="text-align:right"] img,
-.news-detail-content p[style*="text-align: right"] img,
-.news-detail-content div[style*="text-align:right"] img,
-.news-detail-content div[style*="text-align: right"] img,
 .news-detail-content figure.image.image-style-align-right img,
 .news-detail-content figure.image-style-align-right img,
 .news-detail-content figure.is-right img,
 .news-detail-content .text-right img {
-    display: inline-block !important;
+    display: block !important;
     float: none !important;
     margin-left: auto !important;
     margin-right: 0 !important;
 }
 
-.news-detail-content p[style*="text-align:center"] img,
-.news-detail-content p[style*="text-align: center"] img,
-.news-detail-content div[style*="text-align:center"] img,
-.news-detail-content div[style*="text-align: center"] img,
 .news-detail-content figure.image.image-style-align-center img,
 .news-detail-content figure.image-style-align-center img,
 .news-detail-content figure.is-centered img,
 .news-detail-content .text-center img {
-    display: inline-block !important;
+    display: block !important;
     float: none !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -7010,6 +7003,7 @@ body.no-scroll {
 }
 
 .page-rich-content img {
+    display: inline-block;
     max-width: 100%;
     height: auto;
     margin: 1rem 0;
@@ -7026,7 +7020,10 @@ body.no-scroll {
 
 .page-rich-content [style*="text-align:left"],
 .page-rich-content [style*="text-align: left"],
+.page-rich-content [style*="text-align:start"],
+.page-rich-content [style*="text-align: start"],
 .page-rich-content [data-text-align="left"],
+.page-rich-content [data-text-align="start"],
 .page-rich-content .text-left,
 .page-rich-content .is-left,
 .page-rich-content .image-style-align-left {
@@ -7035,7 +7032,10 @@ body.no-scroll {
 
 .page-rich-content [style*="text-align:right"],
 .page-rich-content [style*="text-align: right"],
+.page-rich-content [style*="text-align:end"],
+.page-rich-content [style*="text-align: end"],
 .page-rich-content [data-text-align="right"],
+.page-rich-content [data-text-align="end"],
 .page-rich-content .text-right,
 .page-rich-content .is-right,
 .page-rich-content .image-style-align-right {
@@ -7048,10 +7048,6 @@ body.no-scroll {
     text-align: justify !important;
 }
 
-.page-rich-content p[style*="text-align:left"] img,
-.page-rich-content p[style*="text-align: left"] img,
-.page-rich-content div[style*="text-align:left"] img,
-.page-rich-content div[style*="text-align: left"] img,
 .page-rich-content figure.image.image-style-align-left img,
 .page-rich-content figure.image-style-align-left img,
 .page-rich-content figure.is-left img,
@@ -7062,10 +7058,6 @@ body.no-scroll {
     margin-right: auto !important;
 }
 
-.page-rich-content p[style*="text-align:right"] img,
-.page-rich-content p[style*="text-align: right"] img,
-.page-rich-content div[style*="text-align:right"] img,
-.page-rich-content div[style*="text-align: right"] img,
 .page-rich-content figure.image.image-style-align-right img,
 .page-rich-content figure.image-style-align-right img,
 .page-rich-content figure.is-right img,
@@ -7076,10 +7068,6 @@ body.no-scroll {
     margin-right: 0 !important;
 }
 
-.page-rich-content p[style*="text-align:center"] img,
-.page-rich-content p[style*="text-align: center"] img,
-.page-rich-content div[style*="text-align:center"] img,
-.page-rich-content div[style*="text-align: center"] img,
 .page-rich-content figure.image.image-style-align-center img,
 .page-rich-content figure.image-style-align-center img,
 .page-rich-content figure.is-centered img,

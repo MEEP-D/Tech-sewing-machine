@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Posts\Schemas;
 
 use App\Filament\Support\AdminFormValidation as V;
+use App\Filament\Support\AdminRichEditor;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -101,32 +102,13 @@ class PostForm
                                     ->maxLength(500)
                                     ->helperText('Hiển thị ở danh sách bài viết và SEO')
                                     ->columnSpanFull(),
-                                RichEditor::make('content')
-                                    ->label('Nội dung chi tiết')
-                                    ->rules(['nullable', 'string', 'max:50000'])
-                                    ->validationMessages(V::messages())
-                                    ->fileAttachmentsDisk('public')
-                                    ->fileAttachmentsDirectory('posts/content')
-                                    ->fileAttachmentsAcceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-                                    ->fileAttachmentsMaxSize(4096)
-                                    ->resizableImages()
-                                    ->toolbarButtons([
-                                        'bold',
-                                        'italic',
-                                        'underline',
-                                        'strike',
-                                        'h2',
-                                        'h3',
-                                        'bulletList',
-                                        'orderedList',
-                                        'link',
-                                        'blockquote',
-                                        'attachFiles',
-                                        'undo',
-                                        'redo',
-                                    ])
-                                    ->helperText('Có thể bấm biểu tượng kẹp ảnh để tải lên hoặc paste ảnh trực tiếp vào khung soạn thảo.')
-                                    ->columnSpanFull(),
+                                AdminRichEditor::configure(
+                                    RichEditor::make('content')
+                                        ->label('Nội dung chi tiết')
+                                        ->rules(V::richContent())
+                                        ->validationMessages(V::messages()),
+                                    'posts/content',
+                                ),
                             ]),
 
                         Tabs\Tab::make('Sự kiện')

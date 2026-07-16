@@ -14,6 +14,11 @@ final class AdminFormValidation
         return ['required', 'string', "max:{$max}"];
     }
 
+    public static function richContent(int $max = 50000): array
+    {
+        return ['nullable', "max:{$max}"];
+    }
+
     public static function slug(): array
     {
         return ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'];

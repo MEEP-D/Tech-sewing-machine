@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Filament\Support\AdminFormValidation as V;
+use App\Filament\Support\AdminRichEditor;
 use App\Models\Product;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -120,7 +121,13 @@ class ProductForm
                         ->validationMessages(V::messages()),
                     Textarea::make('short_description')->label('Mô tả ngắn')->rows(3)->rules(V::text(500))->validationMessages(V::messages())->maxLength(500)->columnSpanFull(),
                     Textarea::make('long_description')->label('Mô tả dài')->rows(4)->rules(V::text(2000))->validationMessages(V::messages())->maxLength(2000)->columnSpanFull(),
-                    RichEditor::make('description')->label('Mô tả chi tiết')->rules(['nullable', 'string', 'max:50000'])->validationMessages(V::messages())->columnSpanFull(),
+                    AdminRichEditor::configure(
+                        RichEditor::make('description')
+                            ->label('Mô tả chi tiết')
+                            ->rules(V::richContent())
+                            ->validationMessages(V::messages()),
+                        'products/content',
+                    ),
                     Section::make('Khuyến mãi theo sản phẩm')
                         ->description('Nhập nội dung quà tặng hoặc ưu đãi sẽ hiển thị khi khách bấm hoặc di chuột vào badge Khuyến mãi.')
                         ->visible(fn (callable $get): bool => (bool) $get('installment_percent'))
@@ -219,24 +226,30 @@ class ProductForm
                                 ->maxLength(160)
                                 ->placeholder('Tìm hiểu về máy làm seo'),
                         ]),
-                        RichEditor::make('overview_content')
-                            ->label('Nội dung đầu mục 1')
-                            ->rules(['nullable', 'string', 'max:50000'])
-                            ->validationMessages(V::messages())
-                            ->columnSpanFull(),
-                        RichEditor::make('seo_content')
-                            ->label('Nội dung đầu mục 2')
-                            ->rules(['nullable', 'string', 'max:50000'])
-                            ->validationMessages(V::messages())
-                            ->columnSpanFull(),
+                        AdminRichEditor::configure(
+                            RichEditor::make('overview_content')
+                                ->label('Nội dung đầu mục 1')
+                                ->rules(V::richContent())
+                                ->validationMessages(V::messages()),
+                            'products/content',
+                        ),
+                        AdminRichEditor::configure(
+                            RichEditor::make('seo_content')
+                                ->label('Nội dung đầu mục 2')
+                                ->rules(V::richContent())
+                                ->validationMessages(V::messages()),
+                            'products/content',
+                        ),
                         Section::make('Hướng dẫn sử dụng')
                             ->description('Dùng cho tab Hướng dẫn sử dụng ở trang chi tiết sản phẩm.')
                             ->schema([
-                                RichEditor::make('usage_guide_content')
-                                    ->label('Nội dung hướng dẫn sử dụng')
-                                    ->rules(['nullable', 'string', 'max:50000'])
-                                    ->validationMessages(V::messages())
-                                    ->columnSpanFull(),
+                                AdminRichEditor::configure(
+                                    RichEditor::make('usage_guide_content')
+                                        ->label('Nội dung hướng dẫn sử dụng')
+                                        ->rules(V::richContent())
+                                        ->validationMessages(V::messages()),
+                                    'products/content',
+                                ),
                                 TextInput::make('usage_guide_video_id')
                                     ->label('Video hướng dẫn (YouTube)')
                                     ->rules(V::text(100))

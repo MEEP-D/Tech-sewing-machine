@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pages\Schemas;
 
 use App\Filament\Support\AdminFormValidation as V;
+use App\Filament\Support\AdminRichEditor;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -92,11 +93,13 @@ class PageForm
                                 ->maxSize(2048)
                                 ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state)[0] ?? null : $state)
                                 ->columnSpanFull(),
-                            RichEditor::make('content')
-                                ->label('Nội dung chi tiết')
-                                ->rules(['nullable', 'string', 'max:50000'])
-                                ->validationMessages(V::messages())
-                                ->columnSpanFull(),
+                            AdminRichEditor::configure(
+                                RichEditor::make('content')
+                                    ->label('Nội dung chi tiết')
+                                    ->rules(V::richContent())
+                                    ->validationMessages(V::messages()),
+                                'pages/content',
+                            ),
                             Textarea::make('style_config')
                                 ->label('Cấu hình style (JSON)')
                                 ->placeholder('{"max_width":"1100px","padding":"24px","background":"#fff","color":"#0f172a"}')
