@@ -50,14 +50,22 @@
             'url' => route('contact'),
         ];
     }
+
+    $footerLatestPostsCollection = collect($footerLatestPosts ?? []);
 @endphp
 
 <footer class="main-footer">
     <div class="container">
         <div class="footer-grid">
             <div class="footer-col">
-                <h4>{{ ($siteContent['footer_about_title'] ?? '') ?: 'Về chúng tôi - TechSewing' }}</h4>
-                <p style="opacity: 0.8; font-size: 0.95rem;">{{ $siteContent['footer_about_text'] ?? '' }}</p>
+                <h4>Bài viết mới nhất</h4>
+                <ul class="footer-links">
+                    @forelse($footerLatestPostsCollection as $footerPost)
+                        <li><a href="{{ route('news.show', data_get($footerPost, 'slug')) }}">{{ data_get($footerPost, 'title') }}</a></li>
+                    @empty
+                        <li>Chưa có bài viết.</li>
+                    @endforelse
+                </ul>
             </div>
             <div class="footer-col">
                 <h4>Sản phẩm chính</h4>

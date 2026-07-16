@@ -43,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
                     'siteContent' => [],
                     'menuCategories' => collect(),
                     'publicPages' => [],
+                    'footerLatestPosts' => collect(),
                     'siteMenus' => [],
                     'siteVisitorStats' => [
                         'online_count' => 0,
@@ -154,6 +155,14 @@ class AppServiceProvider extends ServiceProvider
 
                     if (Schema::hasTable('menus')) {
                         $payload['siteMenus'] = Cache::rememberForever('site_menus_v2', fn () => app(MenuService::class)->grouped());
+                    }
+
+                    if (Schema::hasTable('posts')) {
+                        $payload['footerLatestPosts'] = Post::published()
+                            ->latest('published_at')
+                            ->latest('updated_at')
+                            ->limit(5)
+                            ->get(['id', 'title', 'slug', 'published_at', 'updated_at']);
                     }
 
                     $payload['siteVisitorStats'] = app(SiteVisitorService::class)->stats();
