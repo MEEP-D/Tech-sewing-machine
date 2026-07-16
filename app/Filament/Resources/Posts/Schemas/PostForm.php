@@ -105,6 +105,11 @@ class PostForm
                                     ->label('Nội dung chi tiết')
                                     ->rules(['nullable', 'string', 'max:50000'])
                                     ->validationMessages(V::messages())
+                                    ->fileAttachmentsDisk('public')
+                                    ->fileAttachmentsDirectory('posts/content')
+                                    ->fileAttachmentsAcceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                                    ->fileAttachmentsMaxSize(4096)
+                                    ->resizableImages()
                                     ->toolbarButtons([
                                         'bold',
                                         'italic',
@@ -116,9 +121,11 @@ class PostForm
                                         'orderedList',
                                         'link',
                                         'blockquote',
+                                        'attachFiles',
                                         'undo',
                                         'redo',
                                     ])
+                                    ->helperText('Có thể bấm biểu tượng kẹp ảnh để tải lên hoặc paste ảnh trực tiếp vào khung soạn thảo.')
                                     ->columnSpanFull(),
                             ]),
 
