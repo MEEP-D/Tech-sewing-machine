@@ -38,9 +38,6 @@
                                     @php
                                         $heroImage = $media->url($heroProduct->display_image, ['width' => 520, 'quality' => 76]) ?? $heroProduct->display_image_url;
                                         $heroBadge = $heroProduct->is_new ? 'Mới' : ($heroProduct->is_featured ? 'Nổi bật' : 'Sản phẩm');
-                                        $heroCode = $heroProduct->code ?: ($heroProduct->sku ?: null);
-                                        $heroCategory = optional($heroProduct->category)->name;
-                                        $heroSummary = trim(strip_tags((string) $heroProduct->short_description));
                                     @endphp
                                     <article class="products-hero-card">
                                         <a href="{{ route('products.show', $heroProduct->slug) }}" class="products-hero-card-link" @if($isDuplicateGroup) tabindex="-1" @endif>
@@ -54,18 +51,7 @@
                                             </div>
                                             <div class="products-hero-card-body">
                                                 <div class="products-hero-card-name">{{ \Illuminate\Support\Str::limit($heroProduct->name, 64) }}</div>
-                                                <div class="products-hero-card-price">{{ $heroProduct->formatted_price ?: ($heroProduct->price ?: 'Liên hệ') }}</div>
-                                                <div class="products-hero-card-meta">
-                                                    @if($heroCode)
-                                                        <span>Mã: {{ $heroCode }}</span>
-                                                    @endif
-                                                    @if($heroCategory)
-                                                        <span>{{ $heroCategory }}</span>
-                                                    @endif
-                                                </div>
-                                                @if($heroSummary !== '')
-                                                    <p class="products-hero-card-summary">{{ \Illuminate\Support\Str::limit($heroSummary, 92) }}</p>
-                                                @endif
+                                                <div class="products-hero-card-price">Liên hệ</div>
                                             </div>
                                         </a>
                                     </article>

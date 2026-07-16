@@ -22,7 +22,7 @@
 
 <section class="products-page products-page-full" id="product-catalog">
     <div class="container">
-        <div class="section-header"><h2 class="section-title">Sản phẩm</h2></div>
+        <div class="section-header"><h2 class="section-title products-catalog-title">Sản phẩm</h2></div>
 
         <div class="products-layout">
             @include('front.pages.products._filters')
